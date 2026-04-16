@@ -1,3 +1,8 @@
+import 'package:flutter_task/features/auth/forget/forget_screen.dart';
+import 'package:flutter_task/features/auth/login/log_in_screen.dart';
+import 'package:flutter_task/features/auth/otp/otp_screen.dart';
+import 'package:flutter_task/features/auth/reset_pass/reset_password_screen.dart';
+import 'package:flutter_task/features/auth/sign_up/sign_up_screen.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
@@ -36,7 +41,6 @@ abstract class AppPages {
   AppPages._();
 
   static final List<GetPage> routes = [
-
     GetPage(
       name: AppRoutes.initial,
       page: () => const SplashScreen(),
@@ -46,13 +50,35 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.onboardingScreen,
       page: () => const OnboardingScreen(),
-    //  binding: HomeBinding(),
+      //  binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.loginScreen,
+      page: () => const LoginScreen(),
+      //  binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.signUpScreen,
+      page: () => const SignUpScreen(),
+      //  binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.forgetScreen,
+      page: () => const ForgetScreen(),
+      //  binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.otpScreen,
+      page: () => const OtpScreen(),
+      //  binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.resetScreen,
+      page: () => const ResetPasswordScreen(),
+      //  binding: HomeBinding(),
     ),
 
-
-
-
-   GetPage(
+    GetPage(
       name: AppRoutes.home,
       page: () => const HomePage(),
       binding: HomeBinding(),

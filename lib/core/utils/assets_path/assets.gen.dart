@@ -24,9 +24,15 @@ class $AssetsIconsGen {
   /// File path: assets/icons/app_logo.svg
   SvgGenImage get appLogo => const SvgGenImage('assets/icons/app_logo.svg');
 
+  /// File path: assets/icons/apple.svg
+  SvgGenImage get apple => const SvgGenImage('assets/icons/apple.svg');
+
   /// File path: assets/icons/back_button.svg
   SvgGenImage get backButton =>
       const SvgGenImage('assets/icons/back_button.svg');
+
+  /// File path: assets/icons/google.svg
+  SvgGenImage get google => const SvgGenImage('assets/icons/google.svg');
 
   /// File path: assets/icons/home.svg
   SvgGenImage get home => const SvgGenImage('assets/icons/home.svg');
@@ -59,7 +65,9 @@ class $AssetsIconsGen {
   List<SvgGenImage> get values => [
     about,
     appLogo,
+    apple,
     backButton,
+    google,
     home,
     logo,
     logout,
@@ -102,16 +110,12 @@ class $AssetsLottiesGen {
   LottieGenImage get tradingAnimLine =>
       const LottieGenImage('assets/lotties/Trading Anim Line.json');
 
-  /// File path: assets/lotties/Trading.json
-  LottieGenImage get trading =>
-      const LottieGenImage('assets/lotties/Trading.json');
-
   /// File path: assets/lotties/empty data.json
   LottieGenImage get emptyData =>
       const LottieGenImage('assets/lotties/empty data.json');
 
   /// List of all assets
-  List<LottieGenImage> get values => [tradingAnimLine, trading, emptyData];
+  List<LottieGenImage> get values => [tradingAnimLine, emptyData];
 }
 
 class Assets {

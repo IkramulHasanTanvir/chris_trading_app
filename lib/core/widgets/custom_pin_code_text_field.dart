@@ -19,7 +19,7 @@ class CustomPinCodeTextField extends StatelessWidget {
             (value) {
               if (value == null || value.isEmpty) {
                 return "The code seems invalid. Please try again";
-              } else if (value.length != 4 ||
+              } else if (value.length != 6 ||
                   !RegExp(r'^\d{6}$').hasMatch(value)) {
                 return "Enter a valid 6-digit Code";
               }
@@ -28,28 +28,28 @@ class CustomPinCodeTextField extends StatelessWidget {
         focusNode: focusNode,
 
         controller: textEditingController,
-        length: 4,
+        length: 6,
         separatorBuilder: (index) => SizedBox(width: 14.w),
         defaultPinTheme: PinTheme(
-          width: 40.w,
-          height: 61.h,
-          //textStyle: TextStyle(color: AppColors.darkColor, fontSize: 16.sp),
+          width: 47.w,
+          height: 47.h,
+          textStyle: TextStyle(color: AppColors.white, fontSize: 16.sp),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
           //  color: AppColors.bgColor,
-            borderRadius: BorderRadius.circular(8),
-          //  border: Border.all(color: AppColors.grayShade100),
+            borderRadius: BorderRadius.circular(12.r),
+           border: Border.all(color: AppColors.white),
           ),
         ),
         focusedPinTheme: PinTheme(
-          width: 40.w,
-          height: 61.h,
-         // textStyle: const TextStyle(color: AppColors.darkColor, fontSize: 20),
+          width: 47.w,
+          height: 47.h,
+          textStyle:  TextStyle(color: AppColors.white, fontSize: 20),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
            // color: AppColors.bgColor,
            borderRadius: BorderRadius.circular(8),
-            //border: Border.all(color: AppColors.grayShade100),
+            border: Border.all(color: AppColors.primary),
           ),
         ),
         cursor: Column(

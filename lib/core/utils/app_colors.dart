@@ -85,7 +85,6 @@ class AppColors {
   static const Color red = Colors.red;
 
   // Utility colors
-  static Color grey400 = Colors.grey[400]!;
-  static Color grey600 = Colors.grey[600]!;
+  static Color grey600 = Color(0xff6C7278);
   static Color grey700 = Colors.grey[700]!;
 }
