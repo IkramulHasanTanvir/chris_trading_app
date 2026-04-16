@@ -1,8 +1,8 @@
-import 'package:flutter_task/features/auth/forget/forget_screen.dart';
-import 'package:flutter_task/features/auth/login/log_in_screen.dart';
-import 'package:flutter_task/features/auth/otp/otp_screen.dart';
-import 'package:flutter_task/features/auth/reset_pass/reset_password_screen.dart';
-import 'package:flutter_task/features/auth/sign_up/sign_up_screen.dart';
+import 'package:flutter_task/features/auth/presentation/forget/forget_screen.dart';
+import 'package:flutter_task/features/auth/presentation/login/log_in_screen.dart';
+import 'package:flutter_task/features/auth/presentation/otp/otp_screen.dart';
+import 'package:flutter_task/features/auth/presentation/reset_pass/reset_password_screen.dart';
+import 'package:flutter_task/features/auth/presentation/sign_up/sign_up_screen.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';

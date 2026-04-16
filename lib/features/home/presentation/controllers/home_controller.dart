@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:get/get.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/services/connectivity_service.dart';
@@ -11,7 +12,6 @@ import '../../data/models/restaurant_model.dart';
 import '../../data/repositories/home_repository.dart';
 import '../../domain/services/home_service.dart';
 
-enum LoadingState { initial, loading, loaded, error, offline }
 
 class HomeController extends GetxController {
   final HomeService _homeService;

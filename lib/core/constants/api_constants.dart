@@ -1,5 +1,51 @@
 class ApiConstants {
   static const String baseUrl = 'https://stackfood-admin.6amtech.com';
+
+
+  /// AUTH ──────────────────────────────────────────────
+
+  static const String loginEndpoint = '/api/v1/auth/login';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /// demo
   static const String config = '/api/v1/config';
   static const String banners = '/api/v1/banners';
   static const String categories = '/api/v1/categories';

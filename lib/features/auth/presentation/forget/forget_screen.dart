@@ -14,21 +14,15 @@ class ForgetScreen extends StatefulWidget {
 }
 
 class _ForgetScreenState extends State<ForgetScreen> {
-
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
-
   final TextEditingController _emailController = TextEditingController();
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       paddingSide: 24.w,
-      appBar:  CustomAppBar(),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Form(
           key: _globalKey,
@@ -50,11 +44,10 @@ class _ForgetScreenState extends State<ForgetScreen> {
               ),
               SizedBox(height: 54.h),
 
-                    CustomButton(
-                    label: "Send OTP",
-                    onPressed: _onGetVerificationCode,
-                  ),
-
+              CustomButton(
+                label: "Send OTP",
+                onPressed: _onGetVerificationCode,
+              ),
 
               SizedBox(height: 18.h),
             ],
@@ -64,10 +57,8 @@ class _ForgetScreenState extends State<ForgetScreen> {
     );
   }
 
-
-  void _onGetVerificationCode(){
-    if(_globalKey.currentState!.validate()) return;
-    Get.toNamed(AppRoutes.otpScreen,arguments: 'forgot');
+  void _onGetVerificationCode() {
+    if (_globalKey.currentState!.validate()) return;
+    Get.toNamed(AppRoutes.otpScreen, arguments: 'forgot');
   }
-
 }

@@ -1,19 +1,29 @@
 class AppConstants{
-  static const String bearerToken = "bearerToken";
-  static const String isEmailVerified = "isEmailVerified";
-  static const String profilePicture = "profilePicture";
-  static const String completed = "completed";
-  static const String email = "email";
-  static const String phone = "phone";
-  static const String name = "name";
-  static const String image = "image";
-  static const String role = "role";
-  static const String userId = "userId";
-  static const String userActive = "userActive";
-  static const String bio = "bio";
-  static const String isLogged = "isLogged";
-  static const String managerType = "managerType";
-  static const String fcmToken = "fcmToken";
+  AppConstants._();
+  static const String cacheAccessToken = "cacheAccessToken";
+  static const String cacheRefreshToken = "cacheRefreshToken";
+  static const String cacheUserRole = "cacheUserRole";
+  static const String cacheUser = "cacheUser";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   static RegExp emailValidate = RegExp(
