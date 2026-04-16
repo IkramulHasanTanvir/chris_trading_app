@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/routes/app_pages.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/utils/app_colors.dart';
@@ -16,31 +18,21 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return GetMaterialApp(
-          title: 'StackFood',
+          title: 'Trading',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.green,
             scaffoldBackgroundColor: AppColors.background,
-            textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              iconTheme: const IconThemeData(color: Colors.black87),
-              titleTextStyle: GoogleFonts.roboto(
-                color: Colors.black87,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
           ),
-          // Bindings are handled by DependencyInjection.init() in main.dart
+          getPages: AppPages.routes,
+          initialRoute: AppRoutes.initial,
           initialBinding: BindingsBuilder(() {
             // Controllers are already lazy loaded via DI
           }),
           home: child,
         );
       },
-      child: const HomePage(),
+      //child: const HomePage(),
     );
   }
 }

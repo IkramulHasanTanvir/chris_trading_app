@@ -25,6 +25,10 @@ dependencies:
   path_provider: ^2.1.4
   google_fonts: ^6.2.1
   shared_preferences: ^2.3.2
+  flutter_svg: ^2.0.16
+  lottie: ^3.2.0
+  pinput: ^6.0.2
+  image_picker: ^1.2.1
 
 
 dev_dependencies:
@@ -32,6 +36,35 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  flutter_gen_runner: ^5.7.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_gen:
+  output: lib/core/utils/assets_path/
+  line_length: 80
+  integrations:
+    flutter_svg: true
+    lottie: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/app_logo.png"
 
 flutter:
   uses-material-design: true
+
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/lotties/
+
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins.ttf

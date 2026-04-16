@@ -24,6 +24,7 @@ abstract class AppRoutes {
   AppRoutes._();
 
   static const String initial = '/';
+  static const String onboardingScreen = '/onboarding';
   static const String home = '/home';
 
   // ─── Add your routes below ───────────────────────────────────────────────
