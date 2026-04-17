@@ -1,39 +1,52 @@
-import 'package:flutter_task/core/exceptions/app_exceptions.dart';
-import 'package:flutter_task/core/services/connectivity_service.dart';
 import 'package:flutter_task/features/auth/data/models/login_response_model.dart';
 import 'package:flutter_task/features/auth/data/models/user_response_model.dart';
 import 'package:flutter_task/features/auth/data/repositories/auth_repository.dart';
 
 class AuthService {
   final AuthRepository _repository;
-  final ConnectivityService _connectivityService;
 
-  AuthService({
-    required AuthRepository repository,
-    required ConnectivityService connectivityService,
-  }) : _repository = repository,
-       _connectivityService = connectivityService;
+  AuthService({required AuthRepository repository})
+      : _repository = repository;
 
-  Future<void> _checkConnectivity() async {
-    final isConnected = await _connectivityService.checkConnectivity();
-    if (!isConnected) throw NoInternetException();
-  }
-
+  /// ─── LOGIN ─────────────────────────────
   Future<LoginResponseModel> login({
     required String email,
     required String password,
   }) async {
-    await _checkConnectivity();
-    return await _repository.login(email: email, password: password);
+
+    final response = await _repository.login(
+      email: email,
+      password: password,
+    );
+
+    return response;
   }
 
-  Future<void> logout() async {
-    await _repository.logout();
+  /// ─── REGISTER ──────────────────────────
+  Future<UserResponseModel> register({
+    required String name,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+
+    return await _repository.register(
+      name: name,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword,
+    );
   }
 
+  /// ─── FORGOT PASSWORD ───────────────────
+  Future<bool> forgotPassword(String email) async {
+    return await _repository.forgotPassword(email: email);
+  }
+
+  /// ─── SESSION ───────────────────────────
   bool isLoggedIn() => _repository.isLoggedIn();
 
-  String? getAccessToken() => _repository.getAccessToken();
+  String? getToken() => _repository.getAccessToken();
 
-  UserResponseModel? getCachedUser() => _repository.getCachedUser();
+  Future<void> logout() => _repository.logout();
 }

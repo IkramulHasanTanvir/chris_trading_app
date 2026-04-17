@@ -4,7 +4,9 @@ class ApiConstants {
 
   /// AUTH ──────────────────────────────────────────────
 
-  static const String loginEndpoint = '/api/v1/auth/login';
+  static const String login = '/api/v1/auth/login';
+  static const String register = '/api/v1/auth/register';
+  static const String forgot = '/api/v1/auth/forgot-password';
 
 
 

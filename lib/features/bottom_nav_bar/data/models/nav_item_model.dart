@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
-import 'package:flutter_task/features/auth/presentation/login/log_in_screen.dart';
+import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
 
 class NavItemModel {
   final String icon;

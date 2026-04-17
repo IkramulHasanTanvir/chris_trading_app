@@ -8,21 +8,19 @@ class AuthController extends GetxController {
   final AuthService _authService;
 
   AuthController({required AuthService authService})
-    : _authService = authService;
+      : _authService = authService;
 
-  // State management
+  /// ─── STATE ─────────────────────────────
   LoadingState _loginState = LoadingState.initial;
   LoadingState get loginState => _loginState;
-
 
   String _loginError = '';
   String get loginError => _loginError;
 
-  // ─── Form Controllers ─────────────────────────────
+  /// ─── FORM ──────────────────────────────
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final globalKey = GlobalKey<FormState>();
-
 
   bool obscurePassword = true;
 
@@ -31,24 +29,34 @@ class AuthController extends GetxController {
     update();
   }
 
+  /// ─── LOGIN FUNCTION ────────────────────
   Future<void> login() async {
+    if (!globalKey.currentState!.validate()) return;
+
     _loginState = LoadingState.loading;
+    _loginError = '';
     update();
 
     try {
       await _authService.login(
         email: emailController.text.trim(),
-        password: passwordController.text,
+        password: passwordController.text.trim(),
       );
-      Get.toNamed(AppRoutes.otpScreen, arguments: 'signup');
+
+      _loginState = LoadingState.loaded;
+      update();
+
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
-      _loginError = e.toString();
       _loginState = LoadingState.error;
+      _loginError = e.toString();
       update();
     }
   }
 
-  void logout() async {
+
+  /// ─── LOGOUT ───────────────────────────
+  Future<void> logout() async {
     await _authService.logout();
     Get.offAllNamed(AppRoutes.loginScreen);
   }

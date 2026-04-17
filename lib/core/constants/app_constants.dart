@@ -1,7 +1,7 @@
 class AppConstants{
   AppConstants._();
-  static const String cacheAccessToken = "cacheAccessToken";
-  static const String cacheRefreshToken = "cacheRefreshToken";
+  static const String accessToken = "accessToken";
+  static const String refreshToken = "refreshToken";
   static const String cacheUserRole = "cacheUserRole";
   static const String cacheUser = "cacheUser";
 

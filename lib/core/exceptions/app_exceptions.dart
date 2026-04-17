@@ -1,3 +1,5 @@
+import 'package:flutter_task/core/enums/loading_state.dart';
+
 /// Base exception class for all application exceptions.
 ///
 /// All custom exceptions in the app should extend this class to provide
@@ -197,3 +199,13 @@ class UnknownException extends AppException {
   UnknownException([String? details])
       : super('An unknown error occurred', details);
 }
+
+
+
+extension LoadingStateX on LoadingState {
+  bool get isLoading => this == LoadingState.loading;
+  bool get isError => this == LoadingState.error;
+  bool get isLoaded => this == LoadingState.loaded;
+  bool get isInitial => this == LoadingState.initial;
+}
+

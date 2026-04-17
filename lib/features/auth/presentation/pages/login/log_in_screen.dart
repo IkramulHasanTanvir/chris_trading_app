@@ -1,32 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
 import 'package:flutter_task/features/auth/presentation/widgets/app_logo.dart';
 import 'package:get/get.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  @override
   Widget build(BuildContext context) {
+    final AuthController controller = Get.find<AuthController>();
+
     return CustomScaffold(
       paddingSide: 24.w,
       body: SingleChildScrollView(
         child: Form(
-          key: _globalKey,
+          key: controller.globalKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -43,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20.h),
               CustomTextField(
-                controller: _emailController,
+                controller: controller.emailController,
                 hintText: "Enter your email",
                 keyboardType: TextInputType.emailAddress,
                 isEmail: true,
@@ -51,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: 10.h),
               CustomTextField(
-                controller: _passwordController,
+                controller: controller.passwordController,
                 hintText: "Password",
                 isPassword: true,
               ),
@@ -69,7 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
               SizedBox(height: 24.h),
 
-              CustomButton(label: "Log in", onPressed: _onSingUp),
+              GetBuilder<AuthController>(
+                builder: (controller) {
+                  return CustomButton(
+                    isLoading: controller.loginState.isLoading,
+                      label: "Log in", onPressed: controller.login);
+                }
+              ),
 
               SizedBox(height: 18.h),
 
@@ -153,9 +153,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onSingUp() {
-    if (_globalKey.currentState!.validate()) return;
-    Get.toNamed(AppRoutes.otpScreen, arguments: 'signup');
-    //Get.offAllNamed(AppRoutes.bottomNavUserBar);
-  }
+
 }

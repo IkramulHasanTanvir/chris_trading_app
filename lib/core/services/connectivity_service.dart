@@ -1,13 +1,14 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
 
-  /// Stream of internet status (true = connected)
   Stream<bool> get connectivityStream =>
       _connectivity.onConnectivityChanged.map(_isConnected);
 
-  /// One-time check
   Future<bool> checkConnectivity() async {
     final result = await _connectivity.checkConnectivity();
     return _isConnected(result);
@@ -20,5 +21,51 @@ class ConnectivityService {
           r == ConnectivityResult.wifi ||
           r == ConnectivityResult.ethernet,
     );
+  }
+
+  void listenAndNotify() {
+    connectivityStream.listen((isOnline) {
+      if (!isOnline) {
+        Get.snackbar(
+          'No Internet',
+          'Please check your connection',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(days: 1),
+          isDismissible: false,
+          icon: const Icon(Icons.wifi_off, color: Colors.white),
+        );
+      } else {
+        Get.closeAllSnackbars();
+      }
+    });
+  }
+}
+
+class ConnectivityInterceptor extends Interceptor {
+  final ConnectivityService connectivityService;
+
+  ConnectivityInterceptor(this.connectivityService);
+
+  @override
+  void onRequest(
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
+    final isConnected = await connectivityService.checkConnectivity();
+
+    if (!isConnected) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.connectionError,
+          error: 'No Internet Connection',
+        ),
+      );
+      return;
+    }
+
+    handler.next(options);
   }
 }

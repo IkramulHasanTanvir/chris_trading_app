@@ -1,13 +1,13 @@
-import 'package:flutter_task/features/auth/presentation/forget/forget_screen.dart';
-import 'package:flutter_task/features/auth/presentation/login/log_in_screen.dart';
-import 'package:flutter_task/features/auth/presentation/otp/otp_screen.dart';
-import 'package:flutter_task/features/auth/presentation/reset_pass/reset_password_screen.dart';
-import 'package:flutter_task/features/auth/presentation/sign_up/sign_up_screen.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
+import 'package:flutter_task/features/auth/presentation/pages/forget/forget_screen.dart';
+import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
+import 'package:flutter_task/features/auth/presentation/pages/otp/otp_screen.dart';
+import 'package:flutter_task/features/auth/presentation/pages/reset_pass/reset_password_screen.dart';
+import 'package:flutter_task/features/auth/presentation/pages/sign_up/sign_up_screen.dart';
+import 'package:flutter_task/features/home/presentation/home_page.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
-import '../../features/home/presentation/home_page.dart';
-import 'app_routes.dart';
 
 /// All application routes mapped to their pages and bindings.
 ///

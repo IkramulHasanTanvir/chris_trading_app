@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
-import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/auth/presentation/widgets/app_logo.dart';
 import 'package:get/get.dart';
-import '../widgets/app_logo.dart';
 
 class ForgetScreen extends StatefulWidget {
   const ForgetScreen({super.key});

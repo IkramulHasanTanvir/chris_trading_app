@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_task/core/services/connectivity_service.dart';
 import '../constants/api_constants.dart';
 import '../exceptions/app_exceptions.dart';
 
@@ -7,11 +8,11 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   late Dio _dio;
 
-  factory ApiService() {
-    return _instance;
-  }
+  factory ApiService() => _instance;
 
-  ApiService._internal() {
+  ApiService._internal();
+
+  void init(ConnectivityService connectivityService) {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
@@ -21,11 +22,11 @@ class ApiService {
       ),
     );
 
-    // Add interceptors for logging (only in debug mode)
+    _dio.interceptors.add(ConnectivityInterceptor(connectivityService));
+
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Request logging
           assert(() {
             if (kDebugMode) {
               print('REQUEST[${options.method}] => PATH: ${options.path}');
@@ -35,7 +36,6 @@ class ApiService {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          // Response logging
           assert(() {
             if (kDebugMode) {
               print(
@@ -47,7 +47,6 @@ class ApiService {
           return handler.next(response);
         },
         onError: (error, handler) {
-          // Error logging
           assert(() {
             if (kDebugMode) {
               print(
