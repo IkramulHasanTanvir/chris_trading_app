@@ -2,7 +2,6 @@ export 'auth_title_widgets.dart';
 export 'custom_app_bar.dart';
 export 'custom_button.dart';
 export 'custom_container.dart';
-export 'custom_delete_or_success_dialog.dart';
 export 'custom_dialog.dart';
 export 'custom_loader.dart';
 export 'custom_network_image.dart';
