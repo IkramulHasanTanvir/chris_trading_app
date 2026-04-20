@@ -29,27 +29,27 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.loginScreen,
       page: () => const LoginScreen(),
-      //  binding: HomeBinding(),
+     //  binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.signUpScreen,
       page: () => const SignUpScreen(),
-      //  binding: HomeBinding(),
+    //  binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.forgetScreen,
       page: () => const ForgetScreen(),
-      //  binding: HomeBinding(),
+      //binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.otpScreen,
       page: () => const OtpScreen(),
-      //  binding: HomeBinding(),
+      //binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.resetScreen,
       page: () => const ResetPasswordScreen(),
-      //  binding: HomeBinding(),
+    //  binding: AuthBinding(),
     ),
 
     GetPage(
@@ -80,24 +80,3 @@ class HomeBinding extends Bindings {
     // );
   }
 }
-
-// ─── Binding Templates ──────────────────────────────────────────────────────
-// Copy this template when adding a new feature binding:
-//
-// class ProfileBinding extends Bindings {
-//   @override
-//   void dependencies() {
-//     Get.lazyPut<ProfileRepository>(
-//       () => ProfileRepository(
-//         apiService: Get.find<ApiService>(),
-//         cacheService: Get.find<CacheService>(),
-//       ),
-//     );
-//     Get.lazyPut<ProfileService>(
-//       () => ProfileService(repository: Get.find<ProfileRepository>()),
-//     );
-//     Get.lazyPut<ProfileController>(
-//       () => ProfileController(service: Get.find<ProfileService>()),
-//     );
-//   }
-// }

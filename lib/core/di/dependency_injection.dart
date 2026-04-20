@@ -1,3 +1,7 @@
+import 'package:flutter_task/features/auth/data/repositories/auth_repository.dart';
+import 'package:flutter_task/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_task/features/auth/domain/services/auth_services.dart';
+import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
 import 'package:get/get.dart';
 import '../services/api_service.dart';
 import '../services/cache_service.dart';
@@ -35,6 +39,25 @@ class DependencyInjection {
       await storage.init();
       return storage;
     });
+
+    // ✅ Auth — permanent
+    Get.put<AuthRepository>(
+      AuthRepositoryImpl(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      permanent: true,
+    );
+
+    Get.put<AuthService>(
+      AuthService(repository: Get.find<AuthRepository>()),
+      permanent: true,
+    );
+
+    Get.put<AuthController>(
+      AuthController(authService: Get.find<AuthService>()),
+      permanent: true,
+    );
   }
 
   // ─────────────────────────────
