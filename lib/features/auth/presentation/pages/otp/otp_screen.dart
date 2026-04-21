@@ -1,29 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
 import 'package:flutter_task/features/auth/presentation/widgets/app_logo.dart';
 import 'package:get/get.dart';
 
-class OtpScreen extends StatefulWidget {
+class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key});
 
   @override
-  State<OtpScreen> createState() => _OtpScreenState();
-}
-
-class _OtpScreenState extends State<OtpScreen> {
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-
-  final String role = Get.arguments as String;
-
-  final TextEditingController _otpController = TextEditingController();
-
-
-
-
-  @override
   Widget build(BuildContext context) {
+    final AuthController controller = Get.find<AuthController>();
     return CustomScaffold(
       appBar: CustomAppBar(),
       body: SingleChildScrollView(
@@ -39,18 +28,23 @@ class _OtpScreenState extends State<OtpScreen> {
 
             ///==============Pin code Field============<>>>>
             Form(
-              key: _globalKey,
+              key: controller.otpFormKey,
               child: CustomPinCodeTextField(
-                textEditingController: _otpController,
+                textEditingController: controller.otpController,
               ),
             ),
 
             SizedBox(height: 56.h),
 
-                  CustomButton(
-                      label: "Verify",
-                      onPressed: _onTapNextScreen,
-                    ),
+                  GetBuilder<AuthController>(
+                    builder: (controller) {
+                      return CustomButton(
+                        isLoading: controller.otpState.isLoading,
+                          label: "Verify",
+                          onPressed: () => _onTapNextScreen(controller),
+                        );
+                    }
+                  ),
             SizedBox(height: 18.h),
           ],
         ),
@@ -58,14 +52,14 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 
-  void _onTapNextScreen() async {
-    if (!_globalKey.currentState!.validate()) return;
+  void _onTapNextScreen(AuthController controller) async {
+    final String role = Get.arguments as String;
+
+    if (!await controller.otp()) return;
     if(role == 'forgot'){
       Get.toNamed(AppRoutes.resetScreen);
     }else{
       Get.toNamed(AppRoutes.bottomNavUserBar);
     }
   }
-
-
 }

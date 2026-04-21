@@ -5,19 +5,14 @@ import 'package:flutter_task/features/auth/data/repositories/auth_repository.dar
 class AuthService {
   final AuthRepository _repository;
 
-  AuthService({required AuthRepository repository})
-      : _repository = repository;
+  AuthService({required AuthRepository repository}) : _repository = repository;
 
   /// ─── LOGIN ─────────────────────────────
   Future<LoginResponseModel> login({
     required String email,
     required String password,
   }) async {
-
-    final response = await _repository.login(
-      email: email,
-      password: password,
-    );
+    final response = await _repository.login(email: email, password: password);
 
     return response;
   }
@@ -29,7 +24,6 @@ class AuthService {
     required String password,
     required String confirmPassword,
   }) async {
-
     return await _repository.register(
       name: name,
       email: email,
@@ -39,8 +33,28 @@ class AuthService {
   }
 
   /// ─── FORGOT PASSWORD ───────────────────
-  Future<bool> forgotPassword(String email) async {
+  Future<void> forgotPassword(String email) async {
     return await _repository.forgotPassword(email: email);
+  }
+
+  /// ─── OTP VERIFY ───────────────────
+  Future<bool> otpVerify({required String email, required String otp}) async {
+    return await _repository.otpVerify(email: email, otp: otp);
+  }
+
+  /// ─── OTP VERIFY ───────────────────
+  Future<void> resetPassword({
+    required String otp,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    return await _repository.resetPassword(
+      email: email,
+      otp: otp,
+      password: password,
+      confirmPassword: confirmPassword,
+    );
   }
 
   /// ─── SESSION ───────────────────────────

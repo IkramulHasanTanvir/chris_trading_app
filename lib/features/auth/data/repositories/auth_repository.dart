@@ -2,8 +2,6 @@ import 'package:flutter_task/features/auth/data/models/login_response_model.dart
 import 'package:flutter_task/features/auth/data/models/user_response_model.dart';
 
 abstract class AuthRepository {
-
-
   Future<LoginResponseModel> login({
     required String email,
     required String password,
@@ -16,17 +14,16 @@ abstract class AuthRepository {
     required String confirmPassword,
   });
 
-  Future<bool> forgotPassword({required String email});
+  Future<void> forgotPassword({required String email});
 
-  Future<void> otpVerify({required String otp});
+  Future<bool> otpVerify({required String otp, required String email});
 
-  Future<void> resetPassword({required String password});
-
-
-
-
-
-
+  Future<void> resetPassword({
+    required String otp,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  });
 
   /// ─── CACHE GETTERS ───────────────────────────────
   bool isLoggedIn();

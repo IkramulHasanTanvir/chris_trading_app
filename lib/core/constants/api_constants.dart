@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'https://stackfood-admin.6amtech.com';
+  static const String baseUrl = 'https://reaz5000.syedbipul.me';
 
 
   /// AUTH ──────────────────────────────────────────────
@@ -7,6 +7,8 @@ class ApiConstants {
   static const String login = '/api/v1/auth/login';
   static const String register = '/api/v1/auth/register';
   static const String forgot = '/api/v1/auth/forgot-password';
+  static const String otpVerify = '/api/v1/auth/verify-email';
+  static const String resetPassword = '/api/v1/auth/reset-password';
 
 
 

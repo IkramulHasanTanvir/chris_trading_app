@@ -76,40 +76,64 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-
   @override
   Future<bool> forgotPassword({required String email}) async {
-   try{
-     final response = _apiService.post(
-       ApiConstants.forgot,
-       data: {'email': email},
-     );
-     await response;
-     return true;
-   } on AppException {
+    try {
+      final response = _apiService.post(
+        ApiConstants.forgot,
+        data: {'email': email},
+      );
+      await response;
+      return true;
+    } on AppException {
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
     }
   }
 
-
-
   @override
-  Future<void> otpVerify({required String otp}) {
-    // TODO: implement otpVerify
-    throw UnimplementedError();
+  Future<bool> otpVerify({required String otp, required String email}) async {
+    try {
+      await _apiService.post(
+        ApiConstants.otpVerify,
+        data: {'email': email, 'verificationCode': otp},
+      );
+      return true;
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 
   @override
-  Future<void> resetPassword({required String password}) {
-    // TODO: implement resetPassword
-    throw UnimplementedError();
+  Future<void> resetPassword({
+    required String otp,
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _apiService.post(
+        ApiConstants.resetPassword,
+        data: {
+          "email": email,
+          "verificationCode": otp,
+          "newPassword": password,
+          "confirmPassword": confirmPassword,
+        },
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 
   @override
   String? getAccessToken() {
-   return _cacheService.get<String>(AppConstants.accessToken);
+    return _cacheService.get<String>(AppConstants.accessToken);
   }
 
   @override
@@ -130,7 +154,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   String? getRefreshToken() {
-  return _cacheService.get<String>(AppConstants.refreshToken);
+    return _cacheService.get<String>(AppConstants.refreshToken);
   }
 
   @override
@@ -140,8 +164,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() {
-   return _cacheService.clear();
+    return _cacheService.clear();
   }
-
-
 }

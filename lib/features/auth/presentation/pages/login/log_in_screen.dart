@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_task/core/exceptions/app_exceptions.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
@@ -20,7 +20,7 @@ class LoginScreen extends StatelessWidget {
       paddingSide: 24.w,
       body: SingleChildScrollView(
         child: Form(
-          key: controller.globalKey,
+          key: controller.loginFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -63,6 +63,9 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 24.h),
 
+
+
+
               GetBuilder<AuthController>(
                 builder: (controller) {
                   return CustomButton(
@@ -72,6 +75,10 @@ class LoginScreen extends StatelessWidget {
               ),
 
               SizedBox(height: 18.h),
+
+
+
+
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

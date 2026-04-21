@@ -1,34 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
 import 'package:flutter_task/features/auth/presentation/widgets/app_logo.dart';
+import 'package:get/get.dart';
 
-class ResetPasswordScreen extends StatefulWidget {
+class ResetPasswordScreen extends StatelessWidget {
   const ResetPasswordScreen({super.key});
-
-
-  @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
-}
-
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-
-  final TextEditingController _resetPasswordController = TextEditingController();
-  final TextEditingController _newResetPasswordController = TextEditingController();
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
+    final AuthController controller = Get.find<AuthController>();
     return CustomScaffold(
-      appBar:  CustomAppBar(),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Form(
-          key: _globalKey,
+          key: controller.resetFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -39,46 +27,37 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 subtitle: 'Enter your new password',
               ),
 
-
               SizedBox(height: 40.h),
               CustomTextField(
-                controller: _resetPasswordController,
+                controller: controller.passwordController,
                 hintText: "New Password",
                 isPassword: true,
-
               ),
-        
-        
-        
+
               SizedBox(height: 16.h),
-        
+
               CustomTextField(
-                controller: _newResetPasswordController,
+                controller: controller.confirmPasswordController,
                 hintText: "Confirm Password",
                 isPassword: true,
-        
               ),
-        
-        
+
               SizedBox(height: 36.h),
 
-              CustomButton(
-                label: "Reset",
-                onPressed: _onResetPassword,
+              GetBuilder<AuthController>(
+                builder: (controller) {
+                  return CustomButton(
+                    label: "Reset",
+                    isLoading: controller.resetState.isLoading,
+                    onPressed: controller.resetPassword,
+                  );
+                },
               ),
               SizedBox(height: 44.h),
-        
             ],
           ),
         ),
       ),
     );
   }
-
-
-
-  void _onResetPassword(){
-    if(_globalKey.currentState!.validate()) return;
-  }
-
 }
