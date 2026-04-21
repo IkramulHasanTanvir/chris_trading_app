@@ -10,6 +10,9 @@ import 'package:get/get.dart';
 class AuthController extends GetxController {
   final AuthService _authService;
 
+  static AuthController get to => Get.find();
+
+
   AuthController({required AuthService authService})
     : _authService = authService;
 
@@ -59,7 +62,7 @@ class AuthController extends GetxController {
       );
       _loginState = LoadingState.loaded;
       update();
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(AppRoutes.bottomNavUserBar);
     } catch (e) {
       _loginState = LoadingState.error;
       update();

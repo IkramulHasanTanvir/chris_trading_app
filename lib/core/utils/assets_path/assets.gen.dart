@@ -21,6 +21,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/about.svg
   SvgGenImage get about => const SvgGenImage('assets/icons/about.svg');
 
+  /// File path: assets/icons/add.svg
+  SvgGenImage get add => const SvgGenImage('assets/icons/add.svg');
+
   /// File path: assets/icons/app_logo.svg
   SvgGenImage get appLogo => const SvgGenImage('assets/icons/app_logo.svg');
 
@@ -31,11 +34,17 @@ class $AssetsIconsGen {
   SvgGenImage get backButton =>
       const SvgGenImage('assets/icons/back_button.svg');
 
+  /// File path: assets/icons/fire.svg
+  SvgGenImage get fire => const SvgGenImage('assets/icons/fire.svg');
+
   /// File path: assets/icons/google.svg
   SvgGenImage get google => const SvgGenImage('assets/icons/google.svg');
 
   /// File path: assets/icons/home.svg
   SvgGenImage get home => const SvgGenImage('assets/icons/home.svg');
+
+  /// File path: assets/icons/line.svg
+  SvgGenImage get line => const SvgGenImage('assets/icons/line.svg');
 
   /// File path: assets/icons/logo.svg
   SvgGenImage get logo => const SvgGenImage('assets/icons/logo.svg');
@@ -64,11 +73,14 @@ class $AssetsIconsGen {
   /// List of all assets
   List<SvgGenImage> get values => [
     about,
+    add,
     appLogo,
     apple,
     backButton,
+    fire,
     google,
     home,
+    line,
     logo,
     logout,
     noti,

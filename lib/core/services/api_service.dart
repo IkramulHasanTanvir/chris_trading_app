@@ -28,38 +28,47 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           if (kDebugMode) {
-            print('REQUEST[${options.method}] => PATH: ${options.path}');
-            if (options.data != null) {
-              print('REQUEST BODY: ${options.data}');
+            final sep = '─' * 50;
+            debugPrint('\n🔵 ──── REQUEST ────────────────────────────────────');
+            debugPrint('   METHOD : ${options.method}');
+            debugPrint('   PATH   : ${options.path}');
+            if (options.headers.isNotEmpty) {
+              debugPrint('   HEADERS: ${options.headers}');
             }
             if (options.queryParameters.isNotEmpty) {
-              print('QUERY PARAMS: ${options.queryParameters}');
+              debugPrint('   PARAMS : ${options.queryParameters}');
             }
-            if (options.headers.isNotEmpty) {
-              print('HEADERS: ${options.headers}');
+            if (options.data != null) {
+              debugPrint('   BODY   : ${options.data}');
             }
+            debugPrint('$sep\n');
           }
           return handler.next(options);
         },
         onResponse: (response, handler) {
           if (kDebugMode) {
-            print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
-            // ✅ Response body
-            print('RESPONSE BODY: ${response.data}');
+            final sep = '─' * 50;
+            debugPrint('\n🟢 ──── RESPONSE ───────────────────────────────────');
+            debugPrint('   STATUS : ${response.statusCode}');
+            debugPrint('   PATH   : ${response.requestOptions.path}');
+            debugPrint('   BODY   : ${response.data}');
+            debugPrint('$sep\n');
           }
           return handler.next(response);
         },
         onError: (error, handler) {
           if (kDebugMode) {
-            print('ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
-            // ✅ Error body + sent data
-            print('ERROR BODY: ${error.response?.data}');
-            print('SENT DATA: ${error.requestOptions.data}');
+            final sep = '─' * 50;
+            debugPrint('\n🔴 ──── ERROR ──────────────────────────────────────');
+            debugPrint('   STATUS    : ${error.response?.statusCode}');
+            debugPrint('   PATH      : ${error.requestOptions.path}');
+            debugPrint('   ERROR BODY: ${error.response?.data}');
+            debugPrint('   SENT DATA : ${error.requestOptions.data}');
+            debugPrint('$sep\n');
           }
           return handler.next(error);
         },
-      ),
-    );
+      ),    );
   }
 
   Dio get dio => _dio;

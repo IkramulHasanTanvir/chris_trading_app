@@ -30,7 +30,7 @@ abstract class AppRoutes {
   static const String forgetScreen = '/auth/forget';
   static const String otpScreen = '/auth/otp';
   static const String resetScreen = '/auth/reset';
-  static const String bottomNavUserBar = '/home';
+  static const String bottomNavUserBar = '/bottomNavUserBar';
   static const String home = '/home';
 
   // ─── Add your routes below ───────────────────────────────────────────────

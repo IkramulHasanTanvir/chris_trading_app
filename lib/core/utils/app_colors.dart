@@ -45,12 +45,13 @@ class AppColors {
 
   // Background colors
   static const Color background = Color(0xFF191932);
+  static const Color navBackground = Color(0xFF191826);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color white = Colors.white;
 
   // Text colors
   static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color textSecondary = Color(0xFF787878);
   static const Color textHint = Color(0xFFBDBDBD);
 
   // Custom text colors from design

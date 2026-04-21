@@ -17,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _goNextScreen()async {
     Future.delayed(const Duration(seconds: 2), () async {
+
         Get.offNamed(AppRoutes.onboardingScreen);
 
     });

@@ -11,12 +11,18 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 20.h),
-      child: CustomContainer(
-        radiusAll: 100.r,
-        paddingVertical: 10.h,
-        color: AppColors.primary,
+    return CustomContainer(
+      paddingBottom: 16.h,
+      color: AppColors.navBackground,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.25),
+          blurRadius: 12,
+          offset: const Offset(0, -2),
+        )
+      ],
+      child: SafeArea(
+        top: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(

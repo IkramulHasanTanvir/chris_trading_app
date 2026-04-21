@@ -15,24 +15,36 @@ class NavItemModel {
     required this.screen,
   });
 
-  static List<NavItemModel> get userNavItems => _navItems;
 
 
 
 
-
-  // ─── Bottom Nav Items ──────────────────────────────────────────────────────
-  static final List<NavItemModel> _navItems = [
+  static List<NavItemModel> get userNavItems => [
     NavItemModel(
       icon: Assets.icons.home.path,
-      screen: const LoginScreen(),
+      label: 'Home',
+      screen: const Text(''),
+    ),
+
+    NavItemModel(
+      icon: Assets.icons.fire.path,
+      label: 'Trending',
+      screen: const Text(''),
     ),
     NavItemModel(
-      icon: Assets.icons.home.path,
-      screen: const LoginScreen(),
+      icon: Assets.icons.add.path,
+      label: 'Top Up',
+      screen: const Center(),
     ),
+    NavItemModel(
+      icon: Assets.icons.line.path,
+      label: 'Pasar',
+      screen: const Center(),
+    ),
+
     NavItemModel(
       icon: Assets.icons.profile.path,
+      label: 'Profile',
       screen: const LoginScreen(),
     ),
   ];
