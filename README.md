@@ -988,7 +988,7 @@ This template uses **GetX named routing**, which gives you URL-like navigation, 
 // lib/core/routes/app_routes.dart
 abstract class AppRoutes {
   static const String initial = '/';
-  static const String home    = '/home';
+  static const String home    = '/home_demo';
 
   // Add your routes here:
   // static const String login    = '/login';
@@ -1060,7 +1060,7 @@ import 'core/routes/app_routes.dart';
 import 'core/routes/app_pages.dart';
 
 // Replace:
-//   home: child,
+//   home_demo: child,
 // With:
   initialRoute: AppRoutes.home,
   getPages: AppPages.routes,
@@ -1354,7 +1354,7 @@ if (loadedRestaurants.length < response.totalSize!) {
 ### Creating a New Model (Step-by-Step)
 
 ```dart
-// 1. Create the file: lib/features/home/data/models/review_model.dart
+// 1. Create the file: lib/features/home_demo/data/models/review_model.dart
 
 class ReviewModel {
   int? id;

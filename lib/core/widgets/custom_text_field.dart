@@ -100,7 +100,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           CustomText(
             text: widget.labelText ?? '',
             fontName: FontFamily.poppins,
-            color: Colors.black,
+            color: Colors.white,
             bottom: 6.h,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,

@@ -6,8 +6,12 @@ import 'package:flutter_task/features/auth/presentation/pages/reset_pass/reset_p
 import 'package:flutter_task/features/auth/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:flutter_task/features/bottom_nav_bar/presentation/bottom_nav_user.dart';
 import 'package:flutter_task/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:flutter_task/features/home/presentation/home_page.dart';
+import 'package:flutter_task/features/home_demo/presentation/home_page.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
+import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
+import 'package:flutter_task/features/profile/presentation/screens/support_screen.dart';
+import 'package:flutter_task/features/profile/presentation/setting/setting_screen.dart';
+import 'package:flutter_task/features/referral/presentation/screens/referral_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
 
@@ -25,6 +29,10 @@ abstract class AppPages {
     GetPage(name: AppRoutes.signUpScreen, page: () => const SignUpScreen()),
     GetPage(name: AppRoutes.forgetScreen, page: () => const ForgetScreen()),
     GetPage(name: AppRoutes.otpScreen, page: () => const OtpScreen()),
+    GetPage(name: AppRoutes.settingScreen, page: () => const SettingScreen()),
+    GetPage(name: AppRoutes.supportScreen, page: () => const SupportScreen()),
+    GetPage(name: AppRoutes.settingChangePassword, page: () => const SettingChangePassword()),
+    GetPage(name: AppRoutes.referralScreen, page: () => const ReferralScreen()),
     GetPage(
       name: AppRoutes.resetScreen,
       page: () => const ResetPasswordScreen(),

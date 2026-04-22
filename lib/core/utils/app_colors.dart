@@ -36,6 +36,7 @@ class AppColors {
 
   // Primary colors
   static const Color primary = Color(0xFF279646);
+  static const Color primaryBTN = Color(0xFF2B2B34);
   static const Color primaryDark = Color(0xFF388E3C);
   static const Color primaryLight = Color(0xFF81C784);
 

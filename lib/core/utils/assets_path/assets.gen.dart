@@ -107,11 +107,16 @@ class $AssetsImagesGen {
   AssetGenImage get secondOnboarding =>
       const AssetGenImage('assets/images/second_onboarding.png');
 
+  /// File path: assets/images/supportBg.png
+  AssetGenImage get supportBg =>
+      const AssetGenImage('assets/images/supportBg.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     fastOnboarding,
     lastOnboarding,
     secondOnboarding,
+    supportBg,
   ];
 }
 

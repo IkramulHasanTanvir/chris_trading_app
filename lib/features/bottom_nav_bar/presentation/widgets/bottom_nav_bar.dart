@@ -12,7 +12,7 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
-      paddingBottom: 16.h,
+      paddingBottom: 4.h,
       color: AppColors.navBackground,
       boxShadow: [
         BoxShadow(

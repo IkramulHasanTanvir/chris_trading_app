@@ -35,7 +35,7 @@ class AuthController extends GetxController {
 
   /// ─── FORM ──────────────────────────────
   final nameController = TextEditingController();
-  final emailController = TextEditingController(text: kDebugMode ? 'ikramulhasantanvir@gmail.com' : '');
+  final emailController = TextEditingController(text: kDebugMode ? 'pemafet963@ryzid.com' : '');
   final passwordController = TextEditingController(text: kDebugMode ? 'SecurePass123!' : '');
   final confirmPasswordController = TextEditingController();
   final otpController = TextEditingController();
@@ -161,6 +161,10 @@ class AuthController extends GetxController {
     await _authService.logout();
     Get.offAllNamed(AppRoutes.loginScreen);
   }
+
+
+  /// ─── IS LOGGED IN ──────────────────────
+  bool isLoggedIn() => _authService.isLoggedIn();
 
   /// ─── DISPOSE ───────────────────────────
   @override

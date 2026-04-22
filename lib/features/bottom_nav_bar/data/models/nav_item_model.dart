@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
-import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
+import 'package:flutter_task/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_task/features/profile/presentation/screens/profile_screen.dart';
 
 class NavItemModel {
   final String icon;
@@ -23,7 +24,7 @@ class NavItemModel {
     NavItemModel(
       icon: Assets.icons.home.path,
       label: 'Home',
-      screen: const Text(''),
+      screen: HomeScreen(),
     ),
 
     NavItemModel(
@@ -45,7 +46,7 @@ class NavItemModel {
     NavItemModel(
       icon: Assets.icons.profile.path,
       label: 'Profile',
-      screen: const LoginScreen(),
+      screen: const ProfileScreen(),
     ),
   ];
 }

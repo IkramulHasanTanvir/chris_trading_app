@@ -7,7 +7,7 @@
 /// **Usage:**
 /// ```dart
 /// // Navigate to a named route
-/// Get.toNamed(AppRoutes.home);
+/// Get.toNamed(AppRoutes.home_demo);
 ///
 /// // Navigate and remove all previous routes
 /// Get.offAllNamed(AppRoutes.login);
@@ -31,7 +31,11 @@ abstract class AppRoutes {
   static const String otpScreen = '/auth/otp';
   static const String resetScreen = '/auth/reset';
   static const String bottomNavUserBar = '/bottomNavUserBar';
-  static const String home = '/home';
+  static const String settingScreen = '/profile/setting';
+  static const String supportScreen = '/setting/support';
+  static const String settingChangePassword = '/setting/change_password';
+  static const String referralScreen = '/profile/referral';
+  static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────
   // static const String splash   = '/splash';

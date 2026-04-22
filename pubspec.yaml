@@ -30,6 +30,8 @@ dependencies:
   pinput: ^6.0.2
   image_picker: ^1.2.1
   fluttertoast: ^9.0.0
+  flutter_widget_from_html: ^0.17.2
+  qr_flutter: ^4.1.0
 
 
 dev_dependencies:

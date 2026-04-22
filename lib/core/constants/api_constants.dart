@@ -12,6 +12,12 @@ class ApiConstants {
 
 
 
+  /// REFARREL ──────────────────────────────────────────
+
+  static const String referral = '/api/v1/referrals/stats';
+
+
+
 
 
 

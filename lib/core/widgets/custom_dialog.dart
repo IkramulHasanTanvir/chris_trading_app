@@ -17,13 +17,13 @@ class CustomDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.leftButtonLabel = "Cancel",
-    this.rightButtonLabel = "Log Out",
+    this.rightButtonLabel = "Sign Out",
     required this.onTapLeftButton,
     required this.onTapRightButton,
     this.rightButtonBgColor = Colors.transparent,
     this.rightButtonLabelColor = AppColors.error,
     this.leftButtonBgColor = Colors.transparent,
-    this.leftButtonLabelColor = AppColors.primary,
+    this.leftButtonLabelColor = AppColors.textSecondary,
     required this.description,
     this.titleColor = AppColors.error,
   });
@@ -31,6 +31,7 @@ class CustomDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.navBackground,
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.r)),
       child: Padding(
@@ -52,7 +53,7 @@ class CustomDialog extends StatelessWidget {
               right: 10.w,
               text: description,
               fontSize: 16.sp,
-              color: Color(0xff545454),
+              color: AppColors.textSecondary,
               maxline: 2,
             ),
             SizedBox(height: 24.h),
@@ -63,6 +64,7 @@ class CustomDialog extends StatelessWidget {
                 // Cancel Button
                 Expanded(
                   child: CustomButton(
+                    radius: 100.r,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                     bordersColor: leftButtonLabelColor,
@@ -76,6 +78,7 @@ class CustomDialog extends StatelessWidget {
                 // Confirm Button
                 Expanded(
                   child: CustomButton(
+                    radius: 100.r,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                     bordersColor: rightButtonLabelColor,
