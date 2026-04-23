@@ -129,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
                         builder: (context) => CustomDialog(
                           title: "Sign Out",
                           description: 'Are you sure want to sign out?',
-                          onTapLeftButton: () => Get.back(),
+                          onTapLeftButton: () => Navigator.pop(context),
                           onTapRightButton: AuthController.to.logout,
                         ),
                       );

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/enums/loading_state.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/referral/data/model/referral_data.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/qr_code_card.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_code_card.dart';
+import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referrals_card.dart';
 import 'package:get/get.dart';
 
@@ -27,7 +31,7 @@ class ReferralScreen extends StatelessWidget {
             elevation: 0,
             leading: IconButton(
               onPressed: () {
-                Get.back();
+                Navigator.pop(context);
               },
               icon: const Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -49,17 +53,39 @@ class ReferralScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
-                  QrCodeCard(referralLink: ''),
-                  SizedBox(height: 20.h),
-                  ReferralCodeCard(referralCode: ''),
+              child: GetBuilder<ReferralController>(
+                builder: (controller) {
+                  final data = controller.referralData;
+                  switch (controller.loadingState) {
+                    case LoadingState.initial:
+                    case LoadingState.loading:
+                      return ReferralShimmerWidgets.buildLoadingShimmer();
 
-                  SizedBox(height: 20.h),
+                    case LoadingState.offline:
+                    case LoadingState.error:
+                      return RetryWidget(
+                        message: controller.errorMessage,
+                        onRetry: controller.retry,
+                        isOffline:
+                            controller.loadingState.isOffline,
+                      );
 
-                  _buildStatsRow(null),
-                ],
+                    case LoadingState.loaded:
+                      return Column(
+                        children: [
+                          QrCodeCard(referralLink: data?.referralLink ?? ''),
+                          SizedBox(height: 20.h),
+                          ReferralCodeCard(
+                            referralCode: data?.referralCode ?? '',
+                          ),
 
+                          SizedBox(height: 20.h),
+
+                          _buildStatsRow(data),
+                        ],
+                      );
+                  }
+                },
               ),
             ),
           ),
@@ -84,7 +110,6 @@ class ReferralScreen extends StatelessWidget {
             label: 'Active',
             value: '${data?.activeReferrals}',
             icon: Icons.person_outline_rounded,
-
           ),
         ),
         SizedBox(width: 12.w),
@@ -98,5 +123,4 @@ class ReferralScreen extends StatelessWidget {
       ],
     );
   }
-
 }

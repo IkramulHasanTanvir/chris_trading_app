@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
+import 'package:flutter_task/core/widgets/retry_widget.dart';
 import 'package:get/get.dart';
 import 'controllers/home_controller.dart';
 import 'widgets/home_app_bar.dart';
 import 'widgets/home_content.dart';
-import 'widgets/retry_widget.dart';
 import 'widgets/search_bar_widget.dart';
 import 'widgets/shimmer_widgets.dart';
 

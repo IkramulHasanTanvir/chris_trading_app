@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_task/core/constants/app_constants.dart';
+import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/core/services/connectivity_service.dart';
 import '../constants/api_constants.dart';
 import '../exceptions/app_exceptions.dart';
@@ -7,12 +9,20 @@ import '../exceptions/app_exceptions.dart';
 class ApiService {
   static final ApiService _instance = ApiService._internal();
   late Dio _dio;
+  late CacheService _cacheService;
 
   factory ApiService() => _instance;
 
   ApiService._internal();
 
-  void init(ConnectivityService connectivityService) {
+  static Options get withoutAuth =>
+      Options(headers: {ApiConstants.requiresAuthHeader: false});
+
+  void init(
+      ConnectivityService connectivityService,
+      CacheService cacheService,
+      ) {
+    _cacheService = cacheService;
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
@@ -22,14 +32,43 @@ class ApiService {
       ),
     );
 
-    _dio.interceptors.add(ConnectivityInterceptor(connectivityService));
+      _dio.interceptors.add(ConnectivityInterceptor(connectivityService));
+
+    // ✅ Token Interceptor
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final requiresAuth =
+              options.headers[ApiConstants.requiresAuthHeader] != false;
+          options.headers.remove(ApiConstants.requiresAuthHeader);
+
+          if (requiresAuth) {
+            final token = _cacheService.get<String>(AppConstants.accessToken);
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          }
+
+          return handler.next(options);
+        },
+
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await _cacheService.clear();
+          }
+          return handler.next(error);
+        },
+      ),
+    );
 
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
           if (kDebugMode) {
             final sep = '─' * 50;
-            debugPrint('\n🔵 ──── REQUEST ────────────────────────────────────');
+            debugPrint(
+              '\n🔵 ──── REQUEST ────────────────────────────────────',
+            );
             debugPrint('   METHOD : ${options.method}');
             debugPrint('   PATH   : ${options.path}');
             if (options.headers.isNotEmpty) {
@@ -48,7 +87,9 @@ class ApiService {
         onResponse: (response, handler) {
           if (kDebugMode) {
             final sep = '─' * 50;
-            debugPrint('\n🟢 ──── RESPONSE ───────────────────────────────────');
+            debugPrint(
+              '\n🟢 ──── RESPONSE ───────────────────────────────────',
+            );
             debugPrint('   STATUS : ${response.statusCode}');
             debugPrint('   PATH   : ${response.requestOptions.path}');
             debugPrint('   BODY   : ${response.data}');
@@ -59,7 +100,9 @@ class ApiService {
         onError: (error, handler) {
           if (kDebugMode) {
             final sep = '─' * 50;
-            debugPrint('\n🔴 ──── ERROR ──────────────────────────────────────');
+            debugPrint(
+              '\n🔴 ──── ERROR ──────────────────────────────────────',
+            );
             debugPrint('   STATUS    : ${error.response?.statusCode}');
             debugPrint('   PATH      : ${error.requestOptions.path}');
             debugPrint('   ERROR BODY: ${error.response?.data}');
@@ -68,17 +111,18 @@ class ApiService {
           }
           return handler.next(error);
         },
-      ),    );
+      ),
+    );
   }
 
   Dio get dio => _dio;
 
   Future<Response> get(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       return await _dio.get(
         path,
@@ -112,12 +156,12 @@ class ApiService {
   /// );
   /// ```
   Future<Response> post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       return await _dio.post(
         path,
@@ -152,12 +196,12 @@ class ApiService {
   /// );
   /// ```
   Future<Response> put(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       return await _dio.put(
         path,
@@ -192,12 +236,12 @@ class ApiService {
   /// );
   /// ```
   Future<Response> patch(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       return await _dio.patch(
         path,
@@ -229,12 +273,12 @@ class ApiService {
   /// final response = await apiService.delete('/users/123');
   /// ```
   Future<Response> delete(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       return await _dio.delete(
         path,
@@ -262,13 +306,13 @@ class ApiService {
   /// );
   /// ```
   Future<Response> uploadFile(
-    String path, {
-    required MultipartFile file,
-    String fieldName = 'file',
-    Map<String, dynamic>? data,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        required MultipartFile file,
+        String fieldName = 'file',
+        Map<String, dynamic>? data,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       final formData = FormData.fromMap({fieldName: file, ...?data});
 
@@ -300,13 +344,13 @@ class ApiService {
   /// );
   /// ```
   Future<Response> uploadMultipleFiles(
-    String path, {
-    required List<MultipartFile> files,
-    String fieldName = 'files',
-    Map<String, dynamic>? data,
-    Options? options,
-    CancelToken? cancelToken,
-  }) async {
+      String path, {
+        required List<MultipartFile> files,
+        String fieldName = 'files',
+        Map<String, dynamic>? data,
+        Options? options,
+        CancelToken? cancelToken,
+      }) async {
     try {
       final formData = FormData.fromMap({fieldName: files, ...?data});
 
@@ -338,14 +382,14 @@ class ApiService {
   /// );
   /// ```
   Future<Response> uploadFileWithProgress(
-    String path, {
-    required MultipartFile file,
-    String fieldName = 'file',
-    Map<String, dynamic>? data,
-    Options? options,
-    CancelToken? cancelToken,
-    void Function(int, int)? onSendProgress,
-  }) async {
+      String path, {
+        required MultipartFile file,
+        String fieldName = 'file',
+        Map<String, dynamic>? data,
+        Options? options,
+        CancelToken? cancelToken,
+        void Function(int, int)? onSendProgress,
+      }) async {
     try {
       final formData = FormData.fromMap({fieldName: file, ...?data});
 
@@ -389,13 +433,22 @@ class ApiService {
     switch (error.type) {
     // ─── Network ────────────────────────────────
       case DioExceptionType.connectionTimeout:
-        return TimeoutException('Connection timeout. Check your internet', error.message);
+        return TimeoutException(
+          'Connection timeout. Check your internet',
+          error.message,
+        );
 
       case DioExceptionType.sendTimeout:
-        return TimeoutException('Request took too long to send. Try again', error.message);
+        return TimeoutException(
+          'Request took too long to send. Try again',
+          error.message,
+        );
 
       case DioExceptionType.receiveTimeout:
-        return TimeoutException('Server took too long to respond. Try again', error.message);
+        return TimeoutException(
+          'Server took too long to respond. Try again',
+          error.message,
+        );
 
       case DioExceptionType.connectionError:
         return NoInternetException(error.message);
@@ -422,7 +475,10 @@ class ApiService {
           408 => RequestTimeoutException(error.message),
           409 => ConflictException(message, error.message),
           410 => GoneException(error.message),
-          415 => UnprocessableException('Unsupported media type', error.message),
+          415 => UnprocessableException(
+            'Unsupported media type',
+            error.message,
+          ),
           422 => ValidationException([message], error.message),
           429 => TooManyRequestsException(error.message),
         // 5xx
@@ -461,6 +517,7 @@ class ApiService {
         data['errors']?[0]?['message'] ??
         'Server error';
   }
+
   void dispose() {
     _dio.close();
   }

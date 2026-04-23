@@ -14,13 +14,22 @@ class ReferralData {
   });
 
   factory ReferralData.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] as Map<String, dynamic>;
     return ReferralData(
-      referralCode: data['referralCode'] as String,
-      referralLink: data['referralLink'] as String,
-      totalReferrals: data['totalReferrals'] as int,
-      activeReferrals: data['activeReferrals'] as int,
-      totalRewards: (data['totalRewards'] as num).toDouble(),
+      referralCode: json['referralCode'] as String,
+      referralLink: json['referralLink'] as String,
+      totalReferrals: json['totalReferrals'] as int,
+      activeReferrals: json['activeReferrals'] as int,
+      totalRewards: (json['totalRewards'] as num).toDouble(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['referralCode'] = referralCode;
+    data['referralLink'] = referralLink;
+    data['totalReferrals'] = totalReferrals;
+    data['activeReferrals'] = activeReferrals;
+    data['totalRewards'] = totalRewards;
+    return data;
   }
 }

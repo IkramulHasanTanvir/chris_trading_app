@@ -23,26 +23,7 @@ class ConnectivityService {
     );
   }
 
-  void listenAndNotify() {
-    connectivityStream.listen((isOnline) {
-      if (!isOnline) {
-        Get.snackbar(
-          'No Internet',
-          'Please check your connection',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(days: 1),
-          isDismissible: false,
-          icon: const Icon(Icons.wifi_off, color: Colors.white),
-        );
-      } else {
-        Get.closeAllSnackbars();
-      }
-    });
-  }
 }
-
 class ConnectivityInterceptor extends Interceptor {
   final ConnectivityService connectivityService;
 

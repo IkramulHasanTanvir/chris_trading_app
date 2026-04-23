@@ -17,19 +17,21 @@ class DependencyInjection {
     // ─────────────────────────────
     final connectivityService = ConnectivityService();
     Get.put<ConnectivityService>(connectivityService, permanent: true);
-    connectivityService.listenAndNotify();
 
-    // ─────────────────────────────
-    // 2. API Service
-    // ─────────────────────────────
-    final apiService = ApiService();
-    apiService.init(connectivityService);
-    Get.put<ApiService>(apiService, permanent: true);
 
     // ─────────────────────────────
     // 3. Cache Service
     // ─────────────────────────────
     Get.put<CacheService>(CacheService(), permanent: true);
+
+
+    // ─────────────────────────────
+    // 2. API Service
+    // ─────────────────────────────
+    final apiService = ApiService();
+    apiService.init(connectivityService, Get.find<CacheService>());
+    Get.put<ApiService>(apiService, permanent: true);
+
 
     // ─────────────────────────────
     // 4. Storage Service (ASYNC SAFE)

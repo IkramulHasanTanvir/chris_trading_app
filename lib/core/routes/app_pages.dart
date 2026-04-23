@@ -1,4 +1,7 @@
 import 'package:flutter_task/core/routes/app_routes.dart';
+import 'package:flutter_task/core/services/api_service.dart';
+import 'package:flutter_task/core/services/cache_service.dart';
+import 'package:flutter_task/core/services/connectivity_service.dart';
 import 'package:flutter_task/features/auth/presentation/pages/forget/forget_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/otp/otp_screen.dart';
@@ -11,6 +14,9 @@ import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
 import 'package:flutter_task/features/profile/presentation/screens/support_screen.dart';
 import 'package:flutter_task/features/profile/presentation/setting/setting_screen.dart';
+import 'package:flutter_task/features/referral/data/repositories/referral_repository.dart';
+import 'package:flutter_task/features/referral/domain/services/referral_service.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
 import 'package:flutter_task/features/referral/presentation/screens/referral_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
@@ -31,8 +37,10 @@ abstract class AppPages {
     GetPage(name: AppRoutes.otpScreen, page: () => const OtpScreen()),
     GetPage(name: AppRoutes.settingScreen, page: () => const SettingScreen()),
     GetPage(name: AppRoutes.supportScreen, page: () => const SupportScreen()),
-    GetPage(name: AppRoutes.settingChangePassword, page: () => const SettingChangePassword()),
-    GetPage(name: AppRoutes.referralScreen, page: () => const ReferralScreen()),
+    GetPage(
+      name: AppRoutes.settingChangePassword,
+      page: () => const SettingChangePassword(),
+    ),
     GetPage(
       name: AppRoutes.resetScreen,
       page: () => const ResetPasswordScreen(),
@@ -44,17 +52,51 @@ abstract class AppPages {
       binding: BottomNavBinding(),
     ),
 
+    GetPage(name: AppRoutes.home, page: () => const HomePage()),
+
     GetPage(
-      name: AppRoutes.home,
-      page: () => const HomePage(),
+      name: AppRoutes.referralScreen,
+      page: () => const ReferralScreen(),
+      binding: ReferralBinding(),
     ),
   ];
 }
 
-
 class BottomNavBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<BottomNavBarController>(() => BottomNavBarController(),fenix: true);
+    Get.lazyPut<BottomNavBarController>(
+      () => BottomNavBarController(),
+      fenix: true,
+    );
+  }
+}
+
+class ReferralBinding extends Bindings {
+  @override
+  void dependencies() {
+    // ✅ আগে Repository
+    Get.lazyPut<ReferralRepository>(
+          () => ReferralRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+
+    // ✅ তারপর Service
+    Get.lazyPut<ReferralService>(
+          () => ReferralService(
+        repository: Get.find<ReferralRepository>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    // ✅ সবশেষে Controller
+    Get.lazyPut<ReferralController>(
+          () => ReferralController(referralService: Get.find<ReferralService>()),
+      fenix: true,
+    );
   }
 }

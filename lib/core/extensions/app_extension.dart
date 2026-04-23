@@ -7,22 +7,22 @@ extension LoadingStateX on LoadingState {
 
   bool get isError => this == LoadingState.error;
 
+  bool get isOffline => this == LoadingState.offline;
+
   bool get isLoaded => this == LoadingState.loaded;
 
   bool get isInitial => this == LoadingState.initial;
 }
 
-
-
-
 extension AppExceptionX on Object {
   String get errorMessage {
     if (this is AppException) {
       final e = this as AppException;
-      debugPrint('====================================>> Errored: ${e.toString()}');
+      debugPrint(
+        '====================================>> Errored: ${e.toString()}',
+      );
       return e.message;
     }
     return toString();
   }
 }
-

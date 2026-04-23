@@ -4,6 +4,7 @@ class AppConstants{
   static const String refreshToken = "refreshToken";
   static const String cacheUserRole = "cacheUserRole";
   static const String cacheUser = "cacheUser";
+  static const String cacheReferralData = "cacheReferralData";
 
 
 

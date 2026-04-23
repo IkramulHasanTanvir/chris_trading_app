@@ -1,6 +1,12 @@
 class ApiConstants {
   static const String baseUrl = 'https://reaz5000.syedbipul.me';
 
+  /// ─── Auth Marker ───────────────────────────
+  static const String requiresAuthHeader = 'X-Requires-Auth';
+  static const Map<String, dynamic> headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 
   /// AUTH ──────────────────────────────────────────────
 
@@ -10,23 +16,9 @@ class ApiConstants {
   static const String otpVerify = '/api/v1/auth/verify-email';
   static const String resetPassword = '/api/v1/auth/reset-password';
 
-
-
   /// REFARREL ──────────────────────────────────────────
 
   static const String referral = '/api/v1/referrals/stats';
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -64,13 +56,6 @@ class ApiConstants {
 
   static String restaurants(int offset, int limit) =>
       '/api/v1/restaurants/get-restaurants/all?offset=$offset&limit=$limit';
-
-  static Map<String, String> headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-    'zoneId': '[1]',
-    'latitude': '23.735129',
-    'longitude': '90.425614',
-  };
 
   static const String cacheBanners = 'banners';
   static const String cacheCategories = 'categories';

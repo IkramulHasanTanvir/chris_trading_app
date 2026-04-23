@@ -27,7 +27,7 @@ class SettingScreen extends StatelessWidget {
             elevation: 0,
             leading: IconButton(
               onPressed: () {
-                Get.back();
+                Navigator.pop(context);
               },
               icon: const Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -100,7 +100,7 @@ class SettingScreen extends StatelessWidget {
                         builder: (context) => CustomDialog(
                           title: "Delete Account",
                           description: 'Are you sure want to delete account?',
-                          onTapLeftButton: () => Get.back(),
+                          onTapLeftButton: () => Navigator.pop(context),
                           onTapRightButton: AuthController.to.logout,
                           rightButtonLabel: 'Yes, Delete',
                         ),
