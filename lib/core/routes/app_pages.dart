@@ -75,27 +75,21 @@ class BottomNavBinding extends Bindings {
 class ReferralBinding extends Bindings {
   @override
   void dependencies() {
-    // ✅ আগে Repository
     Get.lazyPut<ReferralRepository>(
-          () => ReferralRepository(
+      () => ReferralRepository(
         apiService: Get.find<ApiService>(),
         cacheService: Get.find<CacheService>(),
       ),
       fenix: true,
     );
 
-    // ✅ তারপর Service
     Get.lazyPut<ReferralService>(
-          () => ReferralService(
-        repository: Get.find<ReferralRepository>(),
-        connectivityService: Get.find<ConnectivityService>(),
-      ),
+      () => ReferralService(repository: Get.find<ReferralRepository>()),
       fenix: true,
     );
 
-    // ✅ সবশেষে Controller
     Get.lazyPut<ReferralController>(
-          () => ReferralController(referralService: Get.find<ReferralService>()),
+      () => ReferralController(service: Get.find<ReferralService>()),
       fenix: true,
     );
   }

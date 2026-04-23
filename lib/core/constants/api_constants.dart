@@ -16,9 +16,13 @@ class ApiConstants {
   static const String otpVerify = '/api/v1/auth/verify-email';
   static const String resetPassword = '/api/v1/auth/reset-password';
 
-  /// REFARREL ──────────────────────────────────────────
+  /// REFERRAL ──────────────────────────────────────────
 
   static const String referral = '/api/v1/referrals/stats';
+
+  /// PROFILE ──────────────────────────────────────────
+  static const String withdrawalRequest = '/api/v1/withdrawals/request';
+  static  String myWithdrawals(int page) => '/api/v1/withdrawals/my-requests?page=$page&limit=20';
 
 
 
