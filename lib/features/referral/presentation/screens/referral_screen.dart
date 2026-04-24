@@ -4,13 +4,10 @@ import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/referral/data/model/referral_data.dart';
 import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
-import 'package:flutter_task/features/referral/presentation/widgets/qr_code_card.dart';
-import 'package:flutter_task/features/referral/presentation/widgets/referral_code_card.dart';
+import 'package:flutter_task/features/referral/presentation/widgets/referral_content.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
-import 'package:flutter_task/features/referral/presentation/widgets/referrals_card.dart';
-import 'package:flutter_task/features/referral/presentation/widgets/withdrawal_card.dart';
+
 import 'package:get/get.dart';
 
 class ReferralScreen extends StatelessWidget {
@@ -18,10 +15,11 @@ class ReferralScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = ReferralController.to;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
-        controller: ReferralController.to.scrollController,
+        controller: controller.scrollController,
         slivers: [
           // ─── Sliver AppBar ───────────────────────────────────────────
           SliverAppBar(
@@ -57,126 +55,28 @@ class ReferralScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: GetBuilder<ReferralController>(
-                builder: (controller) {
-                  final data = controller.referralData;
-                  switch (controller.loadingState) {
-                    case LoadingState.initial:
-                    case LoadingState.loading:
-                      return ReferralShimmerWidgets.buildLoadingShimmer();
+              child: Obx(() {
+                switch (controller.loadingState) {
+                  case LoadingState.initial:
+                  case LoadingState.loading:
+                    return ReferralShimmerWidgets.buildLoadingShimmer();
 
-                    case LoadingState.offline:
-                    case LoadingState.error:
-                      return RetryWidget(
-                        message: controller.errorMessage,
-                        onRetry: controller.retry,
-                        isOffline: controller.loadingState.isOffline,
-                      );
+                  case LoadingState.offline:
+                  case LoadingState.error:
+                    return RetryWidget(
+                      message: controller.errorMessage,
+                      onRetry: controller.retry,
+                      isOffline: controller.loadingState.isOffline,
+                    );
 
-                    case LoadingState.loaded:
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          QrCodeCard(referralLink: data?.referralLink ?? ''),
-                          SizedBox(height: 20.h),
-                          ReferralCodeCard(
-                            referralCode: data?.referralCode ?? '',
-                          ),
-
-                          SizedBox(height: 20.h),
-
-                          _buildStatsRow(data),
-                          if ((data?.totalRewards ?? 0) > 0) ...[
-                            SizedBox(height: 20.h),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: CustomButton(
-                                width: 120.w,
-                                height: 35.h,
-                                backgroundColor: AppColors.navBackground,
-                                foregroundColor: AppColors.primary,
-                                fontSize: 14.sp,
-                                onPressed: () {
-                                  // Withdraw action
-                                },
-                                label: 'Withdraw',
-                              ),
-                            ),
-                          ],
-                          Divider(
-                            height: 40.h,
-                            thickness: 1,
-                            color: AppColors.primary.withOpacity(0.2),
-                          ),
-
-                          if ((data?.totalRewards ?? 0) > 0) ...[
-                            CustomText(
-                              text: 'Withdrawals',
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            SizedBox(height: 10.h),
-                            if (controller.withdrawals.isNotEmpty)
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: controller.withdrawals.length,
-                                itemBuilder: (context, index) {
-                                  final withdrawal =
-                                      controller.withdrawals[index];
-                                  return WithdrawalCard(data: withdrawal);
-                                },
-                              ),
-                            if (controller.isLoadingMore)
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 16.h),
-                                child: const Center(child: CustomLoader()),
-                              ),
-                          ] else
-                            Center(
-                              child: CustomText(text: 'No withdrawals yet'),
-                            ),
-
-                          SizedBox(height: 100.h),
-                        ],
-                      );
-                  }
-                },
-              ),
+                  case LoadingState.loaded:
+                    return ReferralContent();
+                }
+              }),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatsRow(ReferralData? data) {
-    return Row(
-      children: [
-        Expanded(
-          child: ReferralsCard(
-            label: 'Total Referrals',
-            value: '${data?.totalReferrals}',
-            icon: Icons.people_outline_rounded,
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: ReferralsCard(
-            label: 'Active',
-            value: '${data?.activeReferrals}',
-            icon: Icons.person_outline_rounded,
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: ReferralsCard(
-            label: 'Rewards',
-            value: '\$${data?.totalRewards.toStringAsFixed(0)}',
-            icon: Icons.workspace_premium_outlined,
-          ),
-        ),
-      ],
     );
   }
 }

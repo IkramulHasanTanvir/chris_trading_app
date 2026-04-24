@@ -9,6 +9,26 @@ class ReferralService {
   ReferralService({required ReferralRepository repository})
     : _repository = repository;
 
+  Future<void> withdrawRequest({
+    required double amount,
+    required String paymentMethod,
+    required String phoneNumber,
+    required String email,
+  }) async {
+    try {
+      await _repository.withdrawRequest(
+        amount: amount,
+        paymentMethod: paymentMethod,
+        phoneNumber: phoneNumber,
+        email: email,
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> fetchAllReferralData() async {
     try {
       await Future.wait([

@@ -35,6 +35,7 @@ abstract class AppRoutes {
   static const String supportScreen = '/setting/support';
   static const String settingChangePassword = '/setting/change_password';
   static const String referralScreen = '/profile/referral';
+  static const String withdrawScreen = '/referral/withdraw';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────

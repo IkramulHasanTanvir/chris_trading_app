@@ -55,6 +55,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/noti.svg
   SvgGenImage get noti => const SvgGenImage('assets/icons/noti.svg');
 
+  /// File path: assets/icons/paypal.svg
+  SvgGenImage get paypal => const SvgGenImage('assets/icons/paypal.svg');
+
   /// File path: assets/icons/policy.svg
   SvgGenImage get policy => const SvgGenImage('assets/icons/policy.svg');
 
@@ -70,6 +73,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/terms.svg
   SvgGenImage get terms => const SvgGenImage('assets/icons/terms.svg');
 
+  /// File path: assets/icons/zelle.svg
+  SvgGenImage get zelle => const SvgGenImage('assets/icons/zelle.svg');
+
   /// List of all assets
   List<SvgGenImage> get values => [
     about,
@@ -84,11 +90,13 @@ class $AssetsIconsGen {
     logo,
     logout,
     noti,
+    paypal,
     policy,
     profile,
     search,
     setting,
     terms,
+    zelle,
   ];
 }
 

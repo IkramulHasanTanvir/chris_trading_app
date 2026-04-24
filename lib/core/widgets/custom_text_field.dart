@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/constants/app_constants.dart';
+import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/utils/assets_path/fonts.gen.dart';
 import 'package:flutter_task/core/widgets/custom_text.dart';
 
@@ -100,10 +101,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           CustomText(
             text: widget.labelText ?? '',
             fontName: FontFamily.poppins,
-            color: Colors.white,
+            color: AppColors.textSecondary,
             bottom: 6.h,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
 
         TextFormField(
@@ -190,9 +191,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   BoxConstraints(minHeight: 24.w, minWidth: 24.w),
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                  color: widget.hintextColor ?? Colors.white,
+                  color: widget.hintextColor ?? AppColors.textSecondary,
                 fontSize: widget.hintextSize ?? 14.h,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
               ),
               focusedBorder: focusedBorder(),
               enabledBorder: enabledBorder(),

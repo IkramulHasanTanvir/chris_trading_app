@@ -18,6 +18,7 @@ import 'package:flutter_task/features/referral/data/repositories/referral_reposi
 import 'package:flutter_task/features/referral/domain/services/referral_service.dart';
 import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
 import 'package:flutter_task/features/referral/presentation/screens/referral_screen.dart';
+import 'package:flutter_task/features/referral/presentation/screens/withdraw_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
 
@@ -57,6 +58,11 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.referralScreen,
       page: () => const ReferralScreen(),
+      binding: ReferralBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.withdrawScreen,
+      page: () => const WithdrawScreen(),
       binding: ReferralBinding(),
     ),
   ];

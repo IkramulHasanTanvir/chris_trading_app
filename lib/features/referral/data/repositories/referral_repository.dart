@@ -50,12 +50,35 @@ class ReferralRepository {
   }
 
   // ─── Withdrawal Data (with Pagination) ───────────────────────────
+
+  Future<void> withdrawRequest({
+    required double amount,
+    required String paymentMethod,
+    required String phoneNumber,
+    required String email,
+  }) async {
+    try {
+      await _apiService.post(
+        ApiConstants.withdrawalRequest,
+        data: {
+          "amount": amount,
+          "paymentMethod": paymentMethod,
+          "paymentDetails": "$phoneNumber, $email",
+        },
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<List<WithdrawalModel>> getWithdrawalData({int page = 1}) async {
     try {
       final response = await _apiService.get(ApiConstants.myWithdrawals(page));
-      final data = (response.data['Data'] as List)
-          .map((e) => WithdrawalModel.fromJson(e))
-          .toList();
+      final list = response.data['data'] as List? ?? [];
+
+      final data = list.map((e) => WithdrawalModel.fromJson(e)).toList();
       if (page == 1) {
         await _cacheService.put(
           AppConstants.cacheWithdrawalData,

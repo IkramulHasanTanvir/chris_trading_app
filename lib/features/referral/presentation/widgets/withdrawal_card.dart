@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/helpers/time_format.dart';
+import 'package:flutter_task/core/utils/app_colors.dart';
+import 'package:flutter_task/core/widgets/custom_text.dart';
 import 'package:flutter_task/features/referral/data/model/withdrawal_model.dart';
 
 class WithdrawalCard extends StatelessWidget {
@@ -23,11 +26,12 @@ class WithdrawalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      color: AppColors.navBackground,
+      margin:  EdgeInsets.symmetric(vertical: 6.h),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
-      elevation: 3,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -37,68 +41,63 @@ class WithdrawalCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "৳ ${data.amount}",
-                  style: const TextStyle(
-                    fontSize: 18,
+                CustomText(text:
+                  "\$${data.amount}",
+                    fontSize: 32.sp,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
-                  ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding:  EdgeInsets.symmetric(
+                      horizontal: 12.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: _getStatusColor().withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Text(
+                  child: CustomText(text:
                     data.status,
-                    style: TextStyle(
                       color: _getStatusColor(),
-                      fontWeight: FontWeight.w600,
-                    ),
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 8),
+             SizedBox(height: 8.h),
 
             /// Method
-            Text(
+            CustomText(text:
               "Method: ${data.paymentMethod}",
-              style: const TextStyle(fontSize: 14),
+              fontSize: 16.sp,
             ),
 
-            const SizedBox(height: 4),
+             SizedBox(height: 4.h),
 
             /// Details
-            Text(
+            CustomText(text:
               "Details: ${data.paymentDetails}",
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
+              color: AppColors.grey600,
+
             ),
 
-            const SizedBox(height: 6),
+             SizedBox(height: 6.h),
 
             /// Admin Note
             if (data.adminNote.isNotEmpty)
-              Text(
+              CustomText(text:
                 "Note: ${data.adminNote}",
-                style: const TextStyle(
                   fontSize: 13,
                   color: Colors.blueGrey,
-                ),
+
               ),
 
-            const Divider(height: 16),
+             Divider(height: 16,color: AppColors.primary.withOpacity(0.2),),
 
             /// Created Date
-            Text(
+            CustomText(text:
               "Date: ${TimeFormatHelper.formatDate(data.createdAt)}",
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              fontSize: 12.sp, color: Colors.grey,
             ),
           ],
         ),
