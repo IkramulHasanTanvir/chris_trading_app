@@ -38,6 +38,7 @@ abstract class AppRoutes {
   static const String withdrawScreen = '/referral/withdraw';
   static const String topTraderScreen = '/home/trader';
   static const String leaderboardScreen = '/home/leaderboard';
+  static const String contributorScreen = '/home/contributor';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────

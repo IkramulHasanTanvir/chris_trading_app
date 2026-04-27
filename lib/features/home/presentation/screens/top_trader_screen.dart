@@ -3,15 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/home/data/models/trader_model.dart';
+import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
 import 'package:flutter_task/features/home/presentation/widgets/trader_card.dart';
 import 'package:flutter_task/features/pasar/presentation/widgets/signal_details_card.dart';
 import 'package:flutter_task/features/trader/data/models/signal_model.dart';
+import 'package:get/get.dart';
 
 class TopTraderScreen extends StatelessWidget {
   const TopTraderScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = HomeController.to;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -71,16 +74,10 @@ class TopTraderScreen extends StatelessWidget {
             body: TabBarView(
               children: [
                 /// ───── All Tab ─────
-                _buildSignalList(),
+                _buildSignalList(controller.topTraders),
 
                 /// ───── Follow Tab ─────
-                Center(
-                  child: CustomText(
-                    text: 'No Following Traders',
-                    fontSize: 14.sp,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                _buildSignalList(controller.topTraders),
               ],
             ),
           ),
@@ -90,30 +87,31 @@ class TopTraderScreen extends StatelessWidget {
   }
 
   /// 🔥 Signal List (Reusable)
-  Widget _buildSignalList() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: 24.h),
+  Widget _buildSignalList(List<TraderModel> data) {
+    return Column(
+      children: [
+        SizedBox(height: 24.h),
 
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: TraderModel.demoTrader.length,
-            separatorBuilder: (_, index) {
-              return SizedBox(height: 12.w);
-            },
-            itemBuilder: (context, index) {
-              final item = TraderModel.demoTrader[index];
+        Obx(
+           () {
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              itemCount: data.length,
+              separatorBuilder: (_, index) {
+                return SizedBox(height: 12.w);
+              },
+              itemBuilder: (context, index) {
+                final item = data[index];
 
-              return TraderCard(trader: item,);
-            },
-          ),
-
-          SizedBox(height: 100.h),
-        ],
-      ),
+                return TraderCard(trader: item,);
+              },
+            );
+          }
+        ),
+        SizedBox(height: 100.h),
+      ],
     );
   }
 }

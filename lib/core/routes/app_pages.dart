@@ -12,6 +12,7 @@ import 'package:flutter_task/features/bottom_nav_bar/presentation/controller/bot
 import 'package:flutter_task/features/home/data/repositories/home_repository.dart';
 import 'package:flutter_task/features/home/domain/services/home_service.dart';
 import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
+import 'package:flutter_task/features/home/presentation/screens/contributor_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/leaderboard_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/top_trader_screen.dart';
 import 'package:flutter_task/features/home_demo/presentation/home_page.dart';
@@ -80,6 +81,12 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.leaderboardScreen,
       page: () => const LeaderboardScreen(),
+      // binding: ReferralBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.contributorScreen,
+      page: () => const ContributorScreen(),
       // binding: ReferralBinding(),
     ),
   ];

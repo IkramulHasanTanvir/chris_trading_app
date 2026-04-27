@@ -64,7 +64,7 @@ class HomeShimmerWidgets {
             child: ListView.separated(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
+              //physics: const NeverScrollableScrollPhysics(),
               itemCount: 5,
               separatorBuilder: (_, __) => SizedBox(width: 12.w),
               itemBuilder: (_, __) => _buildContributorCard(),
@@ -119,20 +119,24 @@ class HomeShimmerWidgets {
     );
   }
 
-  // ─── Contributor Card ────────────────────────────────────────────────
+  // ─── Contributor Card ─────────────────────────────────────────────────
   static Widget _buildContributorCard() {
-    return AppShimmer.card(
-      radius: 16,
-      padding: EdgeInsets.all(12.r),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AppShimmer.image(width: 56.w, height: 56.w, radius: 28.r),
-          SizedBox(height: 10.h),
-          AppShimmer.line(width: 80.w, height: 13),
-          SizedBox(height: 6.h),
-          AppShimmer.line(width: 56.w, height: 11),
-        ],
+    return SizedBox(
+      width: 120.w,
+      height: 160.h,
+      child: AppShimmer.card(
+        radius: 16,
+        padding: EdgeInsets.all(12.r),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppShimmer.image(width: 60.w, height: 60.w, radius: 30.w),
+            SizedBox(height: 10.h),
+            AppShimmer.line(width: 80.w, height: 13),
+            SizedBox(height: 6.h),
+            AppShimmer.line(width: 56.w, height: 11),
+          ],
+        ),
       ),
     );
   }

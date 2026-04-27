@@ -4,12 +4,9 @@ import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
-import 'package:flutter_task/features/home/data/models/trader_model.dart';
 import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
 import 'package:flutter_task/features/home/presentation/widgets/champions_top_three_card.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/home/data/models/contributor_model.dart';
-import 'package:flutter_task/features/home/data/models/leader_board_model.dart';
 import 'package:flutter_task/features/home/presentation/widgets/contributor_card.dart';
 import 'package:flutter_task/features/home/presentation/widgets/section_title_widget.dart';
 import 'package:flutter_task/features/home/presentation/widgets/shimmer_widgets.dart';
@@ -82,7 +79,6 @@ class HomeScreen extends StatelessWidget {
                   case LoadingState.initial:
                   case LoadingState.loading:
                     return HomeShimmerWidgets.buildLoadingShimmer();
-
                   case LoadingState.offline:
                   case LoadingState.error:
                     return RetryWidget(
@@ -94,56 +90,66 @@ class HomeScreen extends StatelessWidget {
                   case LoadingState.loaded:
                   return Column(
                     children: [
-
                       SizedBox(height: 16.h),
-                      ChampionsTopThreeCard(
-                        onTap: (){
-                          Get.toNamed(AppRoutes.leaderboardScreen);
-                        },
-                        items: leaderBoardData,
-                      ),
+                      if(leaderBoardData.isNotEmpty)...[
+                        ChampionsTopThreeCard(
+                          onTap: (){
+                            Get.toNamed(AppRoutes.leaderboardScreen);
+                          },
+                          items: leaderBoardData,
+                        ),
 
-                      SizedBox(height: 24.h),
+                        SizedBox(height: 24.h),
+                      ],
 
-                      SectionTitleWidget(title: 'Top Contributors', onTap: () {}),
-                      SizedBox(height: 12.h),
-                      SizedBox(
-                        height: 160.h,
-                        child: ListView.separated(
+
+                      if(contributors.isNotEmpty)...[
+                        SectionTitleWidget(title: 'Top Contributors', onTap: () {
+                          Get.toNamed(AppRoutes.contributorScreen,);
+                        }),
+                        SizedBox(height: 12.h),
+                        SizedBox(
+                          height: 160.h,
+                          child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: contributors.length,
+                            separatorBuilder: (_, index) {
+                              return SizedBox(width: 12.w);
+                            },
+                            itemBuilder: (context, index) {
+                              final item = contributors[index];
+
+                              return ContributorCard(item: item,isHorizontal: true);
+                            },
+                          ),
+                        ),
+
+                        SizedBox(height: 24.h),
+                      ],
+
+                      if(traders.isNotEmpty)...[
+                        SectionTitleWidget(title: 'Top traders', onTap: () {
+                          Get.toNamed(AppRoutes.topTraderScreen);
+                        }),
+                        SizedBox(height: 12.h),
+
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          scrollDirection: Axis.horizontal,
-                          itemCount: contributors.length,
+                          itemCount: traders.length,
                           separatorBuilder: (_, index) {
-                            return SizedBox(width: 12.w);
+                            return SizedBox(height: 12.w);
                           },
                           itemBuilder: (context, index) {
-                            final item = contributors[index];
+                            final item = traders[index];
 
-                            return ContributorCard(item: item);
+                            return TraderCard(trader: item,);
                           },
                         ),
-                      ),
+                      ],
 
-                      SizedBox(height: 24.h),
-                      SectionTitleWidget(title: 'Top traders', onTap: () {
-                        Get.toNamed(AppRoutes.topTraderScreen);
-                      }),
-                      SizedBox(height: 12.h),
-
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        itemCount: traders.length,
-                        separatorBuilder: (_, index) {
-                          return SizedBox(height: 12.w);
-                        },
-                        itemBuilder: (context, index) {
-                          final item = traders[index];
-
-                          return TraderCard(trader: item,);
-                        },
-                      ),
 
                       SizedBox(height: 100.h),
                     ],
