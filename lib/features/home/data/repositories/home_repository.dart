@@ -94,7 +94,7 @@ class HomeRepository {
     }
   }
 
-  // top trader data ────────────────────────────────────────────────────────
+  // top signals data ────────────────────────────────────────────────────────
 
   Future<List<TraderModel>> getTopTraderData(int page, int limit) async {
     try {

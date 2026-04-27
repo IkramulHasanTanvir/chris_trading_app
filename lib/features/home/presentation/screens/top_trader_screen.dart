@@ -5,8 +5,6 @@ import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/home/data/models/trader_model.dart';
 import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
 import 'package:flutter_task/features/home/presentation/widgets/trader_card.dart';
-import 'package:flutter_task/features/pasar/presentation/widgets/signal_details_card.dart';
-import 'package:flutter_task/features/trader/data/models/signal_model.dart';
 import 'package:get/get.dart';
 
 class TopTraderScreen extends StatelessWidget {

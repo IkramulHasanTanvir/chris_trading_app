@@ -1,30 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
-import 'package:flutter_task/features/home/data/models/trader_model.dart';
 import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
-import 'package:flutter_task/features/home/presentation/widgets/champions_top_three_card.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/home/data/models/contributor_model.dart';
-import 'package:flutter_task/features/home/data/models/leader_board_model.dart';
 import 'package:flutter_task/features/home/presentation/widgets/contributor_card.dart';
-import 'package:flutter_task/features/home/presentation/widgets/section_title_widget.dart';
-import 'package:flutter_task/features/home/presentation/widgets/trader_card.dart';
-import 'package:flutter_task/features/trader/data/models/signal_model.dart';
-import 'package:flutter_task/features/trader/presentation/widgets/signal_card.dart';
-import 'package:flutter_task/features/trader/presentation/widgets/up_down_card.dart';
-import 'package:get/get.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_task/core/routes/app_routes.dart';
-import 'package:flutter_task/core/utils/app_colors.dart';
-import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
-import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
-import 'package:flutter_task/features/profile/presentation/widgets/active_card.dart';
-import 'package:flutter_task/features/profile/presentation/widgets/profile_list_tile.dart';
 import 'package:get/get.dart';
 
 class ContributorScreen extends StatelessWidget {

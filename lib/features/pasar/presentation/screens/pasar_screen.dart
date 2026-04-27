@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/pasar/presentation/widgets/signal_details_card.dart';
-import 'package:flutter_task/features/trader/data/models/signal_model.dart';
+import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 
 class PasarScreen extends StatelessWidget {
   const PasarScreen({super.key});

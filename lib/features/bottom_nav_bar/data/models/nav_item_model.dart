@@ -4,7 +4,7 @@ import 'package:flutter_task/features/home/presentation/screens/home_screen.dart
 import 'package:flutter_task/features/pasar/presentation/screens/pasar_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter_task/features/top_up/presentation/screens/top_op_screen.dart';
-import 'package:flutter_task/features/trader/presentation/screens/trader_screen.dart';
+import 'package:flutter_task/features/signals/presentation/screens/signals_screen.dart';
 
 class NavItemModel {
   final String icon;
@@ -33,7 +33,7 @@ class NavItemModel {
     NavItemModel(
       icon: Assets.icons.fire.path,
       label: 'Trending',
-      screen: const TraderScreen(),
+      screen: const SignalsScreen(),
     ),
     NavItemModel(
       icon: Assets.icons.add.path,
