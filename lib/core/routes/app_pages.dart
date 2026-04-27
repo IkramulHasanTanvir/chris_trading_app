@@ -9,6 +9,11 @@ import 'package:flutter_task/features/auth/presentation/pages/reset_pass/reset_p
 import 'package:flutter_task/features/auth/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:flutter_task/features/bottom_nav_bar/presentation/bottom_nav_user.dart';
 import 'package:flutter_task/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:flutter_task/features/home/data/repositories/home_repository.dart';
+import 'package:flutter_task/features/home/domain/services/home_service.dart';
+import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
+import 'package:flutter_task/features/home/presentation/screens/leaderboard_screen.dart';
+import 'package:flutter_task/features/home/presentation/screens/top_trader_screen.dart';
 import 'package:flutter_task/features/home_demo/presentation/home_page.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
@@ -65,6 +70,18 @@ abstract class AppPages {
       page: () => const WithdrawScreen(),
       binding: ReferralBinding(),
     ),
+
+    GetPage(
+      name: AppRoutes.topTraderScreen,
+      page: () => const TopTraderScreen(),
+      // binding: ReferralBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.leaderboardScreen,
+      page: () => const LeaderboardScreen(),
+      // binding: ReferralBinding(),
+    ),
   ];
 }
 
@@ -73,6 +90,24 @@ class BottomNavBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<BottomNavBarController>(
       () => BottomNavBarController(),
+      fenix: true,
+    );
+
+    Get.lazyPut<HomeRepository>(
+      () => HomeRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut<HomeService>(
+      () => HomeService(repository: Get.find<HomeRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<HomeController>(
+      () => HomeController(service: Get.find<HomeService>()),
       fenix: true,
     );
   }

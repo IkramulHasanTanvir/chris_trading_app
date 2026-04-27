@@ -6,6 +6,9 @@ class AppConstants{
   static const String cacheUser = "cacheUser";
   static const String cacheReferralData = "cacheReferralData";
   static const String cacheWithdrawalData = "cacheWithdrawalData";
+  static const String cacheLeaderBoard = "cacheLeaderBoard";
+  static const String cacheTrader = "cacheTrader";
+  static const String cacheContributor = "cacheContributor";
 
 
 

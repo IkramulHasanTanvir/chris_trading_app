@@ -36,6 +36,8 @@ abstract class AppRoutes {
   static const String settingChangePassword = '/setting/change_password';
   static const String referralScreen = '/profile/referral';
   static const String withdrawScreen = '/referral/withdraw';
+  static const String topTraderScreen = '/home/trader';
+  static const String leaderboardScreen = '/home/leaderboard';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────

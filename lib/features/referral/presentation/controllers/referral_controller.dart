@@ -153,11 +153,13 @@ class ReferralController extends GetxController {
       );
       _requestState.value = LoadingState.loaded;
       ToastMessageHelper.show('Withdrawal request sent successfully');
+
+      await loadData();
+      Get.back(canPop: true);
       _selectedIndex.value = 0;
       amountController.clear();
       numberController.clear();
       emailController.clear();
-      await loadData();
     } catch (e) {
       _requestState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);

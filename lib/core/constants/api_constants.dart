@@ -1,5 +1,8 @@
 class ApiConstants {
+
+
   static const String baseUrl = 'https://reaz5000.syedbipul.me';
+  //static const String baseUrl = 'http://206.162.244.11:7777/';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';
@@ -15,6 +18,12 @@ class ApiConstants {
   static const String forgot = '/api/v1/auth/forgot-password';
   static const String otpVerify = '/api/v1/auth/verify-email';
   static const String resetPassword = '/api/v1/auth/reset-password';
+
+
+  // home
+  static  String leaderboard(int page,int limit) => '/api/v1/leaderboard?timeframe=all&page=$page&limit=$limit';
+  static  String topTrader(int page,int limit) => '/api/v1/top-traders?timeframe=all&sortBy=winRate&page=$page&limit=$limit';
+  static  String contributions(int page,int limit) => '/api/v1/contributions/top-contributors?timeframe=all&page=$page&limit=$limit';
 
   /// REFERRAL ──────────────────────────────────────────
 

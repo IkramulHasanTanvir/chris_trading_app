@@ -25,6 +25,10 @@ class WithdrawalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final parts = data.paymentDetails.split(',');
+
+    final phone = parts.length > 1 ? parts.first.trim() : 'xxxxxx';
+    final email = parts.isNotEmpty ? parts.last.trim() : 'example@example';
     return Card(
       color: AppColors.navBackground,
       margin:  EdgeInsets.symmetric(vertical: 6.h),
@@ -69,6 +73,7 @@ class WithdrawalCard extends StatelessWidget {
             /// Method
             CustomText(text:
               "Method: ${data.paymentMethod}",
+              textAlign: TextAlign.start,
               fontSize: 16.sp,
             ),
 
@@ -76,8 +81,9 @@ class WithdrawalCard extends StatelessWidget {
 
             /// Details
             CustomText(text:
-              "Details: ${data.paymentDetails}",
+              "Email: $email\nPhone: $phone",
               color: AppColors.grey600,
+              textAlign: TextAlign.start,
 
             ),
 
@@ -88,6 +94,7 @@ class WithdrawalCard extends StatelessWidget {
               CustomText(text:
                 "Note: ${data.adminNote}",
                   fontSize: 13,
+                  textAlign: TextAlign.start,
                   color: Colors.blueGrey,
 
               ),

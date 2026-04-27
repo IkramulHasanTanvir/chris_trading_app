@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
 import 'package:flutter_task/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_task/features/pasar/presentation/screens/pasar_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter_task/features/top_up/presentation/screens/top_op_screen.dart';
+import 'package:flutter_task/features/trader/presentation/screens/trader_screen.dart';
 
 class NavItemModel {
   final String icon;
@@ -25,23 +27,23 @@ class NavItemModel {
     NavItemModel(
       icon: Assets.icons.home.path,
       label: 'Home',
-      screen: HomeScreen(),
+      screen: const HomeScreen(),
     ),
 
     NavItemModel(
       icon: Assets.icons.fire.path,
       label: 'Trending',
-      screen: const Text(''),
+      screen: const TraderScreen(),
     ),
     NavItemModel(
       icon: Assets.icons.add.path,
       label: 'Top Up',
-      screen: TopOpScreen(),
+      screen: const TopOpScreen(),
     ),
     NavItemModel(
       icon: Assets.icons.line.path,
       label: 'Pasar',
-      screen: const Center(),
+      screen: const PasarScreen(),
     ),
 
     NavItemModel(
