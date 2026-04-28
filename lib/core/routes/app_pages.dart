@@ -17,14 +17,22 @@ import 'package:flutter_task/features/home/presentation/screens/leaderboard_scre
 import 'package:flutter_task/features/home/presentation/screens/top_trader_screen.dart';
 import 'package:flutter_task/features/home_demo/presentation/home_page.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
+import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
+import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
+import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:flutter_task/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
 import 'package:flutter_task/features/profile/presentation/screens/support_screen.dart';
 import 'package:flutter_task/features/profile/presentation/setting/setting_screen.dart';
 import 'package:flutter_task/features/referral/data/repositories/referral_repository.dart';
 import 'package:flutter_task/features/referral/domain/services/referral_service.dart';
-import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/referral/presentation/screens/referral_screen.dart';
 import 'package:flutter_task/features/referral/presentation/screens/withdraw_screen.dart';
+import 'package:flutter_task/features/signals/data/repositories/signals_repository.dart';
+import 'package:flutter_task/features/signals/domain/services/signal_service.dart';
+import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
+import 'package:flutter_task/features/signals/presentation/screens/log_update_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:get/get.dart';
 
@@ -89,6 +97,19 @@ abstract class AppPages {
       page: () => const ContributorScreen(),
       // binding: ReferralBinding(),
     ),
+
+    GetPage(
+      name: AppRoutes.editProfileScreen,
+      page: () => const EditProfileScreen(),
+      // binding: ReferralBinding(),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.logUpdateScreen,
+      page: () => const LogUpdateScreen(),
+      // binding: ReferralBinding(),
+    ),
   ];
 }
 
@@ -115,6 +136,46 @@ class BottomNavBinding extends Bindings {
 
     Get.lazyPut<HomeController>(
       () => HomeController(service: Get.find<HomeService>()),
+      fenix: true,
+    );
+
+
+    Get.lazyPut<SignalsRepository>(
+      () => SignalsRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut<SignalsService>(
+      () => SignalsService(repository: Get.find<SignalsRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<SignalsController>(
+      () => SignalsController(service: Get.find<SignalsService>()),
+      fenix: true,
+    );
+
+
+
+
+    Get.lazyPut<ProfileRepository>(
+      () => ProfileRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut<ProfileService>(
+      () => ProfileService(repository: Get.find<ProfileRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<ProfileController>(
+      () => ProfileController(service: Get.find<ProfileService>()),
       fenix: true,
     );
   }

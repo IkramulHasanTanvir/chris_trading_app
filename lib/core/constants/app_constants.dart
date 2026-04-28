@@ -9,6 +9,7 @@ class AppConstants{
   static const String cacheLeaderBoard = "cacheLeaderBoard";
   static const String cacheTrader = "cacheTrader";
   static const String cacheContributor = "cacheContributor";
+  static const String cacheSignals = "cacheSignals";
 
 
 

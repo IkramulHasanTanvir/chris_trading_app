@@ -11,35 +11,38 @@ class HomeShimmerWidgets {
           SizedBox(height: 16.h),
 
           // ─── Champions Top Three Card ──────────────────────────────
-          AppShimmer.card(
-            radius: 20,
-            padding: EdgeInsets.all(20.r),
-            child: Column(
-              children: [
-                // Title row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppShimmer.line(width: 120.w, height: 14),
-                    AppShimmer.line(width: 60.w, height: 12),
-                  ],
-                ),
-                SizedBox(height: 20.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: AppShimmer.card(
+              radius: 20,
+              padding: EdgeInsets.all(20.r),
+              child: Column(
+                children: [
+                  // Title row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppShimmer.line(width: 120.w, height: 14),
+                      AppShimmer.line(width: 60.w, height: 12),
+                    ],
+                  ),
+                  SizedBox(height: 20.h),
 
-                // Top 3 avatars
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // 2nd place
-                    _buildPodiumItem(size: 60.w, barHeight: 60.h),
-                    // 1st place (taller)
-                    _buildPodiumItem(size: 72.w, barHeight: 80.h),
-                    // 3rd place
-                    _buildPodiumItem(size: 60.w, barHeight: 48.h),
-                  ],
-                ),
-              ],
+                  // Top 3 avatars
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // 2nd place
+                      _buildPodiumItem(size: 60.w, barHeight: 60.h),
+                      // 1st place (taller)
+                      _buildPodiumItem(size: 72.w, barHeight: 80.h),
+                      // 3rd place
+                      _buildPodiumItem(size: 60.w, barHeight: 48.h),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
 

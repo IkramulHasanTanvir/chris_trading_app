@@ -25,20 +25,9 @@ class HomeRepository {
         ApiConstants.leaderboard(page, limit),
       );
 
-      // ✅ এই lines গুলো add করুন
-      debugPrint('======= LEADERBOARD DEBUG =======');
-      debugPrint('response.data type: ${response.data.runtimeType}');
-      debugPrint('response.data: ${response.data}');
-      debugPrint('data key type: ${response.data['data'].runtimeType}');
-      debugPrint('topThree: ${response.data['data']?['topThree']}');
-      debugPrint('=================================');
-
       final model = LeaderBoardModel.fromJson(
         response.data['data'] as Map<String, dynamic>,
       );
-
-      debugPrint('model.topThree: ${model.topThree}');
-      debugPrint('model.topThree length: ${model.topThree?.length}');
 
       await _cacheService.put(AppConstants.cacheLeaderBoard, model.toJson());
       return model;

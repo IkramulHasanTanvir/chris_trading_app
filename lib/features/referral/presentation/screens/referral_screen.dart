@@ -4,7 +4,7 @@ import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_content.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
 

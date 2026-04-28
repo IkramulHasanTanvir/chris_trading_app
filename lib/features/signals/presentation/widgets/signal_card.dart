@@ -1,96 +1,119 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/helpers/time_format.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
+import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
+import 'package:get/get.dart';
 
-class SignalCard extends StatefulWidget {
+class SignalCard extends StatelessWidget {
   final SignalsModel item;
 
   const SignalCard({super.key, required this.item});
 
   @override
-  State<SignalCard> createState() => _SignalCardState();
-}
-
-class _SignalCardState extends State<SignalCard> {
-  bool isExpanded = false;
-  bool isLiked = false;
-
-  @override
   Widget build(BuildContext context) {
-    final item = widget.item;
+    final controller = SignalsController.to;
+
     final isSell = item.signalType?.toLowerCase() == "sell";
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(color: AppColors.navBackground),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// 🔥 ONLY TOP SECTION CLICKABLE
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: AnimatedCrossFade(
-              duration: const Duration(milliseconds: 300),
-              crossFadeState: isExpanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              firstChild: _topRow(item, isSell),
-              secondChild: _chartImage(item),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        controller.toggleExpanded();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.all(14.r),
+        decoration: BoxDecoration(color: AppColors.navBackground),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// 🔥 ONLY TOP SECTION CLICKABLE
+            Obx(
+              () {
+                return AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  crossFadeState: controller.isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: _topRow(item, isSell),
+                  secondChild: _chartImage(item),
+                );
+              }
             ),
-          ),
 
-          SizedBox(height: 12.h),
+            SizedBox(height: 12.h),
 
-          /// ENTRY / EXIT / SL
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _infoItem("Entry", item.entryPrice),
-              _infoItem("Exit", item.takeProfit1),
-              _infoItem("Stop loss", item.stopLoss),
-            ],
-          ),
+            /// ENTRY / EXIT / SL
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _infoItem("Entry", item.entryPrice),
+                _infoItem("Exit", item.takeProfit1),
+                _infoItem("Stop loss", item.stopLoss),
+              ],
+            ),
 
-          SizedBox(height: 14.h),
+            SizedBox(height: 14.h),
 
-          /// BUTTONS
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  fontSize: 14.sp,
-                  height: 36.h,
-                  backgroundColor: AppColors.primaryBTN,
-                  onPressed: () {},
-                  label: 'Copy Trade',
+            /// BUTTONS
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    fontSize: 14.sp,
+                    height: 36.h,
+                    backgroundColor: AppColors.primaryBTN,
+                    onPressed: () {
+                      showDialog(context: context, builder: (context){
+                        return AlertDialog(
+                          backgroundColor: AppColors.navBackground,
+                          title:  CustomText(text: 'Copy Trading Signal',fontSize: 16.sp,fontWeight: FontWeight.w600,),
+                          content:  CustomText(text: 'Are you sure you want to copy this signal?',fontSize: 12.sp,color: AppColors.textSecondary,),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Get.back(canPop: true),
+                              child: const CustomText(text: 'Cancel',color: AppColors.textSecondary,),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                controller.copyTradingSignal(signalId: item.sId ?? '');
+                                Get.back(canPop: true);
+                              },
+                              child: const CustomText(text: 'Copy Trade',color: AppColors.primary,fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        );
+                      });
+                    },
+                    label: 'Copy Trade',
+                  ),
                 ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: CustomButton(
-                  fontSize: 14.sp,
-                  height: 36.h,
-                  onPressed: () {},
-                  label: 'Log Trade',
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: CustomButton(
+                    fontSize: 14.sp,
+                    height: 36.h,
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.logUpdateScreen,arguments: item.sId);
+                    },
+                    label: 'Log Trade',
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   /// 🔹 Top Row (with Like button)
   Widget _topRow(SignalsModel item, bool isSell) {
+    final controller = SignalsController.to;
     return Row(
       key: const ValueKey("top"),
       children: [
@@ -105,10 +128,14 @@ class _SignalCardState extends State<SignalCard> {
         Expanded(
           child: Row(
             children: [
-              CustomText(
-                text: item.symbol ?? '',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
+              Flexible(
+                child: CustomText(
+                  text: item.symbol ?? '',
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  maxline: 1,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
               ),
               SizedBox(width: 6.w),
 
@@ -120,7 +147,7 @@ class _SignalCardState extends State<SignalCard> {
                 ),
                 child: CustomText(
                   text: item.signalType ?? '',
-                  fontSize: 10.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -128,39 +155,41 @@ class _SignalCardState extends State<SignalCard> {
           ),
         ),
 
+        SizedBox(width: 6.w),
+
         /// TIME
         CustomContainer(
-          paddingVertical: 2.h,
-          paddingHorizontal: 10.w,
+          paddingVertical: 1.h,
+          paddingHorizontal: 6.w,
           bordersColor: AppColors.white,
           radiusAll: 20.r,
-          child: CustomText(text: "9:45 AM", fontSize: 10.sp),
+          child: CustomText(text: TimeFormatHelper.timeFormat(DateTime.parse(item.publishedAt.toString())), fontSize: 8.sp),
         ),
 
         SizedBox(width: 6.w),
 
-        /// ❤️ LIKE BUTTON (No conflict now)
+        /// ❤️ LIKE BUTTON
         Material(
           color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20.r),
-            onTap: () {
-              setState(() {
-                isLiked = !isLiked;
-              });
-            },
-            child: Padding(
-              padding: EdgeInsets.all(6.r),
-              child: AnimatedScale(
-                scale: isLiked ? 1.2 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: isLiked ? Colors.red : AppColors.textSecondary,
-                  size: 20.sp,
+          child: Obx(
+            () {
+              return InkWell(
+                borderRadius: BorderRadius.circular(20.r),
+                onTap: controller.toggleLike,
+                child: Padding(
+                  padding: EdgeInsets.all(6.r),
+                  child: AnimatedScale(
+                    scale: controller.isLiked ? 1.2 : 1.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      controller.isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: controller.isLiked ? Colors.red : AppColors.textSecondary,
+                      size: 20.sp,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            }
           ),
         ),
       ],

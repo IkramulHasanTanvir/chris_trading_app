@@ -1,5 +1,5 @@
 import 'package:flutter_task/features/auth/data/models/login_response_model.dart';
-import 'package:flutter_task/features/auth/data/models/user_response_model.dart';
+import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 
 abstract class AuthRepository {
   Future<LoginResponseModel> login({

@@ -20,10 +20,22 @@ class ApiConstants {
   static const String resetPassword = '/api/v1/auth/reset-password';
 
 
-  // home
+  /// home
   static  String leaderboard(int page,int limit) => '/api/v1/leaderboard?timeframe=all&page=$page&limit=$limit';
   static  String topTrader(int page,int limit) => '/api/v1/top-traders?timeframe=all&sortBy=winRate&page=$page&limit=$limit';
   static  String contributions(int page,int limit) => '/api/v1/contributions/top-contributors?timeframe=all&page=$page&limit=$limit';
+
+  // signal
+  static  String signals(int page,int limit) => '/api/v1/signals?page=$page&limit=$limit';
+  static  String copySignals(String signalId) => '/api/v1/copied-trades/signals/$signalId/copy';
+  static const  String logSignals = '/api/v1/copied-trades/log';
+
+
+  // profile
+  static const String profile = '/api/v1/auth/me';
+  static const String profileUpdate = '/api/v1/user/update-profile';
+
+
 
   /// REFERRAL ──────────────────────────────────────────
 

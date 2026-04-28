@@ -11,6 +11,7 @@ import 'package:flutter_task/features/home/presentation/widgets/contributor_card
 import 'package:flutter_task/features/home/presentation/widgets/section_title_widget.dart';
 import 'package:flutter_task/features/home/presentation/widgets/shimmer_widgets.dart';
 import 'package:flutter_task/features/home/presentation/widgets/trader_card.dart';
+import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -58,11 +59,16 @@ class HomeScreen extends StatelessWidget {
                       fit: BoxFit.cover,
                       imageUrl: '',
                     ),
-                    CustomText(
-                      left: 6.w,
-                      text: 'Hello, Tanvir',
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
+                    Obx(
+                       () {
+
+                        return CustomText(
+                          left: 6.w,
+                          text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                        );
+                      }
                     ),
                   ],
                 ),

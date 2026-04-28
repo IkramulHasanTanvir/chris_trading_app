@@ -39,6 +39,7 @@ class AppColors {
   static const Color primaryBTN = Color(0xFF2B2B34);
   static const Color primaryDark = Color(0xFF388E3C);
   static const Color primaryLight = Color(0xFF81C784);
+  static const Color fillColor = Color(0xff2B2B36);
 
   // Green accents (from design)
   static const Color greenAccent = Color(0xFF00E676);

@@ -39,6 +39,8 @@ abstract class AppRoutes {
   static const String topTraderScreen = '/home/signals';
   static const String leaderboardScreen = '/home/leaderboard';
   static const String contributorScreen = '/home/contributor';
+  static const String editProfileScreen = '/profile/edit';
+  static const String logUpdateScreen = '/signal/log-update';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────

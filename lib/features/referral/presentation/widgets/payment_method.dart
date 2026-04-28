@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/referral/data/model/payment_method_model.dart';
-import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 
 class PaymentMethod extends StatelessWidget {

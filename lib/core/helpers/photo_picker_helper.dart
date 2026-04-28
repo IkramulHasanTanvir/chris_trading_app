@@ -18,7 +18,7 @@ class PhotoPickerHelper {
       shape:  RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.navBackground,
       builder: (context) => SafeArea(
         child: Padding(
           padding:  EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/enums/loading_state.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/signals/data/models/signal_model.dart';
+import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
+import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
 import 'package:flutter_task/features/signals/presentation/widgets/signal_card.dart';
 import 'package:flutter_task/features/signals/presentation/widgets/up_down_card.dart';
+import 'package:get/get.dart';
 
 
 class SignalsScreen extends StatelessWidget {
@@ -12,10 +16,12 @@ class SignalsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = SignalsController.to;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
+          controller: controller.scrollController,
           slivers: [
             // ─── Sliver AppBar ───────────────────────────────────────────
             SliverAppBar(
@@ -38,28 +44,46 @@ class SignalsScreen extends StatelessWidget {
         
             // ─── Sliver Body ─────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  SizedBox(height: 10.h),
-                  UpDownCard()     ,
-        
-                  SizedBox(height: 24.h),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    itemCount: SignalsModel.demoSignals.length,
-                    separatorBuilder: (_, index) {
-                      return SizedBox(height: 12.w);
-                    },
-                    itemBuilder: (context, index) {
-                      final item = SignalsModel.demoSignals[index];
-        
-                      return SignalCard(item: item);
-                    },
-                  ),
-                  SizedBox(height: 100.h),
-                ],
+              child: Obx(
+                 () {
+                   final signals = controller.signals;
+                   switch (controller.loadingState) {
+                     case LoadingState.initial:
+                     case LoadingState.loading:
+                       return ReferralShimmerWidgets.buildLoadingShimmer();
+
+                     case LoadingState.offline:
+                     case LoadingState.error:
+                       return RetryWidget(
+                         message: controller.errorMessage,
+                         onRetry: controller.retry,
+                         isOffline: controller.loadingState.isOffline,
+                       );
+
+                     case LoadingState.loaded:
+                  return Column(
+                    children: [
+                      SizedBox(height: 10.h),
+                      UpDownCard(),
+                      SizedBox(height: 24.h),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        itemCount: signals.length,
+                        separatorBuilder: (_, index) {
+                          return SizedBox(height: 12.w);
+                        },
+                        itemBuilder: (context, index) {
+                          final item = signals[index] ;
+
+                          return SignalCard(item: item);
+                        },
+                      ),
+                      SizedBox(height: 100.h),
+                    ],
+                  );
+                }}
               ),
             ),
           ],

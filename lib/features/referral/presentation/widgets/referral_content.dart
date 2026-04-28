@@ -4,7 +4,7 @@ import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/referral/data/model/referral_data.dart';
-import 'package:flutter_task/features/referral/presentation/controllers/referral_controller.dart';
+import 'package:flutter_task/features/referral/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/qr_code_card.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_code_card.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referrals_card.dart';
