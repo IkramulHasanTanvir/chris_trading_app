@@ -25,7 +25,7 @@ class LogUpdateScreen extends StatelessWidget {
             SliverAppBar(
               expandedHeight: 80.h,
               leading: IconButton(
-                onPressed: () => Get.back(),
+                onPressed: () => Get.back(canPop: true),
                 icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
               ),
               backgroundColor: AppColors.background,

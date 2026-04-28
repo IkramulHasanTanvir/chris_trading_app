@@ -64,8 +64,6 @@ class SignalsScreen extends StatelessWidget {
                   return Column(
                     children: [
                       SizedBox(height: 10.h),
-                      UpDownCard(),
-                      SizedBox(height: 24.h),
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),

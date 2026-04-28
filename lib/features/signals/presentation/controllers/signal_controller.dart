@@ -18,20 +18,18 @@ class SignalsController extends GetxController {
   SignalsController({required SignalsService service}) : _service = service;
 
   // ─── Expansion ────────────────────────────────────────────────────
-  final RxBool _isExpanded = false.obs;
-  final RxBool _isLiked = false.obs;
+  final RxString _expandedId = ''.obs;
 
-  bool get isExpanded => _isExpanded.value;
+  bool isExpanded(String id) => _expandedId.value == id;
 
-  bool get isLiked => _isLiked.value;
-
-  void toggleExpanded() {
-    _isExpanded.value = !_isExpanded.value;
+  void toggleExpanded(String id) {
+    if (_expandedId.value == id) {
+      _expandedId.value = '';
+    } else {
+      _expandedId.value = id;
+    }
   }
 
-  void toggleLike() {
-    _isLiked.value = !_isLiked.value;
-  }
 
   // ─── Controller ───────────────────────────────────────────────────
   final entryController = TextEditingController();

@@ -4,6 +4,7 @@ import 'package:flutter_task/core/helpers/time_format.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/pasar/presentation/widgets/up_down_card.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
 import 'package:get/get.dart';
@@ -11,111 +12,146 @@ import 'package:get/get.dart';
 class SignalCard extends StatelessWidget {
   final SignalsModel item;
 
-  const SignalCard({super.key, required this.item});
+  const SignalCard({
+    super.key,
+    required this.item,
+  });
 
   @override
   Widget build(BuildContext context) {
     final controller = SignalsController.to;
 
     final isSell = item.signalType?.toLowerCase() == "sell";
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        controller.toggleExpanded();
+        controller.toggleExpanded(item.sId ?? '');
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.all(14.r),
-        decoration: BoxDecoration(color: AppColors.navBackground),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// 🔥 ONLY TOP SECTION CLICKABLE
-            Obx(
-              () {
-                return AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 300),
-                  crossFadeState: controller.isExpanded
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  firstChild: _topRow(item, isSell),
-                  secondChild: _chartImage(item),
-                );
-              }
-            ),
+      child: Obx(() {
+        final isExpanded = controller.isExpanded(item.sId ?? '');
 
-            SizedBox(height: 12.h),
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          padding: EdgeInsets.all(isExpanded ? 0 : 14.r),
+          decoration: BoxDecoration(
+            color: isExpanded
+                ? AppColors.background
+                : AppColors.navBackground,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-            /// ENTRY / EXIT / SL
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _infoItem("Entry", item.entryPrice),
-                _infoItem("Exit", item.takeProfit1),
-                _infoItem("Stop loss", item.stopLoss),
-              ],
-            ),
+              /// 🔥 TOP / IMAGE SWITCH
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 300),
+                sizeCurve: Curves.easeInOut,
+                crossFadeState: isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                firstChild: _topRow(item, isSell),
+                secondChild: _chartImage(item),
+              ),
 
-            SizedBox(height: 14.h),
+              SizedBox(height: 12.h),
 
-            /// BUTTONS
-            Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    fontSize: 14.sp,
-                    height: 36.h,
-                    backgroundColor: AppColors.primaryBTN,
-                    onPressed: () {
-                      showDialog(context: context, builder: (context){
-                        return AlertDialog(
-                          backgroundColor: AppColors.navBackground,
-                          title:  CustomText(text: 'Copy Trading Signal',fontSize: 16.sp,fontWeight: FontWeight.w600,),
-                          content:  CustomText(text: 'Are you sure you want to copy this signal?',fontSize: 12.sp,color: AppColors.textSecondary,),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Get.back(canPop: true),
-                              child: const CustomText(text: 'Cancel',color: AppColors.textSecondary,),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                controller.copyTradingSignal(signalId: item.sId ?? '');
-                                Get.back(canPop: true);
-                              },
-                              child: const CustomText(text: 'Copy Trade',color: AppColors.primary,fontWeight: FontWeight.w700),
-                            ),
-                          ],
+              /// 🔥 ENTRY / EXIT / SL
+              if (!isExpanded)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _infoItem("Entry", item.entryPrice),
+                    _infoItem("Exit", item.takeProfit1),
+                    _infoItem("Stop loss", item.stopLoss),
+                  ],
+                ),
+
+              SizedBox(height: 14.h),
+
+              /// 🔥 BUTTONS
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      fontSize: 14.sp,
+                      height: 36.h,
+                      backgroundColor: AppColors.primaryBTN,
+                      onPressed: () {
+                        _showCopyDialog(context, controller);
+                      },
+                      label: 'Copy Trade',
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: CustomButton(
+                      fontSize: 14.sp,
+                      height: 36.h,
+                      onPressed: () {
+                        Get.toNamed(
+                          AppRoutes.logUpdateScreen,
+                          arguments: item.sId,
                         );
-                      });
-                    },
-                    label: 'Copy Trade',
+                      },
+                      label: 'Log Trade',
+                    ),
                   ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: CustomButton(
-                    fontSize: 14.sp,
-                    height: 36.h,
-                    onPressed: () {
-                      Get.toNamed(AppRoutes.logUpdateScreen,arguments: item.sId);
-                    },
-                    label: 'Log Trade',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  /// 🔹 Top Row (with Like button)
+  /// 🔹 Dialog
+  void _showCopyDialog(BuildContext context, SignalsController controller) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.navBackground,
+          title: CustomText(
+            text: 'Copy Trading Signal',
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+          content: CustomText(
+            text: 'Are you sure you want to copy this signal?',
+            fontSize: 12.sp,
+            color: AppColors.textSecondary,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const CustomText(
+                text: 'Cancel',
+                color: AppColors.textSecondary,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                controller.copyTradingSignal(signalId: item.sId ?? '');
+                Get.back();
+              },
+              child: const CustomText(
+                text: 'Copy Trade',
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 🔹 Top Row
   Widget _topRow(SignalsModel item, bool isSell) {
-    final controller = SignalsController.to;
     return Row(
-      key: const ValueKey("top"),
       children: [
         CustomNetworkImage(
           width: 34.r,
@@ -140,7 +176,10 @@ class SignalCard extends StatelessWidget {
               SizedBox(width: 6.w),
 
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8.w,
+                  vertical: 2.h,
+                ),
                 decoration: BoxDecoration(
                   color: isSell ? Colors.red : Colors.green,
                   borderRadius: BorderRadius.circular(6.r),
@@ -157,39 +196,16 @@ class SignalCard extends StatelessWidget {
 
         SizedBox(width: 6.w),
 
-        /// TIME
         CustomContainer(
           paddingVertical: 1.h,
           paddingHorizontal: 6.w,
           bordersColor: AppColors.white,
           radiusAll: 20.r,
-          child: CustomText(text: TimeFormatHelper.timeFormat(DateTime.parse(item.publishedAt.toString())), fontSize: 8.sp),
-        ),
-
-        SizedBox(width: 6.w),
-
-        /// ❤️ LIKE BUTTON
-        Material(
-          color: Colors.transparent,
-          child: Obx(
-            () {
-              return InkWell(
-                borderRadius: BorderRadius.circular(20.r),
-                onTap: controller.toggleLike,
-                child: Padding(
-                  padding: EdgeInsets.all(6.r),
-                  child: AnimatedScale(
-                    scale: controller.isLiked ? 1.2 : 1.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      controller.isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: controller.isLiked ? Colors.red : AppColors.textSecondary,
-                      size: 20.sp,
-                    ),
-                  ),
-                ),
-              );
-            }
+          child: CustomText(
+            text: TimeFormatHelper.timeFormat(
+              DateTime.parse(item.publishedAt.toString()),
+            ),
+            fontSize: 8.sp,
           ),
         ),
       ],
@@ -198,15 +214,26 @@ class SignalCard extends StatelessWidget {
 
   /// 🔹 Chart Image
   Widget _chartImage(SignalsModel item) {
-    return ClipRRect(
-      key: const ValueKey("image"),
-      borderRadius: BorderRadius.circular(4.r),
-      child: CustomNetworkImage(
-        width: double.infinity,
-        height: 140.h,
-        fit: BoxFit.cover,
-        imageUrl: item.externalChartUrl ?? "https://i.pravatar.cc/150?img=1",
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        UpDownCard(
+          entry: item.entryPrice,
+          exit: item.takeProfit1,
+          stopLoss: item.stopLoss,
+        ),
+        SizedBox(height: 12.h),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4.r),
+          child: CustomNetworkImage(
+            width: double.infinity,
+            height: 140.h,
+            fit: BoxFit.cover,
+            imageUrl: item.externalChartUrl ??
+                "https://i.pravatar.cc/150?img=1",
+          ),
+        ),
+      ],
     );
   }
 
