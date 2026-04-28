@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/constants/api_constants.dart';
 import 'package:flutter_task/core/constants/app_constants.dart';
@@ -5,6 +8,7 @@ import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileRepository {
   final ApiService _apiService;
@@ -62,7 +66,25 @@ class ProfileRepository {
     }
   }
 
+
+  Future<String> uploadImage(File file) async {
+
+    final image = await MultipartFile.fromFile(file.path);
+    try{
+      final response = await _apiService.uploadFile(ApiConstants.profileUpdate,file: image);
+      return response.data['url'];
+
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+
+  }
+
   bool hasCache() {
     return _cacheService.containsKey(AppConstants.cacheUser);
   }
+
+
 }

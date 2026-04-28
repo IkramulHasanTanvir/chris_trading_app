@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/constants/api_constants.dart';
 import 'package:flutter_task/core/constants/app_constants.dart';
@@ -88,5 +91,21 @@ class SignalsRepository {
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
+
+
+  Future<String> uploadImage(File file) async {
+
+    final image = await MultipartFile.fromFile(file.path);
+    try{
+      final response = await _apiService.uploadFile(ApiConstants.imageUpload,file: image);
+      return response.data['url'];
+
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+
   }
 }

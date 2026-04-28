@@ -193,4 +193,16 @@ class HomeRepository {
       return null;
     }
   }
+
+
+  Future<String> followTrader ({required String traderId}) async {
+    try {
+      final response = await _apiService.post(ApiConstants.followTrader(traderId));
+      return response.data['data']?['action'] ?? '';
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
 }

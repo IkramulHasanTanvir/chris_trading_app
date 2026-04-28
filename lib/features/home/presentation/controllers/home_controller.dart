@@ -208,6 +208,39 @@ class HomeController extends GetxController {
 
   Future<void> retry() async => await loadData();
 
+// ─── Follow State ──────────────────────────────────────────────────────────
+  final _followingIds = <String>{}.obs;
+
+  bool isFollowing(String traderId) => _followingIds.contains(traderId);
+
+  Future<void> followTrader({required String traderId}) async {
+    final wasFollowing = _followingIds.contains(traderId);
+
+    // Optimistic update
+    if (wasFollowing) {
+      _followingIds.remove(traderId);
+    } else {
+      _followingIds.add(traderId);
+    }
+
+    try {
+      final action = await _service.followTrader(traderId: traderId);
+      if (action == 'followed') {
+        _followingIds.add(traderId);
+      } else {
+        _followingIds.remove(traderId);
+      }
+    } catch (e) {
+      // Rollback
+      if (wasFollowing) {
+        _followingIds.add(traderId);
+      } else {
+        _followingIds.remove(traderId);
+      }
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
   // ─── Dispose ──────────────────────────────────────────────────────
   @override
   void onClose() {

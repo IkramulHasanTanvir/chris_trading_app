@@ -28,12 +28,14 @@ class ApiConstants {
   // signal
   static  String signals(int page,int limit) => '/api/v1/signals?page=$page&limit=$limit';
   static  String copySignals(String signalId) => '/api/v1/copied-trades/signals/$signalId/copy';
+  static  String followTrader(String traderId) => '/api/v1/follow/toggle/$traderId';
   static const  String logSignals = '/api/v1/copied-trades/log';
 
 
   // profile
   static const String profile = '/api/v1/auth/me';
   static const String profileUpdate = '/api/v1/user/update-profile';
+  static const String imageUpload = '/api/v1/upload/file';
 
 
 

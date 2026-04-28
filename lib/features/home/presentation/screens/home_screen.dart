@@ -4,6 +4,7 @@ import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
+import 'package:flutter_task/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:flutter_task/features/home/presentation/controllers/home_controller.dart';
 import 'package:flutter_task/features/home/presentation/widgets/champions_top_three_card.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
@@ -47,30 +48,36 @@ class HomeScreen extends StatelessWidget {
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: EdgeInsets.only(left: 16.w, bottom: 12.h),
                 //expandedTitleScale: 2.0,
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CustomNetworkImage(
-                      width: 32.w,
-                      height: 32.h,
-                      boxShape: BoxShape.circle,
-                      fit: BoxFit.cover,
-                      imageUrl: '',
-                    ),
-                    Obx(
-                       () {
+                title: GestureDetector(
+                  onTap: () {
+                    BottomNavBarController.to.onChange(4);
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      CustomNetworkImage(
+                        width: 32.w,
+                        height: 32.h,
+                        boxShape: BoxShape.circle,
+                        fit: BoxFit.cover,
+                        imageUrl: ProfileController.to.userData?.userProfileUrl ?? '',
+                      ),
+                      Obx(
+                         () {
 
-                        return CustomText(
-                          left: 6.w,
-                          text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                        );
-                      }
-                    ),
-                  ],
+                          return CustomText(
+                            left: 6.w,
+                            text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                          );
+                        }
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

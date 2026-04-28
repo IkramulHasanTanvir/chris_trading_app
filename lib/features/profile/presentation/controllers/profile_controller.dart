@@ -100,6 +100,10 @@ class ProfileController extends GetxController {
     }
   }
 
+  Future<void> uploadImage() async {
+
+  }
+
   @override
   void onClose() {
     nameController.dispose();

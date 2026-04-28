@@ -41,12 +41,15 @@ class SignalsController extends GetxController {
 
   final RxString _outcome = 'win'.obs;
   final RxString _platform = 'binance'.obs;
+  final RxString _imageUrl = ''.obs;
   final Rx<File?> _selectedImage = Rx<File?>(null);
   File? get selectedImage => _selectedImage.value;
 
   String get outcome => _outcome.value;
 
   String get platform => _platform.value;
+
+  String get imageUrl => _imageUrl.value;
 
   void onOutcomeChanged(String? value) {
     if (value != null) {
@@ -63,7 +66,7 @@ class SignalsController extends GetxController {
   void onImagePicked(XFile file) {
     if (file.path.isNotEmpty) {
       _selectedImage.value = File(file.path);
-      print("Image path: ${file.path}");
+      uploadImage();
     } else {
       print("Image path is empty!");
     }
@@ -79,6 +82,7 @@ class SignalsController extends GetxController {
   final _loadingState = LoadingState.initial.obs;
   final _copyState = LoadingState.initial.obs;
   final _logState = LoadingState.initial.obs;
+  final _imageState = LoadingState.initial.obs;
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
@@ -86,6 +90,9 @@ class SignalsController extends GetxController {
   LoadingState get copyState => _copyState.value;
 
   LoadingState get logState => _logState.value;
+
+  LoadingState get imageState => _imageState.value;
+
 
   String get errorMessage => _errorMessage.value;
 
@@ -204,7 +211,7 @@ class SignalsController extends GetxController {
           notes: notesController.text,
           signalId: signalId,
           resultPnl: double.tryParse(pnlController.text) ?? 0,
-          screenshotUrl: 'https://example.com/screenshot.png',
+          screenshotUrl: imageUrl,
           externalPlatform: platform,
         ),
       );
@@ -219,6 +226,19 @@ class SignalsController extends GetxController {
       ToastMessageHelper.show('Signal logged successfully');
     } catch (e) {
       _logState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
+  Future<void> uploadImage() async {
+    if(selectedImage == null) return;
+    try{
+      _imageState.value = LoadingState.loading;
+      final imageUrl = await _service.uploadImage(selectedImage!);
+      _imageState.value = LoadingState.loaded;
+       _imageUrl.value = imageUrl;
+    }catch(e){
+      _imageState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     }
   }

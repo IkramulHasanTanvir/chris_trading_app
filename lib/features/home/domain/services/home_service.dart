@@ -72,6 +72,16 @@ class HomeService {
     }
   }
 
+  Future<String> followTrader ({required String traderId}) async {
+    try {
+      return await _repository.followTrader(traderId: traderId);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   bool hasCache() {
     return _repository.getCachedLeaderBoardData() != null ||
         _repository.getCachedTopTraderData() != null ||

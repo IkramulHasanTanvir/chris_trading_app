@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
@@ -54,6 +56,16 @@ class SignalsService {
   Future<void> logTradingSignal(LogTradingSignalModel data) async {
     try {
       await _repository.logTradingSignal(data);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<String> uploadImage(File file) async {
+    try {
+      return await _repository.uploadImage(file);
     } on AppException {
       rethrow;
     } catch (e) {
