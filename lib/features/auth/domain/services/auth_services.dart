@@ -11,8 +11,9 @@ class AuthService {
   Future<LoginResponseModel> login({
     required String email,
     required String password,
+    String? twoFactorCode,
   }) async {
-    final response = await _repository.login(email: email, password: password);
+    final response = await _repository.login(email: email, password: password, twoFactorCode: twoFactorCode);
 
     return response;
   }

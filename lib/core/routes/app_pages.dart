@@ -1,7 +1,6 @@
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
-import 'package:flutter_task/core/services/connectivity_service.dart';
 import 'package:flutter_task/features/auth/presentation/pages/forget/forget_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/otp/otp_screen.dart';
@@ -15,11 +14,11 @@ import 'package:flutter_task/features/home/presentation/controllers/home_control
 import 'package:flutter_task/features/home/presentation/screens/contributor_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/leaderboard_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/top_trader_screen.dart';
-import 'package:flutter_task/features/home_demo/presentation/home_page.dart';
+import 'package:flutter_task/features/notification/presentation/screens/notification_screen.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
-import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
-import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
-import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:flutter_task/features/pasar/data/repositories/history_repository.dart';
+import 'package:flutter_task/features/pasar/domain/services/history_service.dart';
+import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
 import 'package:flutter_task/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
 import 'package:flutter_task/features/profile/presentation/screens/support_screen.dart';
@@ -34,6 +33,12 @@ import 'package:flutter_task/features/signals/domain/services/signal_service.dar
 import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
 import 'package:flutter_task/features/signals/presentation/screens/log_update_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
+import 'package:flutter_task/features/two_factor/data/repositories/two_factor_repository.dart';
+import 'package:flutter_task/features/two_factor/domain/services/two_factor_services.dart';
+import 'package:flutter_task/features/two_factor/presentation/controllers/two_factor_controller.dart';
+import 'package:flutter_task/features/two_factor/presentation/screens/password_set_up_screen.dart';
+import 'package:flutter_task/features/two_factor/presentation/screens/two_factor_auth_screen.dart';
+import 'package:flutter_task/features/two_factor/presentation/screens/two_factor_screen.dart';
 import 'package:get/get.dart';
 
 abstract class AppPages {
@@ -66,8 +71,6 @@ abstract class AppPages {
       page: () => const BottomNavUserBar(),
       binding: BottomNavBinding(),
     ),
-
-    GetPage(name: AppRoutes.home, page: () => const HomePage()),
 
     GetPage(
       name: AppRoutes.referralScreen,
@@ -110,6 +113,33 @@ abstract class AppPages {
       page: () => const LogUpdateScreen(),
       // binding: ReferralBinding(),
     ),
+
+
+    GetPage(
+      name: AppRoutes.twoFactorScreen,
+      page: () => const TwoFactorScreen(),
+       binding: TwoFactorBinding(),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.passwordSetUpScreen,
+      page: () => const PasswordSetUpScreen(),
+       binding: TwoFactorBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.twoFactorAuthScreen,
+      page: () => const TwoFactorAuthScreen(),
+      binding: TwoFactorBinding(),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.notificationScreen,
+      page: () => const NotificationScreen(),
+    ),
+
   ];
 }
 
@@ -157,27 +187,24 @@ class BottomNavBinding extends Bindings {
       () => SignalsController(service: Get.find<SignalsService>()),
       fenix: true,
     );
-
-
-
-
-    Get.lazyPut<ProfileRepository>(
-      () => ProfileRepository(
+    Get.lazyPut<HistoryRepository>(
+      () => HistoryRepository(
         apiService: Get.find<ApiService>(),
         cacheService: Get.find<CacheService>(),
       ),
       fenix: true,
     );
 
-    Get.lazyPut<ProfileService>(
-      () => ProfileService(repository: Get.find<ProfileRepository>()),
+    Get.lazyPut<HistoryService>(
+      () => HistoryService(repository: Get.find<HistoryRepository>()),
       fenix: true,
     );
 
-    Get.lazyPut<ProfileController>(
-      () => ProfileController(service: Get.find<ProfileService>()),
+    Get.lazyPut<HistoryController>(
+      () => HistoryController(service: Get.find<HistoryService>()),
       fenix: true,
     );
+
   }
 }
 
@@ -199,6 +226,29 @@ class ReferralBinding extends Bindings {
 
     Get.lazyPut<ReferralController>(
       () => ReferralController(service: Get.find<ReferralService>()),
+      fenix: true,
+    );
+  }
+}
+
+
+class TwoFactorBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<TwoFactorRepository>(
+          () => TwoFactorRepository(
+        apiService: Get.find<ApiService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut<TwoFactorService>(
+          () => TwoFactorService(repository: Get.find<TwoFactorRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<TwoFactorController>(
+          () => TwoFactorController(service: Get.find<TwoFactorService>()),
       fenix: true,
     );
   }

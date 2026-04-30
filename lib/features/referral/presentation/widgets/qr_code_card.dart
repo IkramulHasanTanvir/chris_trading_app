@@ -5,9 +5,12 @@ import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrCodeCard extends StatelessWidget {
-  const QrCodeCard({super.key, required this.referralLink});
+  const QrCodeCard({super.key, required this.referralLink, this.title, this.body});
 
   final String referralLink;
+
+  final String? title;
+  final String? body;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class QrCodeCard extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     CustomText(
-                      text: 'Your QR Code',
+                      text: title ?? 'Your QR Code',
                       fontSize: 10.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -72,7 +75,7 @@ class QrCodeCard extends StatelessWidget {
           SizedBox(height: 16.h),
 
           CustomText(
-            text: 'Scan to sign up with your referral',
+            text: body ?? 'Scan to sign up with your referral',
             fontSize: 12.sp,
             color: AppColors.textSecondary,
           ),

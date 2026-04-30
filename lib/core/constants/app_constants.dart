@@ -10,7 +10,10 @@ class AppConstants{
   static const String cacheTrader = "cacheTrader";
   static const String cacheContributor = "cacheContributor";
   static const String cacheSignals = "cacheSignals";
-
+  static const String cacheFollowTrader = "cacheFollowTrader";
+  static const String cacheTradeHistoryPending = 'trade_history_pending';
+  static const String cacheTradeHistoryCompleted = 'trade_history_completed';
+  static const String twoFactorSetUp = 'twoFactorSetUp';
 
 
 

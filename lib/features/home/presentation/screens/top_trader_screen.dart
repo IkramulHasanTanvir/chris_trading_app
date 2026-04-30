@@ -72,10 +72,10 @@ class TopTraderScreen extends StatelessWidget {
             body: TabBarView(
               children: [
                 /// ───── All Tab ─────
-                _buildSignalList(controller.topTraders),
+                _buildSignalList(HomeController.to.topTraders),
 
                 /// ───── Follow Tab ─────
-                _buildSignalList(controller.topTraders),
+                Obx(() => _buildSignalList(HomeController.to.followTraders)),
               ],
             ),
           ),
@@ -89,27 +89,17 @@ class TopTraderScreen extends StatelessWidget {
     return Column(
       children: [
         SizedBox(height: 24.h),
-
-        Obx(
-           () {
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              itemCount: data.length,
-              separatorBuilder: (_, index) {
-                return SizedBox(height: 12.w);
-              },
-              itemBuilder: (context, index) {
-                final item = data[index];
-
-                return TraderCard(trader: item,);
-              },
-            );
-          }
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          itemCount: data.length,
+          separatorBuilder: (_, __) => SizedBox(height: 12.h),
+          itemBuilder: (context, index) {
+            return TraderCard(trader: data[index]);
+          },
         ),
         SizedBox(height: 100.h),
       ],
     );
-  }
-}
+  }}

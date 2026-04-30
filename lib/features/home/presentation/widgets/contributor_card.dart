@@ -70,13 +70,6 @@ class ContributorCard extends StatelessWidget {
               ],
             ),
           ),
-
-          /// Trailing Arrow
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: AppColors.white.withValues(alpha: 0.4),
-            size: 14.sp,
-          ),
         ],
       ),
     );

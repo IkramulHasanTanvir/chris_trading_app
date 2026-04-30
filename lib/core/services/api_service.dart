@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_task/core/constants/app_constants.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/core/services/connectivity_service.dart';
+import 'package:get/get.dart' hide Response, MultipartFile, FormData;
 import '../constants/api_constants.dart';
 import '../exceptions/app_exceptions.dart';
 
@@ -53,12 +55,13 @@ class ApiService {
         },
 
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
+          if (error.response?.data['message'] ==  'jwt expired') {
             await _cacheService.clear();
+            Get.offAllNamed(AppRoutes.loginScreen);
           }
+
           return handler.next(error);
-        },
-      ),
+        },      ),
     );
 
     _dio.interceptors.add(

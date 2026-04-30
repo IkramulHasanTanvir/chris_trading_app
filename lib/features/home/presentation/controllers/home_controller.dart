@@ -20,16 +20,22 @@ class HomeController extends GetxController {
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
+
   String get errorMessage => _errorMessage.value;
 
   // ─── Data ─────────────────────────────────────────────────────────
   final _leaderBoard = Rxn<LeaderBoardModel>();
   final _topTraders = <TraderModel>[].obs;
   final _contributors = <ContributorModel>[].obs;
+  final _followTraders = <TraderModel>[].obs;
 
   LeaderBoardModel? get leaderBoard => _leaderBoard.value;
+
   List<TraderModel> get topTraders => _topTraders;
+
   List<ContributorModel> get contributors => _contributors;
+
+  List<TraderModel> get followTraders => _followTraders;
 
   // ─── Pagination ───────────────────────────────────────────────────
   static const int _pageSize = 10;
@@ -37,37 +43,50 @@ class HomeController extends GetxController {
   int _leaderboardPage = 1;
   int _tradersPage = 1;
   int _contributorsPage = 1;
+  int _followTradersPage = 1;
 
   final _isLoadingMoreLeaderboard = false.obs;
   final _isLoadingMoreTraders = false.obs;
   final _isLoadingMoreContributors = false.obs;
+  final _isLoadingMoreFollowTraders = false.obs;
 
   final _hasMoreLeaderboard = true.obs;
   final _hasMoreTraders = true.obs;
   final _hasMoreContributors = true.obs;
+  final _hasMoreFollowTraders = true.obs;
 
   bool get isLoadingMoreLeaderboard => _isLoadingMoreLeaderboard.value;
+
   bool get isLoadingMoreTraders => _isLoadingMoreTraders.value;
+
   bool get isLoadingMoreContributors => _isLoadingMoreContributors.value;
 
+  bool get isLoadingMoreFollowTraders => _isLoadingMoreFollowTraders.value;
+
   bool get hasMoreLeaderboard => _hasMoreLeaderboard.value;
+
   bool get hasMoreTraders => _hasMoreTraders.value;
+
   bool get hasMoreContributors => _hasMoreContributors.value;
+
+  bool get hasMoreFollowTraders => _hasMoreFollowTraders.value;
 
   // ─── Scroll Controllers ───────────────────────────────────────────
   ScrollController? leaderboardScrollController;
   ScrollController? tradersScrollController;
   ScrollController? contributorsScrollController;
+  ScrollController? followTradersScrollController;
 
   @override
   void onInit() {
     super.onInit();
     leaderboardScrollController = ScrollController()
       ..addListener(_onLeaderboardScroll);
-    tradersScrollController = ScrollController()
-      ..addListener(_onTradersScroll);
+    tradersScrollController = ScrollController()..addListener(_onTradersScroll);
     contributorsScrollController = ScrollController()
       ..addListener(_onContributorsScroll);
+    followTradersScrollController = ScrollController()
+      ..addListener(_onFollowTradersScroll);
     loadData();
   }
 
@@ -102,6 +121,16 @@ class HomeController extends GetxController {
     }
   }
 
+  void _onFollowTradersScroll() {
+    if (followTradersScrollController == null) return;
+    final position = followTradersScrollController!.position;
+    if (position.pixels >= position.maxScrollExtent - 200 &&
+        !isLoadingMoreFollowTraders &&
+        hasMoreFollowTraders) {
+      loadMoreFollowTraders();
+    }
+  }
+
   // ─── Load All ─────────────────────────────────────────────────────
   Future<void> loadData() async {
     try {
@@ -113,6 +142,7 @@ class HomeController extends GetxController {
         _leaderBoard.value = cached.leaderBoard;
         _topTraders.assignAll(cached.topTraders);
         _contributors.assignAll(cached.contributors);
+        _followTraders.assignAll(cached.followTraders);
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
@@ -124,11 +154,14 @@ class HomeController extends GetxController {
       _leaderBoard.value = fresh.leaderBoard;
       _topTraders.assignAll(fresh.topTraders);
       _contributors.assignAll(fresh.contributors);
+      _followTraders.assignAll(fresh.followTraders);
+      setInitialFollowState(fresh.followTraders);
 
       _hasMoreLeaderboard.value =
           (fresh.leaderBoard?.leaderBoardItems?.length ?? 0) >= _pageSize;
       _hasMoreTraders.value = fresh.topTraders.length >= _pageSize;
       _hasMoreContributors.value = fresh.contributors.length >= _pageSize;
+      _hasMoreFollowTraders.value = fresh.followTraders.length >= _pageSize;
 
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
@@ -206,37 +239,82 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> loadMoreFollowTraders() async {
+    if (isLoadingMoreFollowTraders || !hasMoreFollowTraders) return;
+    try {
+      _isLoadingMoreFollowTraders.value = true;
+      _followTradersPage++;
+      final data = await _service.fetchMoreFollowTraders(
+        page: _followTradersPage,
+        limit: _pageSize,
+      );
+      _followTraders.addAll(data);
+      appendFollowState(data);
+      if (data.length < _pageSize) _hasMoreFollowTraders.value = false;
+    } catch (e) {
+      _followTradersPage--;
+      ToastMessageHelper.show(e.errorMessage);
+    } finally {
+      _isLoadingMoreFollowTraders.value = false;
+    }
+  }
+
   Future<void> retry() async => await loadData();
 
-// ─── Follow State ──────────────────────────────────────────────────────────
-  final _followingIds = <String>{}.obs;
+  // ─── Follow State ──────────────────────────────────────────────────────────
+  final RxSet<String> _followingIds = <String>{}.obs;
 
-  bool isFollowing(String traderId) => _followingIds.contains(traderId);
+  bool isFollowing(String traderId) {
+    if (traderId.isEmpty) return false;
+    return _followingIds.contains(traderId);
+  }
+
+  void setInitialFollowState(List<TraderModel> traders) {
+    _followingIds.clear();
+
+    _followingIds.addAll(
+      traders
+          .where((e) => e.isFollow == true)
+          .map((e) => e.accountId?.sId ?? '')
+          .where((id) => id.isNotEmpty),
+    );
+  }
+
+  void appendFollowState(List<TraderModel> traders) {
+    _followingIds.addAll(
+      traders
+          .where((e) => e.isFollow == true)
+          .map((e) => e.accountId?.sId ?? '')
+          .where((id) => id.isNotEmpty),
+    );
+  }
 
   Future<void> followTrader({required String traderId}) async {
+    if (traderId.isEmpty) return;
+
     final wasFollowing = _followingIds.contains(traderId);
 
-    // Optimistic update
-    if (wasFollowing) {
-      _followingIds.remove(traderId);
-    } else {
-      _followingIds.add(traderId);
-    }
+    // optimistic
+    wasFollowing ? _followingIds.remove(traderId) : _followingIds.add(traderId);
 
     try {
       final action = await _service.followTrader(traderId: traderId);
+
       if (action == 'followed') {
         _followingIds.add(traderId);
-      } else {
+      } else if (action == 'unfollowed') {
         _followingIds.remove(traderId);
       }
+      _service.fetchMoreFollowTraders(page: 1, limit: _pageSize).then((fresh) {
+        _followTraders.assignAll(fresh);
+        setInitialFollowState(fresh);
+      });
     } catch (e) {
-      // Rollback
-      if (wasFollowing) {
-        _followingIds.add(traderId);
-      } else {
-        _followingIds.remove(traderId);
-      }
+      // rollback
+      wasFollowing
+          ? _followingIds.add(traderId)
+          : _followingIds.remove(traderId);
+
       ToastMessageHelper.show(e.errorMessage);
     }
   }
@@ -255,6 +333,10 @@ class HomeController extends GetxController {
     contributorsScrollController?.removeListener(_onContributorsScroll);
     contributorsScrollController?.dispose();
     contributorsScrollController = null;
+
+    followTradersScrollController?.removeListener(_onFollowTradersScroll);
+    followTradersScrollController?.dispose();
+    followTradersScrollController = null;
 
     super.onClose();
   }

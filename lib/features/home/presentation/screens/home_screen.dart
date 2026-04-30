@@ -24,153 +24,163 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ─── Sliver AppBar ───────────────────────────────────────────
-            SliverAppBar(
-              expandedHeight: 74.h,
-              pinned: false,
-              floating: false,
-              backgroundColor: AppColors.background,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    Get.toNamed(AppRoutes.settingScreen);
-                  },
-                  icon: const Icon(
-                    Icons.notifications_none,
-                    color: AppColors.white,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.loadData();
+          },
+          edgeOffset: 60.h,
+          color: AppColors.primary,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              // ─── Sliver AppBar ───────────────────────────────────────────
+              SliverAppBar(
+                expandedHeight: 74.h,
+                pinned: false,
+                floating: false,
+                backgroundColor: AppColors.background,
+                elevation: 0,
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.notificationScreen);
+                    },
+                    icon: const Icon(
+                      Icons.notifications_none,
+                      color: AppColors.white,
+                    ),
                   ),
-                ),
-              ],
-              leadingWidth: 0,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: EdgeInsets.only(left: 16.w, bottom: 12.h),
-                //expandedTitleScale: 2.0,
-                title: GestureDetector(
-                  onTap: () {
-                    BottomNavBarController.to.onChange(4);
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CustomNetworkImage(
-                        width: 32.w,
-                        height: 32.h,
-                        boxShape: BoxShape.circle,
-                        fit: BoxFit.cover,
-                        imageUrl: ProfileController.to.userData?.userProfileUrl ?? '',
-                      ),
-                      Obx(
-                         () {
+                ],
+                leadingWidth: 0,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: EdgeInsets.only(left: 16.w, bottom: 12.h),
+                  //expandedTitleScale: 2.0,
+                  title: GestureDetector(
+                    onTap: () {
+                      BottomNavBarController.to.onChange(4);
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CustomNetworkImage(
+                          width: 32.w,
+                          height: 32.h,
+                          boxShape: BoxShape.circle,
+                          fit: BoxFit.cover,
+                          imageUrl: ProfileController.to.userData?.userProfileUrl ?? '',
+                        ),
+                        Obx(
+                           () {
 
-                          return CustomText(
-                            left: 6.w,
-                            text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                          );
-                        }
-                      ),
-                    ],
+                            return CustomText(
+                              left: 6.w,
+                              text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                            );
+                          }
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        
-            // ─── Sliver Body ─────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Obx(() {
-                final leaderBoardData = controller.leaderBoard?.topThree ?? [];
-                final contributors = controller.contributors;
-                final traders = controller.topTraders;
-                switch (controller.loadingState) {
-                  case LoadingState.initial:
-                  case LoadingState.loading:
-                    return HomeShimmerWidgets.buildLoadingShimmer();
-                  case LoadingState.offline:
-                  case LoadingState.error:
-                    return RetryWidget(
-                      message: controller.errorMessage,
-                      onRetry: controller.retry,
-                      isOffline: controller.loadingState.isOffline,
-                    );
 
-                  case LoadingState.loaded:
-                  return Column(
-                    children: [
-                      SizedBox(height: 16.h),
-                      if(leaderBoardData.isNotEmpty)...[
-                        ChampionsTopThreeCard(
-                          onTap: (){
-                            Get.toNamed(AppRoutes.leaderboardScreen);
-                          },
-                          items: leaderBoardData,
-                        ),
+              // ─── Sliver Body ─────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Obx(() {
+                  final leaderBoardData = controller.leaderBoard?.topThree ?? [];
+                  final contributors = controller.contributors;
+                  final traders = controller.topTraders;
+                  switch (controller.loadingState) {
+                    case LoadingState.initial:
+                    case LoadingState.loading:
+                      return HomeShimmerWidgets.buildLoadingShimmer();
+                    case LoadingState.offline:
+                    case LoadingState.error:
+                      return RetryWidget(
+                        message: controller.errorMessage,
+                        onRetry: controller.retry,
+                        isOffline: controller.loadingState.isOffline,
+                      );
 
-                        SizedBox(height: 24.h),
-                      ],
+                    case LoadingState.loaded:
+                    return Column(
+                      children: [
+                        SizedBox(height: 16.h),
+                        if(leaderBoardData.isNotEmpty)...[
+                          ChampionsTopThreeCard(
+                            onTap: (){
+                              Get.toNamed(AppRoutes.leaderboardScreen);
+                            },
+                            items: leaderBoardData,
+                          ),
+
+                          SizedBox(height: 24.h),
+                        ],
 
 
-                      if(contributors.isNotEmpty)...[
-                        SectionTitleWidget(title: 'Top Contributors', onTap: () {
-                          Get.toNamed(AppRoutes.contributorScreen,);
-                        }),
-                        SizedBox(height: 12.h),
-                        SizedBox(
-                          height: 160.h,
-                          child: ListView.separated(
+                        if(contributors.isNotEmpty)...[
+                          SectionTitleWidget(title: 'Top Contributors', onTap: () {
+                            Get.toNamed(AppRoutes.contributorScreen,);
+                          }),
+                          SizedBox(height: 12.h),
+                          SizedBox(
+                            height: 160.h,
+                            child: ListView.separated(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: contributors.length,
+                              separatorBuilder: (_, index) {
+                                return SizedBox(width: 12.w);
+                              },
+                              itemBuilder: (context, index) {
+                                final item = contributors[index];
+
+                                return ContributorCard(item: item,isHorizontal: true);
+                              },
+                            ),
+                          ),
+
+                          SizedBox(height: 24.h),
+                        ],
+
+                        if(traders.isNotEmpty)...[
+                          SectionTitleWidget(title: 'Top traders', onTap: () {
+                            Get.toNamed(AppRoutes.topTraderScreen);
+                          }),
+                          SizedBox(height: 12.h),
+
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: contributors.length,
+                            itemCount: traders.length,
                             separatorBuilder: (_, index) {
-                              return SizedBox(width: 12.w);
+                              return SizedBox(height: 12.w);
                             },
                             itemBuilder: (context, index) {
-                              final item = contributors[index];
+                              final item = traders[index];
 
-                              return ContributorCard(item: item,isHorizontal: true);
+                              return TraderCard(trader: item,);
                             },
                           ),
-                        ),
+                        ],
 
-                        SizedBox(height: 24.h),
+
+                        SizedBox(height: 100.h),
                       ],
-
-                      if(traders.isNotEmpty)...[
-                        SectionTitleWidget(title: 'Top traders', onTap: () {
-                          Get.toNamed(AppRoutes.topTraderScreen);
-                        }),
-                        SizedBox(height: 12.h),
-
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          itemCount: traders.length,
-                          separatorBuilder: (_, index) {
-                            return SizedBox(height: 12.w);
-                          },
-                          itemBuilder: (context, index) {
-                            final item = traders[index];
-
-                            return TraderCard(trader: item,);
-                          },
-                        ),
-                      ],
-
-
-                      SizedBox(height: 100.h),
-                    ],
-                  );
-                }}
-                )
-            ),
-          ],
+                    );
+                  }}
+                  )
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -136,6 +136,63 @@ class HomeRepository {
     }
   }
 
+
+  // ─── follow trader Data ───────────────────────────────────────────────
+
+  Future<List<TraderModel>> getFollowTraderData(int page, int limit) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.follows(page, limit),
+      );
+      final list = response.data['data'] as List? ?? [];
+      final model = list.map((e) => TraderModel.fromJson(e)).toList();
+      await _cacheService.put(
+        AppConstants.cacheFollowTrader,
+        model.map((e) => e.toJson()).toList(),
+      );
+      return model;
+    } on AppException {
+      final cached = getCachedFollowTraderData();
+      if (cached != null) return cached;
+      rethrow;
+    }
+  }
+
+  Future<List<TraderModel>> fetchMoreFollowTraderData({
+    required int page,
+    required int limit,
+  }) async {
+    final newData = await getFollowTraderData(page, limit);
+    if(newData.isEmpty){
+      return newData;
+    }else{
+      final current = getCachedFollowTraderData() ?? [];
+      final merged = [...current, ...newData];
+      await _cacheService.put(
+        AppConstants.cacheFollowTrader,
+        merged.map((e) => e.toJson()).toList(),
+      );
+      return newData;
+    }
+  }
+
+
+  List<TraderModel>? getCachedFollowTraderData() {
+    try {
+      final jsonList = _cacheService.get<List>(
+        AppConstants.cacheFollowTrader,
+        defaultValue: null,
+      );
+      if (jsonList == null) return null;
+      return jsonList
+          .map((json) => TraderModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      } catch (e) {
+      debugPrint('Error getting cached referral data: $e');
+      return null;
+    }
+  }
+
   // Contributor Data ───────────────────────────────────────────────
 
   Future<List<ContributorModel>> getContributorData(int page, int limit) async {
@@ -195,9 +252,13 @@ class HomeRepository {
   }
 
 
+
+
   Future<String> followTrader ({required String traderId}) async {
     try {
       final response = await _apiService.post(ApiConstants.followTrader(traderId));
+        await getFollowTraderData(1, 20);
+
       return response.data['data']?['action'] ?? '';
     } on AppException {
       rethrow;

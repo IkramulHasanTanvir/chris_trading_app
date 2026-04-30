@@ -12,6 +12,7 @@ class TraderModel {
   int? losingSignals;
   int? followerCount;
   bool? isFeatured;
+  bool? isFollow;
   int? recentSignalsCount;
   int? rank;
 
@@ -29,6 +30,7 @@ class TraderModel {
     this.losingSignals,
     this.followerCount,
     this.isFeatured,
+    this.isFollow,
     this.recentSignalsCount,
     this.rank,
   });
@@ -49,6 +51,7 @@ class TraderModel {
     losingSignals = json['losingSignals'];
     followerCount = json['followerCount'];
     isFeatured = json['isFeatured'];
+    isFollow = json['isFollow'];
     recentSignalsCount = json['recentSignalsCount'];
     rank = json['rank'];
   }
@@ -70,6 +73,7 @@ class TraderModel {
     data['losingSignals'] = this.losingSignals;
     data['followerCount'] = this.followerCount;
     data['isFeatured'] = this.isFeatured;
+    data['isFollow'] = this.isFollow;
     data['recentSignalsCount'] = this.recentSignalsCount;
     data['rank'] = this.rank;
     return data;

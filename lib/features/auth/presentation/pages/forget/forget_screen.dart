@@ -11,7 +11,7 @@ class ForgetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.find<AuthController>();
+    final controller = AuthController.to;
 
     return CustomScaffold(
       paddingSide: 24.w,
@@ -37,15 +37,13 @@ class ForgetScreen extends StatelessWidget {
               ),
               SizedBox(height: 54.h),
 
-              GetBuilder<AuthController>(
-                builder: (controller) {
-                  return CustomButton(
-                    label: "Send OTP",
-                    isLoading: controller.forgotState.isLoading,
-                    onPressed: controller.forgot,
-                  );
-                },
-              ),
+              Obx(() {
+                return CustomButton(
+                  label: "Send OTP",
+                  isLoading: controller.forgotState.isLoading,
+                  onPressed: controller.forgot,
+                );
+              }),
 
               SizedBox(height: 18.h),
             ],

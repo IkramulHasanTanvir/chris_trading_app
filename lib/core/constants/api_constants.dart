@@ -1,8 +1,8 @@
 class ApiConstants {
 
 
-  static const String baseUrl = 'https://reaz5000.syedbipul.me';
-  //static const String baseUrl = 'http://206.162.244.11:7777/';
+  //static const String baseUrl = 'https://reaz5000.syedbipul.me';
+  static const String baseUrl = 'http://206.162.244.11:7777/';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';
@@ -18,6 +18,9 @@ class ApiConstants {
   static const String forgot = '/api/v1/auth/forgot-password';
   static const String otpVerify = '/api/v1/auth/verify-email';
   static const String resetPassword = '/api/v1/auth/reset-password';
+  static const String twoFactorSetUp = '/api/v1/auth/2fa/setup';
+  static const String twoFactorOtp = '/api/v1/auth/2fa/enable';
+  static const String twoFactorDisable = '/api/v1/auth/2fa/disable';
 
 
   /// home
@@ -27,6 +30,8 @@ class ApiConstants {
 
   // signal
   static  String signals(int page,int limit) => '/api/v1/signals?page=$page&limit=$limit';
+  static  String follows(int page,int limit) => '/api/v1/follow/following?page=$page&limit=$limit';
+  static  String tradesHistory(int page,int limit,String status) => '/api/v1/copied-trades?page=$page&limit=$limit&status=$status';
   static  String copySignals(String signalId) => '/api/v1/copied-trades/signals/$signalId/copy';
   static  String followTrader(String traderId) => '/api/v1/follow/toggle/$traderId';
   static const  String logSignals = '/api/v1/copied-trades/log';

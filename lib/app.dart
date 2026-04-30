@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
           ),
           getPages: AppPages.routes,
           initialRoute: AppRoutes.initial,
-          defaultTransition: Transition.zoom,
-          transitionDuration: Duration(milliseconds: 200),
+          defaultTransition: Transition.cupertino,
+          transitionDuration: const Duration(milliseconds: 180),
         );
       },
     );

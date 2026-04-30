@@ -12,7 +12,7 @@ class OtpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.find<AuthController>();
+    final  controller = AuthController.to;
     return CustomScaffold(
       appBar: CustomAppBar(),
       body: SingleChildScrollView(
@@ -36,8 +36,7 @@ class OtpScreen extends StatelessWidget {
 
             SizedBox(height: 56.h),
 
-                  GetBuilder<AuthController>(
-                    builder: (controller) {
+                  Obx(() {
                       return CustomButton(
                         isLoading: controller.otpState.isLoading,
                           label: "Verify",

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 import 'package:flutter_task/features/signals/domain/services/signal_service.dart';
@@ -190,6 +191,7 @@ class SignalsController extends GetxController {
       _copyState.value = LoadingState.loading;
       await _service.copyTradingSignal(signalId: signalId);
       _copyState.value = LoadingState.loaded;
+      await HistoryController.to.retry();
       ToastMessageHelper.show('Signal copied successfully');
     } catch (e) {
       _copyState.value = LoadingState.error;
@@ -216,6 +218,7 @@ class SignalsController extends GetxController {
         ),
       );
       _logState.value = LoadingState.loaded;
+      await HistoryController.to.retry();
       entryController.clear();
       exitController.clear();
       lotController.clear();

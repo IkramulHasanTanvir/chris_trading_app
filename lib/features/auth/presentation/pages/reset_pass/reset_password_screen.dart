@@ -11,7 +11,7 @@ class ResetPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.find<AuthController>();
+    final  controller = AuthController.to;
     return CustomScaffold(
       appBar: CustomAppBar(),
       body: SingleChildScrollView(
@@ -44,8 +44,7 @@ class ResetPasswordScreen extends StatelessWidget {
 
               SizedBox(height: 36.h),
 
-              GetBuilder<AuthController>(
-                builder: (controller) {
+              Obx(() {
                   return CustomButton(
                     label: "Reset",
                     isLoading: controller.resetState.isLoading,

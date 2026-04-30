@@ -17,6 +17,7 @@ class HomeService {
         _repository.getLeaderboardData(1, 10),
         _repository.getTopTraderData(1, 10),
         _repository.getContributorData(1, 10),
+        _repository.getFollowTraderData(1, 10),
       ]);
     } on AppException {
       if (!hasCache()) {
@@ -72,6 +73,20 @@ class HomeService {
     }
   }
 
+  Future<List<TraderModel>> fetchMoreFollowTraders({
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      return await _repository.fetchMoreFollowTraderData(page: page, limit: limit);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+
+    }
+  }
+
   Future<String> followTrader ({required String traderId}) async {
     try {
       return await _repository.followTrader(traderId: traderId);
@@ -85,6 +100,7 @@ class HomeService {
   bool hasCache() {
     return _repository.getCachedLeaderBoardData() != null ||
         _repository.getCachedTopTraderData() != null ||
+        _repository.getCachedFollowTraderData() != null ||
         _repository.getCachedContributorData() != null;
   }
 
@@ -93,6 +109,7 @@ class HomeService {
       leaderBoard: _repository.getCachedLeaderBoardData(),
       topTraders: _repository.getCachedTopTraderData() ?? [],
       contributors: _repository.getCachedContributorData() ?? [],
+      followTraders: _repository.getCachedFollowTraderData() ?? [],
     );
   }
 }
@@ -100,10 +117,12 @@ class HomeService {
 class HomeScreenData {
   final LeaderBoardModel? leaderBoard;
   final List<TraderModel> topTraders;
+  final List<TraderModel> followTraders;
   final List<ContributorModel> contributors;
 
   HomeScreenData({
     required this.leaderBoard,
+    required this.followTraders,
     required this.topTraders,
     required this.contributors,
   });

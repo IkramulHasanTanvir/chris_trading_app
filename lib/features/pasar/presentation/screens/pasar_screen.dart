@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/pasar/data/models/trade_history_model.dart';
+import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
 import 'package:flutter_task/features/pasar/presentation/widgets/signal_details_card.dart';
-import 'package:flutter_task/features/signals/data/models/signal_model.dart';
+import 'package:get/get.dart';
 
 class PasarScreen extends StatelessWidget {
   const PasarScreen({super.key});
@@ -24,15 +26,12 @@ class PasarScreen extends StatelessWidget {
                   elevation: 0,
                   scrolledUnderElevation: 0,
                   backgroundColor: AppColors.background,
-
                   title: CustomText(
-                    text: 'Signals',
+                    text: 'Trade History',
                     fontSize: 28.sp,
                     fontWeight: FontWeight.w700,
                   ),
                   centerTitle: true,
-
-                  /// 🔥 TabBar
                   bottom: PreferredSize(
                     preferredSize: Size.fromHeight(30.h),
                     child: Padding(
@@ -45,59 +44,92 @@ class PasarScreen extends StatelessWidget {
                         unselectedLabelColor: AppColors.white,
                         dividerColor: AppColors.textSecondary,
                         tabs: const [
-                          Tab(text: "Copy"),
-                          Tab(text: "Log"),
+                          Tab(text: "Copy Trade"),
+                          Tab(text: "Log Trade"),
                         ],
-                      )
+                      ),
                     ),
                   ),
                 ),
               ];
             },
-
-            /// 🔥 Tab Views
-            body: TabBarView(
-              children: [
-                /// ───── Copy Tab ─────
-                _buildSignalList(),
-
-                /// ───── Log Tab ─────
-                Center(
-                  child: CustomText(
-                    text: "No Logs Found",
-                    fontSize: 14.sp,
-                    color: AppColors.textSecondary,
+            body: Obx(() {
+              final controller = HistoryController.to;
+              // ─── Tab Views ────────────────────────────────────────
+              return TabBarView(
+                children: [
+                  /// ───── Pending Tab ─────
+                  _buildTradeList(
+                    trades: controller.pendingTrades,
+                    scrollController: controller.pendingScrollController,
+                    isLoadingMore: controller.isLoadingMorePending,
+                    hasMore: controller.hasMorePending,
+                    emptyText: 'No Pending Trades',
                   ),
-                ),
-              ],
-            ),
+
+                  /// ───── Completed Tab ─────
+                  _buildTradeList(
+                    trades: controller.completedTrades,
+                    scrollController: controller.completedScrollController,
+                    isLoadingMore: controller.isLoadingMoreCompleted,
+                    hasMore: controller.hasMoreCompleted,
+                    emptyText: 'No Completed Trades',
+                  ),
+                ],
+              );
+            }),
           ),
         ),
       ),
     );
   }
 
-  /// 🔥 Signal List (Reusable)
-  Widget _buildSignalList() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: 24.h),
+  // ─── Trade List Builder ───────────────────────────────────────────
+  Widget _buildTradeList({
+    required List<Trades> trades,
+    required ScrollController? scrollController,
+    required bool isLoadingMore,
+    required bool hasMore,
+    required String emptyText,
+  }) {
+    if (trades.isEmpty) {
+      return Center(
+        child: CustomText(
+          text: emptyText,
+          fontSize: 14.sp,
+          color: AppColors.textSecondary,
+        ),
+      );
+    }
 
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: SignalsModel.demoSignals.length,
-            separatorBuilder: (_, __) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) {
-              final item = SignalsModel.demoSignals[index];
-              return SignalDetailsCard(item: item);
-            },
-          ),
+    return RefreshIndicator(
+      color: AppColors.navBackground,
+      onRefresh: () async {
+        await HistoryController.to.retry();
+      },
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        controller: scrollController,
+        padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
+          top: 24.h,
+          bottom: 100.h,
+        ),
+        itemCount: trades.length + (isLoadingMore ? 1 : 0),
+        separatorBuilder: (_, __) => SizedBox(height: 12.h),
+        itemBuilder: (context, index) {
+          // ─── Load More Indicator ───────────────────────────────
+          if (index == trades.length) {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: const Center(child: CircularProgressIndicator()),
+            );
+          }
 
-          SizedBox(height: 100.h),
-        ],
+          final item = trades[index];
+          return SignalDetailsCard(item: item);
+        },
       ),
     );
   }

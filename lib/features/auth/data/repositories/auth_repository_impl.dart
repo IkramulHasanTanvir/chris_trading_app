@@ -54,11 +54,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<LoginResponseModel> login({
     required String email,
     required String password,
+    String? twoFactorCode,
   }) async {
     try {
       final response = await _apiService.post(
         ApiConstants.login,
-        data: {'email': email, 'password': password},
+        data: {
+          'email': email,
+          'password': password,
+          if (twoFactorCode != null) 'twoFactorCode': twoFactorCode,
+        },
       );
 
       final model = LoginResponseModel.fromJson(

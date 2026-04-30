@@ -64,7 +64,7 @@ class CustomPinCodeTextField extends StatelessWidget {
         ),
         keyboardType: TextInputType.number,
         //obscureText: true,
-        autofocus: true,
+        autofocus: false,
         onChanged: (value) {},
         obscuringCharacter: '-');
   }

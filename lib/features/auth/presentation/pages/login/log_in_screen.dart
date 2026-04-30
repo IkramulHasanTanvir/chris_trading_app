@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.find<AuthController>();
+    final  controller = AuthController.to;
 
     return CustomScaffold(
       paddingSide: 24.w,
@@ -66,8 +66,7 @@ class LoginScreen extends StatelessWidget {
 
 
 
-              GetBuilder<AuthController>(
-                builder: (controller) {
+              Obx(() {
                   return CustomButton(
                     isLoading: controller.loginState.isLoading,
                       label: "Log in", onPressed: controller.login);
@@ -80,60 +79,60 @@ class LoginScreen extends StatelessWidget {
 
 
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: Divider(color: AppColors.grey600)),
-                  CustomText(
-                    text: 'Or log in with',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey600,
-                    left: 9.w,
-                    right: 9.w,
-                  ),
-                  Expanded(child: Divider(color: AppColors.grey600)),
-                ],
-              ),
-
-              SizedBox(height: 20.h),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: GestureDetector(
-                      onTap: () async {
-                        //  await AuthService().signInWithGoogle();
-                      },
-                      child: CustomContainer(
-                        paddingAll: 14.r,
-                        color: Colors.white,
-                        width: 98.w,
-                        height: 48.h,
-                        radiusAll: 10.r,
-                        child: Assets.icons.google.svg(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Flexible(
-                    child: GestureDetector(
-                      onTap: () async {
-                        // await AuthService().signInWithApple();
-                      },
-                      child: CustomContainer(
-                        paddingAll: 14.r,
-                        color: Colors.white,
-                        width: 98.w,
-                        height: 48.h,
-                        radiusAll: 10.r,
-                        child: Assets.icons.apple.svg(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Expanded(child: Divider(color: AppColors.grey600)),
+              //     CustomText(
+              //       text: 'Or log in with',
+              //       fontSize: 12.sp,
+              //       fontWeight: FontWeight.w600,
+              //       color: AppColors.grey600,
+              //       left: 9.w,
+              //       right: 9.w,
+              //     ),
+              //     Expanded(child: Divider(color: AppColors.grey600)),
+              //   ],
+              // ),
+              //
+              // SizedBox(height: 20.h),
+              //
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Flexible(
+              //       child: GestureDetector(
+              //         onTap: () async {
+              //           //  await AuthService().signInWithGoogle();
+              //         },
+              //         child: CustomContainer(
+              //           paddingAll: 14.r,
+              //           color: Colors.white,
+              //           width: 98.w,
+              //           height: 48.h,
+              //           radiusAll: 10.r,
+              //           child: Assets.icons.google.svg(),
+              //         ),
+              //       ),
+              //     ),
+              //     SizedBox(width: 16.w),
+              //     Flexible(
+              //       child: GestureDetector(
+              //         onTap: () async {
+              //           // await AuthService().signInWithApple();
+              //         },
+              //         child: CustomContainer(
+              //           paddingAll: 14.r,
+              //           color: Colors.white,
+              //           width: 98.w,
+              //           height: 48.h,
+              //           radiusAll: 10.r,
+              //           child: Assets.icons.apple.svg(),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: 20.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

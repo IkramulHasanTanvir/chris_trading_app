@@ -14,7 +14,7 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.find<AuthController>();
+    final controller = AuthController.to;
 
     return CustomScaffold(
       paddingSide: 24.w,
@@ -25,7 +25,7 @@ class SignUpScreen extends StatelessWidget {
             spacing: 4.h,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-               SizedBox(height: 70.h),
+              SizedBox(height: 70.h),
               Center(
                 child: AppLogo(
                   icon: Assets.lotties.tradingAnimLine.lottie(
@@ -68,13 +68,13 @@ class SignUpScreen extends StatelessWidget {
 
               SizedBox(height: 44.h),
 
-              GetBuilder<AuthController>(
-                builder: (controller) {
-                  return CustomButton(
-                    isLoading: controller.registerState.isLoading,
-                      label: "Sign Up", onPressed: controller.register);
-                }
-              ),
+              Obx(() {
+                return CustomButton(
+                  isLoading: controller.registerState.isLoading,
+                  label: "Sign Up",
+                  onPressed: controller.register,
+                );
+              }),
 
               SizedBox(height: 24.h),
               Row(

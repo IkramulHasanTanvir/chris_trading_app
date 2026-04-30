@@ -9,33 +9,24 @@ import 'package:get/get.dart';
 class TraderCard extends StatelessWidget {
   final TraderModel trader;
 
-  const TraderCard({
-    super.key,
-    required this.trader,
-  });
+  const TraderCard({super.key, required this.trader});
 
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
       paddingAll: 12.r,
-        color: AppColors.navBackground,
-        radiusAll: 12.r,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          )
-        ],
+      color: AppColors.navBackground,
+      radiusAll: 12.r,
+      boxShadow: [
+        BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3)),
+      ],
 
       child: Row(
         children: [
           // Profile Image
           CircleAvatar(
             radius: 24.r,
-            backgroundImage: NetworkImage(
-              trader.userProfileUrl ?? "",
-            ),
+            backgroundImage: NetworkImage(trader.userProfileUrl ?? ""),
           ),
 
           SizedBox(width: 12.w),
@@ -45,34 +36,36 @@ class TraderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(text:
-                  trader.name ?? "Unknown",
-                    fontWeight: FontWeight.bold,
+                CustomText(
+                  text: trader.name ?? "Unknown",
+                  fontWeight: FontWeight.bold,
                 ),
                 SizedBox(height: 4.h),
-                CustomText(text:
-                  "Win Rate: ${trader.winRate ?? 0}%",
-                    fontSize: 12.sp,
-                    color: AppColors.primary,
+                CustomText(
+                  text: "Win Rate: ${trader.winRate ?? 0}%",
+                  fontSize: 12.sp,
+                  color: AppColors.primary,
                 ),
               ],
             ),
           ),
 
           // Follow Button
-
           Obx(() {
-            final isFollowing = HomeController.to.isFollowing(trader.accountId?.sId ?? '');
-            return CustomButton(
-              backgroundColor: !isFollowing ? AppColors.primary : AppColors.background,
-              onPressed: () {
-                if(isFollowing){
-                  _showCopyDialog(context);
-                }else{
-                  HomeController.to.followTrader(traderId: trader.accountId?.sId ?? '');
+            final traderId = trader.accountId?.sId ?? '';
+            final isFollowing = HomeController.to.isFollowing(traderId);
 
+            return CustomButton(
+              backgroundColor: isFollowing
+                  ? AppColors.background
+                  : AppColors.primary,
+              onPressed: () {
+                if (isFollowing) {
+                  _showCopyDialog(context);
+                } else {
+                  HomeController.to.followTrader(traderId: traderId);
                 }
-              } ,
+              },
               label: isFollowing ? "Following" : "Follow",
               width: 80.w,
               height: 26.h,
@@ -83,7 +76,6 @@ class TraderCard extends StatelessWidget {
       ),
     );
   }
-
 
   void _showCopyDialog(BuildContext context) {
     showDialog(
@@ -112,7 +104,9 @@ class TraderCard extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                HomeController.to.followTrader(traderId: trader.accountId?.sId ?? '');
+                HomeController.to.followTrader(
+                  traderId: trader.accountId?.sId ?? '',
+                );
                 Get.back();
               },
               child: const CustomText(
@@ -126,5 +120,4 @@ class TraderCard extends StatelessWidget {
       },
     );
   }
-
 }

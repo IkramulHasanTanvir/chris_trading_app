@@ -41,6 +41,10 @@ abstract class AppRoutes {
   static const String contributorScreen = '/home/contributor';
   static const String editProfileScreen = '/profile/edit';
   static const String logUpdateScreen = '/signal/log-update';
+  static const String twoFactorScreen = '/profile/two-factor';
+  static const String passwordSetUpScreen = '/profile/two-factor/password';
+  static const String twoFactorAuthScreen = '/profile/two-factor-auth';
+  static const String notificationScreen = '/home/notification';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────
