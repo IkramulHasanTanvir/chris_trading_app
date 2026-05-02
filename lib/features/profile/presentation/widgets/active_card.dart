@@ -8,17 +8,19 @@ class ActiveCard extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
-    this.isActive = true,
+    this.isActive = true, this.onTap,
   });
 
   final bool isActive;
   final String? title;
   final String? subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: CustomContainer(
+        onTap: onTap,
         height: 48.h,
         paddingVertical: 6.h,
         radiusAll: 10.r,

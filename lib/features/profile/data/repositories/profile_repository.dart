@@ -71,7 +71,7 @@ class ProfileRepository {
 
     final image = await MultipartFile.fromFile(file.path);
     try{
-      final response = await _apiService.uploadFile(ApiConstants.profileUpdate,file: image);
+      final response = await _apiService.uploadFile(ApiConstants.imageUpload,file: image);
       return response.data['url'];
 
     } on AppException {

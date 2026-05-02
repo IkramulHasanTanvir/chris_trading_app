@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
-import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
+import 'package:flutter_task/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/profile/presentation/widgets/active_card.dart';
 import 'package:flutter_task/features/profile/presentation/widgets/profile_list_tile.dart';
@@ -82,6 +82,9 @@ class ProfileScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ActiveCard(
+                              onTap: (){
+                                BottomNavBarController.to.onChange(2);
+                              },
                                 isActive: data?.subscriptionStatus == 'active',
                                 title: data?.subscriptionStatus, subtitle: "subscription"),
                             SizedBox(width: 12.w),
@@ -90,6 +93,9 @@ class ProfileScreen extends StatelessWidget {
                                 title: "Pro"),
                             SizedBox(width: 12.w),
                             ActiveCard(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.twoFactorScreen);
+                              },
                               isActive: data?.twoFactorEnabled ?? false,
                               title: "Two-factor",
                               subtitle: "authentication",

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
+import 'package:flutter_task/core/helpers/photo_picker_helper.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
@@ -42,17 +44,68 @@ class EditProfileScreen extends StatelessWidget {
               child: Obx(
                       () {
                     final data = controller.userData;
-                    return Column(
-                      children: [
-                        SizedBox(height: 24.h),
-                        CustomNetworkImage(
-                          boxShape: BoxShape.circle,
-                          height: 128.r,
-                          width: 128.r,
-                          imageUrl: data?.userProfileUrl ?? '',
-                        ),
-                        SizedBox(height: 100.h),
-                      ],
+                    return Form(
+                      key: controller.formKey,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 24.h),
+                          Stack(
+                            children: [
+                              CustomNetworkImage(
+                                boxShape: BoxShape.circle,
+                                height: 128.r,
+                                width: 128.r,
+                                imageFile: controller.selectedImage,
+                                imageUrl: data?.userProfileUrl,
+                              ),
+                              Positioned(
+                                bottom: 10.h,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    PhotoPickerHelper.showPicker(context: context, onImagePicked: controller.onImagePicked);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8.h),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child:  Icon(Icons.camera_alt, color: AppColors.white,size: 18.r,),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 44.h),
+
+                          CustomTextField(
+                            labelText: 'Name',
+                            controller: controller.nameController,
+                            hintText: 'Name',
+                          ),
+                          CustomTextField(
+                            labelText: 'Email',
+                            hintText: 'Email',
+                            readOnly: true,
+                            hintextColor: AppColors.textSecondary,
+                            controller: controller.emailController,
+                          ),
+
+
+                          SizedBox(height: 30.h),
+                          Obx(() {
+                              return CustomButton(
+                                isLoading: controller.updateState.isLoading,
+                                onPressed: controller.updateProfile,
+                                label: 'Update Profile',
+                              );
+                            }
+                          ),
+                          SizedBox(height: 100.h),
+                        ],
+                      ),
                     );
                   }
               ),

@@ -229,8 +229,8 @@ class SignalCard extends StatelessWidget {
             width: double.infinity,
             height: 140.h,
             fit: BoxFit.cover,
-            imageUrl: item.externalChartUrl ??
-                "https://i.pravatar.cc/150?img=1",
+            imageUrl: item.externalChartUrl,
+            fallbackAsset: Icon(Icons.image_not_supported, size: 140.sp, color: AppColors.textSecondary),
           ),
         ),
       ],

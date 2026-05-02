@@ -114,7 +114,8 @@ class SignalDetailsCard extends StatelessWidget {
           width: 36.r,
           height: 36.r,
           boxShape: BoxShape.circle,
-          imageUrl: item.masterId?.userProfileUrl ?? '',
+          imageUrl: item.masterId?.userProfileUrl,
+
         ),
         SizedBox(width: 10.w),
 
@@ -147,8 +148,8 @@ class SignalDetailsCard extends StatelessWidget {
         width: double.infinity,
         height: 160.h,
         fit: BoxFit.cover,
-        imageUrl: item.screenshotUrl ??
-            "https://i.pravatar.cc/150?img=1",
+        imageUrl: item.screenshotUrl,
+        fallbackAsset: Icon(Icons.image_not_supported, size: 160.sp, color: AppColors.textSecondary),
       ),
     );
   }

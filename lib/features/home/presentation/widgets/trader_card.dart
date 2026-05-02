@@ -23,10 +23,11 @@ class TraderCard extends StatelessWidget {
 
       child: Row(
         children: [
-          // Profile Image
-          CircleAvatar(
-            radius: 24.r,
-            backgroundImage: NetworkImage(trader.userProfileUrl ?? ""),
+          CustomNetworkImage(
+            height: 48.r,
+            width: 48.r,
+            boxShape: BoxShape.circle,
+            imageUrl: trader.userProfileUrl,
           ),
 
           SizedBox(width: 12.w),

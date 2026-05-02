@@ -22,10 +22,11 @@ class LeaderBoardCard extends StatelessWidget {
 
       child: Row(
         children: [
-          // Profile Image
-          CircleAvatar(
-            radius: 24.r,
-            backgroundImage: NetworkImage(item.accountId?.userProfileUrl ?? ""),
+          CustomNetworkImage(
+            height: 48.r,
+            width: 48.r,
+            boxShape: BoxShape.circle,
+            imageUrl: item.accountId?.userProfileUrl,
           ),
 
           SizedBox(width: 12.w),
