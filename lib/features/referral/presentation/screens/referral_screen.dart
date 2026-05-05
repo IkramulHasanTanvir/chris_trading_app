@@ -7,7 +7,6 @@ import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/referral/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_content.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
-
 import 'package:get/get.dart';
 
 class ReferralScreen extends StatelessWidget {
