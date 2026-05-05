@@ -24,12 +24,14 @@ class AuthService {
     required String email,
     required String password,
     required String confirmPassword,
+     String? referral,
   }) async {
     return await _repository.register(
       name: name,
       email: email,
       password: password,
       confirmPassword: confirmPassword,
+      referral: referral,
     );
   }
 

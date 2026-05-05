@@ -1,8 +1,8 @@
 class ApiConstants {
 
 
-  //static const String baseUrl = 'https://reaz5000.syedbipul.me';
-  static const String baseUrl = 'http://206.162.244.11:7777/';
+  static const String baseUrl = 'https://reaz5000.syedbipul.me';
+  //static const String baseUrl = 'http://206.162.244.11:7777/';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';

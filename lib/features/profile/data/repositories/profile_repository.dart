@@ -52,11 +52,11 @@ class ProfileRepository {
     }
   }
 
-  Future<void> updateProfile(String name, String imageUrl) async {
+  Future<void> updateProfile(String? name, String? imageUrl,String? referral) async {
     try {
       await _apiService.patch(
         ApiConstants.profileUpdate,
-        data: {"name": name, "userProfileUrl": imageUrl},
+        data: {if(name != null)  "name": name, if(imageUrl != null) "userProfileUrl": imageUrl, if(referral != null) "referralCode": referral},
       );
       await getUserData();
     } on AppException {

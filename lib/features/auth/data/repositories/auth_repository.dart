@@ -13,6 +13,7 @@ abstract class AuthRepository {
     required String email,
     required String password,
     required String confirmPassword,
+     String? referral,
   });
 
   Future<void> forgotPassword({required String email});

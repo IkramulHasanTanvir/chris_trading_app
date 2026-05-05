@@ -27,7 +27,7 @@ class ReferralContent extends StatelessWidget {
             children: [
               QrCodeCard(referralLink: data?.referralLink ?? ''),
               SizedBox(height: 20.h),
-              ReferralCodeCard(referralCode: data?.referralCode ?? ''),
+              ReferralCodeCard(),
               SizedBox(height: 20.h),
               _buildStatsRow(data),
               if ((data?.totalRewards ?? 0) > 0) ...[

@@ -23,11 +23,12 @@ class ProfileService {
   }
 
   Future<void> updateProfile({
-    required String name,
-    required String imageUrl,
+     String? name,
+     String? imageUrl,
+    String? referral,
   }) async {
     try {
-      await _repository.updateProfile(name, imageUrl);
+      await _repository.updateProfile(name, imageUrl,referral);
     } on AppException {
       rethrow;
     } catch (e) {

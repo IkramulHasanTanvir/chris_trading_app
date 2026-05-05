@@ -35,6 +35,7 @@ class AuthController extends GetxController {
   final passwordController = TextEditingController(text: kDebugMode ? 'SecurePass123!' : '');
   final confirmPasswordController = TextEditingController();
   final otpController = TextEditingController();
+  final referralController = TextEditingController();
 
   /// Separate keys for login and register forms
   final loginFormKey = GlobalKey<FormState>();
@@ -81,6 +82,7 @@ class AuthController extends GetxController {
         email: emailController.text.trim(),
         password: passwordController.text,
         confirmPassword: confirmPasswordController.text,
+        referral: referralController.text.isEmpty ? null : referralController.text,
       );
       _registerState.value = LoadingState.loaded;
       Get.toNamed(AppRoutes.otpScreen, arguments: 'signup');

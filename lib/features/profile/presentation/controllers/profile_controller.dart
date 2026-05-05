@@ -20,36 +20,37 @@ class ProfileController extends GetxController {
   // ─── Controllers ─────────────────────────────────────────────────
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final referralController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-
   GlobalKey<FormState> get formKey => _formKey;
 
-
+  // ─── Image ────────────────────────────────────────────────────────
   final RxString _imageUrl = ''.obs;
   final Rx<File?> _selectedImage = Rx<File?>(null);
   String get imageUrl => _imageUrl.value;
   File? get selectedImage => _selectedImage.value;
 
+  // ─── Editing State (moved from widget) ───────────────────────────
+  final RxBool isEditingReferral = false.obs;
 
-  // ─── State ────────────────────────────────────────────────────────
+  // ─── Loading States ───────────────────────────────────────────────
   final _loadingState = LoadingState.initial.obs;
   final _updateState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
   LoadingState get updateState => _updateState.value;
   LoadingState get imageState => _imageState.value;
-
-
   String get errorMessage => _errorMessage.value;
 
   // ─── Data ─────────────────────────────────────────────────────────
   final _userData = Rxn<UserResponseModel>();
-
   UserResponseModel? get userData => _userData.value;
+
+  // ─── Computed ─────────────────────────────────────────────────────
+  bool get codeChanged => _userData.value?.referralCodeChanged == true;
 
   @override
   void onInit() {
@@ -88,51 +89,74 @@ class ProfileController extends GetxController {
     if (data == null) return;
     nameController.text = data.name ?? '';
     emailController.text = data.email ?? '';
+    referralController.text = data.referralCode ?? '';
     _imageUrl.value = data.userProfileUrl ?? '';
   }
 
   Future<void> retry() async => await loadData();
 
+  // ─── Referral Editing ─────────────────────────────────────────────
+  void startEditingReferral(FocusNode focusNode) {
+    isEditingReferral.value = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNode.requestFocus();
+    });
+  }
+
+  void cancelEditingReferral(FocusNode focusNode) {
+    referralController.text = userData?.referralCode ?? '';
+    isEditingReferral.value = false;
+    focusNode.unfocus();
+  }
+
+  Future<void> saveReferral(FocusNode focusNode) async {
+    isEditingReferral.value = false;
+    focusNode.unfocus();
+    await updateProfile();
+  }
+
   // ─── Update Profile ───────────────────────────────────────────────
   Future<void> updateProfile() async {
-    if (!_formKey.currentState!.validate()) return;
     try {
       _updateState.value = LoadingState.loading;
 
       await _service.updateProfile(
-        name: nameController.text,
-        imageUrl: _imageUrl.value,
+        name: nameController.text.isNotEmpty ? nameController.text : null,
+        imageUrl: imageUrl.isNotEmpty ? _imageUrl.value : null,
+        referral: referralController.text.isNotEmpty
+            ? referralController.text.trim()
+            : null,
       );
 
       _updateState.value = LoadingState.loaded;
 
-      await loadData();
+      //await loadData();
       Get.back(canPop: true);
       ToastMessageHelper.show('Profile updated successfully');
-
     } catch (e) {
       _updateState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     }
   }
 
-
+  // ─── Image ────────────────────────────────────────────────────────
   Future<void> onImagePicked(XFile file) async {
     if (file.path.isNotEmpty) {
       _selectedImage.value = File(file.path);
       await uploadImage();
     } else {
-      print("Image path is empty!");
+      debugPrint('Image path is empty!');
     }
   }
+
   Future<void> uploadImage() async {
-    if(selectedImage == null) return;
-    try{
+    if (selectedImage == null) return;
+    try {
       _imageState.value = LoadingState.loading;
-      final imageUrl = await _service.uploadImage(selectedImage!);
+      final url = await _service.uploadImage(selectedImage!);
       _imageState.value = LoadingState.loaded;
-      _imageUrl.value = imageUrl;
-    }catch(e){
+      _imageUrl.value = url;
+    } catch (e) {
       _imageState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     }
@@ -142,6 +166,7 @@ class ProfileController extends GetxController {
   void onClose() {
     nameController.dispose();
     emailController.dispose();
+    referralController.dispose(); // ✅ fixed: was missing
     super.onClose();
   }
 }

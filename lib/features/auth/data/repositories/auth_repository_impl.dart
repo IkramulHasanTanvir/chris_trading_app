@@ -24,6 +24,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
     required String confirmPassword,
+     String? referral,
   }) async {
     try {
       final response = await _apiService.post(
@@ -33,6 +34,8 @@ class AuthRepositoryImpl implements AuthRepository {
           "email": email,
           "password": password,
           "confirmPassword": confirmPassword,
+          if (referral != null)
+          "referralCode": referral,
         },
       );
 

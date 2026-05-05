@@ -66,6 +66,13 @@ class SignUpScreen extends StatelessWidget {
                 },
               ),
 
+
+              CustomTextField(
+                controller: controller.referralController,
+                hintText: "Referral Code (Optional)",
+                validator: (_) => null,
+              ),
+
               SizedBox(height: 44.h),
 
               Obx(() {

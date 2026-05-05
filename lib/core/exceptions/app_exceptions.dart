@@ -2,8 +2,9 @@ abstract class AppException implements Exception {
   final String message;
   final String? details;
   final String? errorCode;
+  final bool isOffline;
 
-  AppException(this.message, {this.details, this.errorCode});
+  AppException(this.message, {this.details, this.errorCode, this.isOffline = false});
 
   @override
   String toString() {
@@ -17,7 +18,7 @@ abstract class AppException implements Exception {
 // ═══════════════════════════════════════════════
 class NoInternetException extends AppException {
   NoInternetException([String? details])
-      : super('No internet connection', details: details, errorCode: 'NO_INTERNET');
+      : super('No internet connection', details: details, errorCode: 'NO_INTERNET', isOffline: true);
 }
 
 class TimeoutException extends AppException {
