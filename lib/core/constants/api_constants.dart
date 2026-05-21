@@ -1,8 +1,8 @@
 class ApiConstants {
 
 
-  static const String baseUrl = 'https://reaz5000.syedbipul.me';
-  //static const String baseUrl = 'http://206.162.244.11:7777/';
+  //static const String baseUrl = 'https://reaz5000.syedbipul.me';
+  static const String baseUrl = 'http://206.162.244.11:7777/';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';
@@ -41,6 +41,7 @@ class ApiConstants {
   static const String profile = '/api/v1/auth/me';
   static const String profileUpdate = '/api/v1/user/update-profile';
   static const String imageUpload = '/api/v1/upload/file';
+  static  String deleteAccount(userID) => '/api/v1/user/$userID';
 
 
 

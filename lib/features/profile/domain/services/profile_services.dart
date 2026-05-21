@@ -47,6 +47,15 @@ class ProfileService {
     }
   }
 
+  Future<void> deleteUser(String userID) async{
+    try {
+      await _repository.deleteUser(userID);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }}
+
   bool hasCache() {
     return _repository.hasCache();
   }

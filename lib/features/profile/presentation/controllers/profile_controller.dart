@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
 import 'package:get/get.dart';
@@ -21,6 +22,7 @@ class ProfileController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final referralController = TextEditingController();
+  final deleteController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> get formKey => _formKey;
@@ -38,11 +40,13 @@ class ProfileController extends GetxController {
   final _loadingState = LoadingState.initial.obs;
   final _updateState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
+  final _deleteState = LoadingState.initial.obs;
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
   LoadingState get updateState => _updateState.value;
   LoadingState get imageState => _imageState.value;
+  LoadingState get deleteState => _deleteState.value;
   String get errorMessage => _errorMessage.value;
 
   // ─── Data ─────────────────────────────────────────────────────────
@@ -162,11 +166,24 @@ class ProfileController extends GetxController {
     }
   }
 
+
+  Future<void> deleteUser() async {
+    try {
+      _deleteState.value = LoadingState.loading;
+      await _service.deleteUser(userData?.sId ?? '');
+      _deleteState.value = LoadingState.loaded;
+      Get.offAllNamed(AppRoutes.loginScreen);
+    } catch (e) {
+      _deleteState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
   @override
   void onClose() {
     nameController.dispose();
     emailController.dispose();
-    referralController.dispose(); // ✅ fixed: was missing
+    referralController.dispose();
     super.onClose();
   }
 }

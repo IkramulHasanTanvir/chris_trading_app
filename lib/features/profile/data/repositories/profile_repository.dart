@@ -8,7 +8,6 @@ import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ProfileRepository {
   final ApiService _apiService;
@@ -80,6 +79,18 @@ class ProfileRepository {
       throw UnknownException(e.toString());
     }
 
+  }
+
+
+  Future<void> deleteUser(String userID) async{
+    try {
+      await _apiService.delete(ApiConstants.deleteAccount(userID));
+      await _cacheService.clear();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 
   bool hasCache() {

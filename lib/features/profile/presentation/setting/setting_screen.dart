@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
-import 'package:flutter_task/features/auth/presentation/controller/auth_controller.dart';
+import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/profile/presentation/widgets/profile_list_tile.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +13,7 @@ class SettingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = ProfileController.to;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -97,12 +99,24 @@ class SettingScreen extends StatelessWidget {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) => CustomDialog(
-                          title: "Delete Account",
-                          description: 'Are you sure want to delete account?',
-                          onTapLeftButton: () => Navigator.pop(context),
-                          onTapRightButton: AuthController.to.logout,
-                          rightButtonLabel: 'Yes, Delete',
+                        builder: (context) => Obx(() {
+                            return CustomDialog(
+                              isLoading: controller.deleteState.isLoading,
+                              title: "Delete Account?",
+                              description: 'This action is permanent and cannot be undone. Please type DELETE below to confirm account deletion.',
+                              content: CustomTextField(
+                                hintText: 'Type...',
+                                  controller: controller.deleteController),
+                              onTapLeftButton: () => Navigator.pop(context),
+                              onTapRightButton: () async {
+                                if (controller.deleteController.text != 'DELETE') {
+                                  return;
+                                }
+                                await controller.deleteUser();
+                              },
+                              rightButtonLabel: 'Yes, Delete',
+                            );
+                          }
                         ),
                       );
                     },

@@ -10,6 +10,8 @@ class CustomDialog extends StatelessWidget {
   final Color? rightButtonBgColor, rightButtonLabelColor;
   final Color? leftButtonBgColor, leftButtonLabelColor;
   final Color? titleColor;
+  final bool isLoading;
+  final Widget? content;
   final VoidCallback onTapLeftButton;
   final VoidCallback onTapRightButton;
 
@@ -25,7 +27,7 @@ class CustomDialog extends StatelessWidget {
     this.leftButtonBgColor = Colors.transparent,
     this.leftButtonLabelColor = AppColors.textSecondary,
     required this.description,
-    this.titleColor = AppColors.error,
+    this.titleColor = AppColors.error, this.content,  this.isLoading = false,
   });
 
   @override
@@ -34,64 +36,86 @@ class CustomDialog extends StatelessWidget {
       backgroundColor: AppColors.navBackground,
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.r)),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title Text
-            CustomText(text: title, fontSize: 16.sp, color: titleColor),
-            SizedBox(height: 20.h),
-
-            Divider(color: AppColors.textSecondary, thickness: 0.5.h),
-
-            SizedBox(height: 20.h),
-
-            // Description Text
-            CustomText(
-              left: 10.w,
-              right: 10.w,
-              text: description,
-              fontSize: 16.sp,
-              color: AppColors.textSecondary,
-              maxline: 2,
-            ),
-            SizedBox(height: 24.h),
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Cancel Button
-                Expanded(
-                  child: CustomButton(
-                    radius: 100.r,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    bordersColor: leftButtonLabelColor,
-                    backgroundColor: leftButtonBgColor,
-                    foregroundColor: leftButtonLabelColor,
-                    onPressed: onTapLeftButton,
-                    label: leftButtonLabel!,
-                  ),
+                // Title Text
+                CustomText(text: title, fontSize: 16.sp, color: titleColor),
+                SizedBox(height: 20.h),
+
+                Divider(color: AppColors.textSecondary, thickness: 0.5.h),
+
+                SizedBox(height: 20.h),
+
+                // Description Text
+                CustomText(
+                  left: 10.w,
+                  right: 10.w,
+                  bottom: 10.w,
+                  text: description,
+                  fontSize: 16.sp,
+                  color: AppColors.textSecondary,
+                  maxline: 2,
                 ),
-                SizedBox(width: 10.w),
-                // Confirm Button
-                Expanded(
-                  child: CustomButton(
-                    radius: 100.r,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    bordersColor: rightButtonLabelColor,
-                    backgroundColor: rightButtonBgColor,
-                    foregroundColor: rightButtonLabelColor,
-                    onPressed: onTapRightButton,
-                    label: rightButtonLabel!,
-                  ),
+                if (content != null)...[content!] ,
+                SizedBox(height: 24.h),
+                // Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Cancel Button
+                    Expanded(
+                      child: CustomButton(
+                        radius: 100.r,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
+                        bordersColor: leftButtonLabelColor,
+                        backgroundColor: leftButtonBgColor,
+                        foregroundColor: leftButtonLabelColor,
+                        onPressed: onTapLeftButton,
+                        label: leftButtonLabel!,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    // Confirm Button
+                    Expanded(
+                      child: CustomButton(
+                        radius: 100.r,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
+                        bordersColor: rightButtonLabelColor,
+                        backgroundColor: rightButtonBgColor,
+                        foregroundColor: rightButtonLabelColor,
+                        onPressed: onTapRightButton,
+                        label: rightButtonLabel!,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          if (isLoading)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.navBackground.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(40.r),
+                ),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 2.5,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

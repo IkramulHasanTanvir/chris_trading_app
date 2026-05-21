@@ -116,10 +116,21 @@ class WithdrawScreen extends StatelessWidget {
                             fontSize: 12.sp,
                             color: AppColors.textSecondary,
                           ),
-                          TextField(
+                          TextFormField(
                             cursorColor: AppColors.white,
                             controller: controller.amountController,
                             keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter an amount';
+                              }
+                              if (double.tryParse(value) == null) {
+                                return 'Please enter a valid amount';
+                              } else if ((controller.referralData?.totalRewards ?? 0.0) < double.parse(value)) {
+                                return 'Insufficient balance';
+                              }
+                              return null;
+                            },
                             style: TextStyle(
                               fontSize: 28.sp,
                               fontWeight: FontWeight.w600,
