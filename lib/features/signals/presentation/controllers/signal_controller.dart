@@ -31,7 +31,6 @@ class SignalsController extends GetxController {
     }
   }
 
-
   // ─── Controller ───────────────────────────────────────────────────
   final entryController = TextEditingController();
   final exitController = TextEditingController();
@@ -44,6 +43,7 @@ class SignalsController extends GetxController {
   final RxString _platform = 'binance'.obs;
   final RxString _imageUrl = ''.obs;
   final Rx<File?> _selectedImage = Rx<File?>(null);
+
   File? get selectedImage => _selectedImage.value;
 
   String get outcome => _outcome.value;
@@ -68,22 +68,20 @@ class SignalsController extends GetxController {
     if (file.path.isNotEmpty) {
       _selectedImage.value = File(file.path);
       uploadImage();
-    } else {
-      print("Image path is empty!");
-    }
+    } else {}
   }
-
 
   void onImageRemoved() {
     _selectedImage.value = null;
   }
-
 
   // ─── State ────────────────────────────────────────────────────────
   final _loadingState = LoadingState.initial.obs;
   final _copyState = LoadingState.initial.obs;
   final _logState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
+  final _detailsState = LoadingState.initial.obs;
+
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
@@ -94,6 +92,7 @@ class SignalsController extends GetxController {
 
   LoadingState get imageState => _imageState.value;
 
+  LoadingState get detailsState => _detailsState.value;
 
   String get errorMessage => _errorMessage.value;
 
@@ -185,6 +184,18 @@ class SignalsController extends GetxController {
     }
   }
 
+  Future<SignalsModel> getSignalDetails(String signalId) async {
+    try {
+      _detailsState.value = LoadingState.loading;
+      final data = await _service.getSignalDetails(signalId);
+      _detailsState.value = LoadingState.loaded;
+      return data;
+    } catch (e) {
+      _detailsState.value = LoadingState.error;
+      rethrow;
+    }
+  }
+
   // ─── Copy Signal ──────────────────────────────────────────────────
   Future<void> copyTradingSignal({required String signalId}) async {
     try {
@@ -201,7 +212,7 @@ class SignalsController extends GetxController {
 
   // ─── Log Signal ───────────────────────────────────────────────────
   Future<void> logTradingSignal(String signalId) async {
-    if(!formKey.currentState!.validate() || selectedImage == null) return;
+    if (!formKey.currentState!.validate() || selectedImage == null) return;
     try {
       _logState.value = LoadingState.loading;
       await _service.logTradingSignal(
@@ -234,13 +245,13 @@ class SignalsController extends GetxController {
   }
 
   Future<void> uploadImage() async {
-    if(selectedImage == null) return;
-    try{
+    if (selectedImage == null) return;
+    try {
       _imageState.value = LoadingState.loading;
       final imageUrl = await _service.uploadImage(selectedImage!);
       _imageState.value = LoadingState.loaded;
-       _imageUrl.value = imageUrl;
-    }catch(e){
+      _imageUrl.value = imageUrl;
+    } catch (e) {
       _imageState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     }

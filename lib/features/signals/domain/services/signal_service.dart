@@ -41,6 +41,16 @@ class SignalsService {
     }
   }
 
+  Future<SignalsModel> getSignalDetails(String signalId) async {
+    try {
+      return await _repository.getSignalDetails(signalId);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   // ─── Copy Signal ──────────────────────────────────────────────────
   Future<void> copyTradingSignal({required String signalId}) async {
     try {

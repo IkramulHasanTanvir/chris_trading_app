@@ -32,6 +32,7 @@ import 'package:flutter_task/features/signals/data/repositories/signals_reposito
 import 'package:flutter_task/features/signals/domain/services/signal_service.dart';
 import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
 import 'package:flutter_task/features/signals/presentation/screens/log_update_screen.dart';
+import 'package:flutter_task/features/signals/presentation/screens/signals_details_screen.dart';
 import 'package:flutter_task/features/splash/splash_screen.dart';
 import 'package:flutter_task/features/two_factor/data/repositories/two_factor_repository.dart';
 import 'package:flutter_task/features/two_factor/domain/services/two_factor_services.dart';
@@ -138,6 +139,12 @@ abstract class AppPages {
     GetPage(
       name: AppRoutes.notificationScreen,
       page: () => const NotificationScreen(),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.signalsDetailsScreen,
+      page: () => const SignalsDetailsScreen(),
     ),
 
   ];

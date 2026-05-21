@@ -34,6 +34,7 @@ class ApiConstants {
   static  String tradesHistory(int page,int limit,String status) => '/api/v1/copied-trades?page=$page&limit=$limit&status=$status';
   static  String copySignals(String signalId) => '/api/v1/copied-trades/signals/$signalId/copy';
   static  String followTrader(String traderId) => '/api/v1/follow/toggle/$traderId';
+  static  String signalDetails(String signalId) => '/api/v1/signals/$signalId';
   static const  String logSignals = '/api/v1/copied-trades/log';
 
 

@@ -98,6 +98,18 @@ class SignalCard extends StatelessWidget {
                       label: 'Log Trade',
                     ),
                   ),
+                  SizedBox(width: 10.w),
+
+                  GestureDetector(onTap: (){
+                    Get.toNamed(
+                      AppRoutes.signalsDetailsScreen,
+                      arguments: item.sId,
+                    );
+                  }, child: CustomContainer(
+                    radiusAll: 4.r,
+                    color: AppColors.primaryBTN,
+                    paddingAll: 8.r,
+                      child: Icon(Icons.info_outline,color: AppColors.white,size: 22.r,)))
                 ],
               ),
             ],
@@ -238,7 +250,7 @@ class SignalCard extends StatelessWidget {
   }
 
   /// 🔹 Info Item
-  Widget _infoItem(String title, int? value) {
+  Widget _infoItem(String title, double? value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -72,6 +72,19 @@ class SignalsRepository {
     }
   }
 
+  Future<SignalsModel> getSignalDetails(String signalId) async {
+    try {
+      final response = await _apiService.get(ApiConstants.signalDetails(signalId));
+      final model = SignalsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+
+      return model;
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> copyTradingSignal({required String signalId}) async {
     try {
       await _apiService.post(ApiConstants.copySignals(signalId));

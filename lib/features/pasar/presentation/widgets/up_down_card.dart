@@ -4,9 +4,9 @@ import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 
 class UpDownCard extends StatelessWidget {
-  final int? entry;
-  final int? exit;
-  final int? stopLoss;
+  final double? entry;
+  final double? exit;
+  final double? stopLoss;
 
   const UpDownCard({
     super.key,
