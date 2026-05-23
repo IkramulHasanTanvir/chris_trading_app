@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/pasar/data/models/trade_history_model.dart';
@@ -184,6 +185,7 @@ class SignalDetailsCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Outcome badge
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
           decoration: BoxDecoration(
@@ -197,13 +199,45 @@ class SignalDetailsCard extends StatelessWidget {
             color: _outcomeColor(item.outcome),
           ),
         ),
+
+        // PnL
         CustomText(
-          text: item.resultPnl != null
-              ? '+\$${item.resultPnl}'
-              : '--',
+          text: item.resultPnl != null ? '+\$${item.resultPnl}' : '--',
           fontSize: 13.sp,
           fontWeight: FontWeight.w700,
           color: Colors.greenAccent,
+        ),
+
+        // ✅ View Details Button
+        GestureDetector(
+          onTap: () {
+            Get.toNamed(AppRoutes.signalsDetailsScreen, arguments: item.sId);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFF7C5FFC).withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(
+                color: const Color(0xFF7C5FFC).withValues(alpha: 0.45),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_forward_rounded,
+                    size: 13.sp, color: const Color(0xFFB197FC)),
+                SizedBox(width: 5.w),
+                CustomText(
+                  text: 'Details',
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFB197FC),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

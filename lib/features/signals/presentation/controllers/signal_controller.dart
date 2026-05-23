@@ -5,6 +5,8 @@ import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
 import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
+import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:flutter_task/features/signals/data/models/comment_model.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 import 'package:flutter_task/features/signals/domain/services/signal_service.dart';
@@ -31,77 +33,75 @@ class SignalsController extends GetxController {
     }
   }
 
-  // ─── Controller ───────────────────────────────────────────────────
+  // ─── Text Controllers ─────────────────────────────────────────────
   final entryController = TextEditingController();
   final exitController = TextEditingController();
   final lotController = TextEditingController();
   final pnlController = TextEditingController();
   final notesController = TextEditingController();
+  final commentController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+  // ─── Observables ──────────────────────────────────────────────────
   final RxString _outcome = 'win'.obs;
   final RxString _platform = 'binance'.obs;
   final RxString _imageUrl = ''.obs;
   final Rx<File?> _selectedImage = Rx<File?>(null);
 
   File? get selectedImage => _selectedImage.value;
-
   String get outcome => _outcome.value;
-
   String get platform => _platform.value;
-
   String get imageUrl => _imageUrl.value;
 
   void onOutcomeChanged(String? value) {
-    if (value != null) {
-      _outcome.value = value;
-    }
+    if (value != null) _outcome.value = value;
   }
 
   void onPlatformChanged(String? value) {
-    if (value != null) {
-      _platform.value = value;
-    }
+    if (value != null) _platform.value = value;
   }
 
   void onImagePicked(XFile file) {
     if (file.path.isNotEmpty) {
       _selectedImage.value = File(file.path);
       uploadImage();
-    } else {}
+    }
   }
 
   void onImageRemoved() {
     _selectedImage.value = null;
   }
 
-  // ─── State ────────────────────────────────────────────────────────
+  // ─── Loading States ───────────────────────────────────────────────
   final _loadingState = LoadingState.initial.obs;
   final _copyState = LoadingState.initial.obs;
   final _logState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
   final _detailsState = LoadingState.initial.obs;
+  //final _commentLoadingState = LoadingState.initial.obs;
+  final _addCommentState = LoadingState.initial.obs;
 
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
   LoadingState get copyState => _copyState.value;
-
   LoadingState get logState => _logState.value;
-
   LoadingState get imageState => _imageState.value;
-
   LoadingState get detailsState => _detailsState.value;
-
+  //LoadingState get commentLoadingState => _commentLoadingState.value;
+  LoadingState get addCommentState => _addCommentState.value;
   String get errorMessage => _errorMessage.value;
 
   // ─── Data ─────────────────────────────────────────────────────────
   final _signals = <SignalsModel>[].obs;
+  final _signalDetail = Rxn<SignalsModel>();
+  final _comments = <CommentModel>[].obs;
 
   List<SignalsModel> get signals => _signals;
+  SignalsModel? get signalDetail => _signalDetail.value;
+  List<CommentModel> get comments => _comments;
 
-  // ─── Pagination ───────────────────────────────────────────────────
+  // ─── Signals Pagination ───────────────────────────────────────────
   int _currentPage = 1;
   static const int _pageSize = 10;
 
@@ -109,8 +109,16 @@ class SignalsController extends GetxController {
   final _hasMore = true.obs;
 
   bool get isLoadingMore => _isLoadingMore.value;
-
   bool get hasMore => _hasMore.value;
+
+  // ─── Comments Pagination ──────────────────────────────────────────
+  int _commentPage = 1;
+
+  final _isLoadingMoreComments = false.obs;
+  final _hasMoreComments = true.obs;
+
+  bool get isLoadingMoreComments => _isLoadingMoreComments.value;
+  bool get hasMoreComments => _hasMoreComments.value;
 
   // ─── Scroll ───────────────────────────────────────────────────────
   ScrollController? scrollController;
@@ -133,7 +141,7 @@ class SignalsController extends GetxController {
     }
   }
 
-  // ─── Load All ─────────────────────────────────────────────────────
+  // ─── Load Signals ─────────────────────────────────────────────────
   Future<void> loadData() async {
     try {
       _errorMessage.value = '';
@@ -161,7 +169,7 @@ class SignalsController extends GetxController {
     }
   }
 
-  // ─── Pagination ───────────────────────────────────────────────────
+  // ─── Load More Signals ────────────────────────────────────────────
   Future<void> loadMore() async {
     if (isLoadingMore || !hasMore) return;
 
@@ -184,15 +192,91 @@ class SignalsController extends GetxController {
     }
   }
 
-  Future<SignalsModel> getSignalDetails(String signalId) async {
+  // ─── Signal Details ───────────────────────────────────────────────
+  Future<void> getSignalDetails(String signalId) async {
     try {
+      _signalDetail.value = null;
       _detailsState.value = LoadingState.loading;
       final data = await _service.getSignalDetails(signalId);
+      _signalDetail.value = data;
       _detailsState.value = LoadingState.loaded;
-      return data;
     } catch (e) {
       _detailsState.value = LoadingState.error;
-      rethrow;
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
+  // ─── Load Comments ────────────────────────────────────────────────
+  Future<void> loadComments(String signalId, {bool refresh = false}) async {
+    if (refresh) {
+      _commentPage = 1;
+      _hasMoreComments.value = true;
+    }
+
+    try {
+      await _service.fetchInitialComments(signalId);
+      final fresh = _service.getCachedData();
+      _comments.assignAll(fresh.comments);
+      _hasMoreComments.value = fresh.comments.length >= _pageSize;
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+  // ─── Load More Comments ───────────────────────────────────────────
+  Future<void> loadMoreComments(String signalId) async {
+    if (isLoadingMoreComments || !hasMoreComments) return;
+
+    try {
+      _isLoadingMoreComments.value = true;
+      _commentPage++;
+
+      final data = await _service.fetchMoreComments(
+        signalId: signalId,
+        page: _commentPage,
+        limit: _pageSize,
+      );
+      _comments.addAll(data);
+
+      if (data.length < _pageSize) _hasMoreComments.value = false;
+    } catch (e) {
+      _commentPage--;
+      ToastMessageHelper.show(e.errorMessage);
+    } finally {
+      _isLoadingMoreComments.value = false;
+    }
+  }
+
+  // ─── Submit Comment ───────────────────────────────────────────────
+  Future<void> submitComment(String signalId) async {
+    final text = commentController.text.trim();
+    if (text.isEmpty) return;
+
+    final user = ProfileController.to.userData;
+    // ─── Optimistic Update ────────────────────────────────────────
+    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    final optimisticComment = CommentModel(
+      sId: tempId,
+      message: text,
+      userId: UserId(sId: user?.sId, name: user?.name, userProfileUrl: user?.userProfileUrl),
+      createdAt: DateTime.now().toIso8601String(),
+      isPending: true,
+    );
+
+    commentController.clear();
+    _comments.insert(0, optimisticComment);
+
+    try {
+      _addCommentState.value = LoadingState.loading;
+      await _service.addComment(signalId: signalId, comment: text);
+      _addCommentState.value = LoadingState.loaded;
+
+      // ─── Replace optimistic with real data ────────────────────
+      await loadComments(signalId, refresh: true);
+    } catch (e) {
+      // ─── Rollback on failure ──────────────────────────────────
+      _comments.removeWhere((c) => c.sId == tempId);
+      _addCommentState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
     }
   }
 
@@ -213,6 +297,7 @@ class SignalsController extends GetxController {
   // ─── Log Signal ───────────────────────────────────────────────────
   Future<void> logTradingSignal(String signalId) async {
     if (!formKey.currentState!.validate() || selectedImage == null) return;
+
     try {
       _logState.value = LoadingState.loading;
       await _service.logTradingSignal(
@@ -244,13 +329,15 @@ class SignalsController extends GetxController {
     }
   }
 
+  // ─── Upload Image ─────────────────────────────────────────────────
   Future<void> uploadImage() async {
     if (selectedImage == null) return;
+
     try {
       _imageState.value = LoadingState.loading;
-      final imageUrl = await _service.uploadImage(selectedImage!);
+      final url = await _service.uploadImage(selectedImage!);
       _imageState.value = LoadingState.loaded;
-      _imageUrl.value = imageUrl;
+      _imageUrl.value = url;
     } catch (e) {
       _imageState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
@@ -270,6 +357,7 @@ class SignalsController extends GetxController {
     lotController.dispose();
     pnlController.dispose();
     notesController.dispose();
+    commentController.dispose();
     super.onClose();
   }
 }

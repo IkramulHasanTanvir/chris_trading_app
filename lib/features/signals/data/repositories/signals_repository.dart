@@ -7,6 +7,7 @@ import 'package:flutter_task/core/constants/app_constants.dart';
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
+import 'package:flutter_task/features/signals/data/models/comment_model.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 
@@ -74,8 +75,12 @@ class SignalsRepository {
 
   Future<SignalsModel> getSignalDetails(String signalId) async {
     try {
-      final response = await _apiService.get(ApiConstants.signalDetails(signalId));
-      final model = SignalsModel.fromJson(response.data['data'] as Map<String, dynamic>);
+      final response = await _apiService.get(
+        ApiConstants.signalDetails(signalId),
+      );
+      final model = SignalsModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
 
       return model;
     } on AppException {
@@ -95,10 +100,9 @@ class SignalsRepository {
     }
   }
 
-
   Future<void> logTradingSignal(LogTradingSignalModel data) async {
     try {
-      await _apiService.post(ApiConstants.logSignals,data: data.toJson());
+      await _apiService.post(ApiConstants.logSignals, data: data.toJson());
     } on AppException {
       rethrow;
     } catch (e) {
@@ -106,19 +110,88 @@ class SignalsRepository {
     }
   }
 
-
   Future<String> uploadImage(File file) async {
-
     final image = await MultipartFile.fromFile(file.path);
-    try{
-      final response = await _apiService.uploadFile(ApiConstants.imageUpload,file: image);
+    try {
+      final response = await _apiService.uploadFile(
+        ApiConstants.imageUpload,
+        file: image,
+      );
       return response.data['url'];
-
     } on AppException {
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
 
+  // ─── comments ───────────────────────────────────────────────
+
+  Future<List<CommentModel>> getComments(String signalId, int page, int limit) async {
+    try {
+      final response = await _apiService.get(ApiConstants.comments(signalId, page, limit));
+      final list = response.data['data'] as List? ?? [];
+      final model = list.map((e) => CommentModel.fromJson(e)).toList();
+      await _cacheService.put(
+        AppConstants.cacheComments,
+        model.map((e) => e.toJson()).toList(),
+      );
+      return model;
+      } on AppException {
+      final cached = getCachedComments();
+      if (cached != null) return cached;
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<List<CommentModel>> fetchMoreComments({
+    required int page,
+    required int limit,
+    required String signalId,
+  }) async {
+    final newData = await getComments(signalId,page, limit);
+    if (newData.isNotEmpty) {
+      final current = getCachedComments() ?? [];
+      final merged = [...current, ...newData];
+      await _cacheService.put(
+        AppConstants.cacheComments,
+        merged.map((e) => e.toJson()).toList(),
+      );
+    }
+    return newData;
+  }
+
+  List<CommentModel>? getCachedComments() {
+    try {
+      final jsonList = _cacheService.get<List>(
+        AppConstants.cacheComments,
+        defaultValue: null,
+      );
+      if (jsonList == null) return null;
+      return jsonList
+          .map((json) => CommentModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('Error getting cached referral data: $e');
+      return null;
+    }
+  }
+
+  Future<void> addComment({required String signalId, required String comment}) async {
+    try {
+      await _apiService.post(
+        ApiConstants.addComment,
+        data: {
+          "signalId": signalId,
+          "message": comment,
+        },
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 }

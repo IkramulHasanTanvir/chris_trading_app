@@ -11,8 +11,10 @@ class CustomLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding:  EdgeInsets.only(top: top ?? 0, bottom: bottom ?? 0),
-      child: LinearProgressIndicator(
-        color: AppColors.primary,
+      child: CircularProgressIndicator(
+        strokeWidth: 2.5,
+        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary,
+        ),
       ),
     );
   }

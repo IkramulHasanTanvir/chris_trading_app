@@ -1,8 +1,8 @@
 class ApiConstants {
 
 
-  //static const String baseUrl = 'https://reaz5000.syedbipul.me';
-  static const String baseUrl = 'http://206.162.244.11:7777/';
+  static const String baseUrl = 'https://reaz5000.syedbipul.me';
+  //static const String baseUrl = 'http://206.162.244.11:7777/';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';
@@ -53,6 +53,11 @@ class ApiConstants {
   /// PROFILE ──────────────────────────────────────────
   static const String withdrawalRequest = '/api/v1/withdrawals/request';
   static  String myWithdrawals(int page) => '/api/v1/withdrawals/my-requests?page=$page&limit=20';
+
+
+  // COMMENT ──────────────────────────────────────────
+  static const  String addComment = '/api/v1/comments';
+  static  String comments(String signalId,int page,int limit) => '/api/v1/comments?signalId=$signalId&page=$page&limit=$limit';
 
 
 

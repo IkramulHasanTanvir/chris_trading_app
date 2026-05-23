@@ -14,6 +14,8 @@ class AppConstants{
   static const String cacheTradeHistoryPending = 'trade_history_pending';
   static const String cacheTradeHistoryCompleted = 'trade_history_completed';
   static const String twoFactorSetUp = 'twoFactorSetUp';
+  static const String cacheComments = 'cacheComments';
+
 
 
 

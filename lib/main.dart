@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/core/di/dependency_injection.dart';
+import 'package:media_kit/media_kit.dart';
 import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
 
   await CacheService().init();
   await DependencyInjection.init();

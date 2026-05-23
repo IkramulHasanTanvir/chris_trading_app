@@ -170,6 +170,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               fontWeight: FontWeight.w500,
               fontFamily: widget.fontFamily),
           decoration: InputDecoration(
+              isDense: true,
               contentPadding: EdgeInsets.symmetric(
                   horizontal: widget.contentPaddingHorizontal ?? 20.w,
                   vertical: widget.contentPaddingVertical ?? 14.h),
