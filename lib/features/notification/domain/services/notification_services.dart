@@ -1,56 +1,62 @@
-// import 'dart:io';
-//
-// import 'package:flutter_task/core/exceptions/app_exceptions.dart';
-// import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
-// import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
-//
-// class ProfileService {
-//   final ProfileRepository _repository;
-//
-//   ProfileService({required ProfileRepository repository})
-//       : _repository = repository;
-//
-//   Future<UserResponseModel> fetchUserData() async {
-//     try {
-//       return await _repository.getUserData();
-//     } on AppException {
-//       final cached = _repository.getCachedUserData();
-//       if (cached != null) return cached;
-//       rethrow;
-//     } catch (e) {
-//       throw UnknownException(e.toString());
-//     }
-//   }
-//
-//   Future<void> updateProfile({
-//     required String name,
-//     required String imageUrl,
-//   }) async {
-//     try {
-//       await _repository.updateProfile(name, imageUrl);
-//     } on AppException {
-//       rethrow;
-//     } catch (e) {
-//       throw UnknownException(e.toString());
-//     }
-//   }
-//
-//
-//   Future<String> uploadImage(File file) async {
-//     try {
-//       return await _repository.uploadImage(file);
-//     } on AppException {
-//       rethrow;
-//     } catch (e) {
-//       throw UnknownException(e.toString());
-//     }
-//   }
-//
-//   bool hasCache() {
-//     return _repository.hasCache();
-//   }
-//
-//   UserResponseModel? getCachedData() {
-//     return _repository.getCachedUserData();
-//   }
-// }
+import 'package:flutter_task/core/exceptions/app_exceptions.dart';
+import 'package:flutter_task/features/notification/data/models/notification_model.dart';
+import 'package:flutter_task/features/notification/data/repositories/notification_repository.dart';
+
+class NotificationServices {
+  final NotificationRepository _repository;
+
+  NotificationServices({required NotificationRepository repository})
+      : _repository = repository;
+
+  // ─── Fetch All ────────────────────────────────────────────────────
+  Future<void> fetchAllNotification() async {
+    try {
+      await Future.wait([
+       _repository.getNotification(1, 10),
+        _repository.getNotificationCount(),
+
+    ]);
+    } on AppException {
+      if (!hasCache()) {
+        rethrow;
+      }
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<List<NotificationModel>> fetchMoreNotification({
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      return await _repository.fetchMoreNotification(page: page, limit: limit);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+
+
+  // ─── Cache ────────────────────────────────────────────────────────
+  bool hasCache() {
+    return _repository.hasCache();
+  }
+
+  NotificationData getCachedData() {
+    return NotificationData(
+      notification: _repository.getCachedNotification() ?? [],
+      notificationCount: _repository.getCachedNotificationCount() ?? 0,
+    );
+  }
+}
+
+// ─── Screen Data Model ────────────────────────────────────────────────
+class NotificationData {
+  final List<NotificationModel> notification;
+  final int notificationCount;
+
+  NotificationData( {required this.notification,required this.notificationCount,});
+}

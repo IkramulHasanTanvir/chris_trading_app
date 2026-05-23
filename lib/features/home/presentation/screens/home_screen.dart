@@ -12,6 +12,7 @@ import 'package:flutter_task/features/home/presentation/widgets/contributor_card
 import 'package:flutter_task/features/home/presentation/widgets/section_title_widget.dart';
 import 'package:flutter_task/features/home/presentation/widgets/shimmer_widgets.dart';
 import 'package:flutter_task/features/home/presentation/widgets/trader_card.dart';
+import 'package:flutter_task/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:get/get.dart';
 
@@ -43,14 +44,53 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: AppColors.background,
                 elevation: 0,
                 actions: [
-                  IconButton(
-                    onPressed: () {
-                      Get.toNamed(AppRoutes.notificationScreen);
+                  Obx(() {
+                    final notificationCount = NotificationController.to.notificationCount;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Get.toNamed(AppRoutes.notificationScreen);
+                            },
+                            icon: const Icon(
+                              Icons.notifications_none,
+                              color: AppColors.white,
+                            ),
+                          ),
+
+                          /// 🔴 Badge
+                          if (notificationCount > 0)
+                            Positioned(
+                              right: 8.w,
+                              top: 8.h,
+                              child: Container(
+                                padding: EdgeInsets.all(3.r),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints:  BoxConstraints(
+                                  minWidth: 18.w,
+                                  minHeight: 18.h,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    notificationCount > 99
+                                        ? '99+'
+                                        : notificationCount.toString(),
+                                    style:  TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
                     },
-                    icon: const Icon(
-                      Icons.notifications_none,
-                      color: AppColors.white,
-                    ),
                   ),
                 ],
                 leadingWidth: 0,

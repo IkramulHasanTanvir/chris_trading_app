@@ -7,6 +7,7 @@ import 'package:flutter_task/core/constants/app_constants.dart';
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
+import 'package:flutter_task/features/profile/data/models/badge_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 
 class ProfileRepository {
@@ -51,11 +52,19 @@ class ProfileRepository {
     }
   }
 
-  Future<void> updateProfile(String? name, String? imageUrl,String? referral) async {
+  Future<void> updateProfile(
+    String? name,
+    String? imageUrl,
+    String? referral,
+  ) async {
     try {
       await _apiService.patch(
         ApiConstants.profileUpdate,
-        data: {if(name != null)  "name": name, if(imageUrl != null) "userProfileUrl": imageUrl, if(referral != null) "referralCode": referral},
+        data: {
+          if (name != null) "name": name,
+          if (imageUrl != null) "userProfileUrl": imageUrl,
+          if (referral != null) "referralCode": referral,
+        },
       );
       await getUserData();
     } on AppException {
@@ -65,24 +74,22 @@ class ProfileRepository {
     }
   }
 
-
   Future<String> uploadImage(File file) async {
-
     final image = await MultipartFile.fromFile(file.path);
-    try{
-      final response = await _apiService.uploadFile(ApiConstants.imageUpload,file: image);
+    try {
+      final response = await _apiService.uploadFile(
+        ApiConstants.imageUpload,
+        file: image,
+      );
       return response.data['url'];
-
     } on AppException {
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
     }
-
   }
 
-
-  Future<void> deleteUser(String userID) async{
+  Future<void> deleteUser(String userID) async {
     try {
       await _apiService.delete(ApiConstants.deleteAccount(userID));
       await _cacheService.clear();
@@ -93,9 +100,38 @@ class ProfileRepository {
     }
   }
 
+  Future<BadgeModel> getBadge() async {
+    try {
+      final response = await _apiService.get(ApiConstants.badge);
+      final model = BadgeModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      await _cacheService.put(AppConstants.cacheBadge, model.toJson());
+      return model;
+    } on AppException {
+      final cached = getCachedBadge();
+      if (cached != null) return cached;
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  BadgeModel? getCachedBadge() {
+    try {
+      final json = _cacheService.get<Map<String, dynamic>>(
+        AppConstants.cacheBadge,
+        defaultValue: null,
+      );
+      if (json == null) return null;
+      return BadgeModel.fromJson(json);
+    } catch (e) {
+      debugPrint('Error getting cached referral data: $e');
+      return null;
+    }
+  }
+
   bool hasCache() {
     return _cacheService.containsKey(AppConstants.cacheUser);
   }
-
-
 }

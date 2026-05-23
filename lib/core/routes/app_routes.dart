@@ -46,6 +46,7 @@ abstract class AppRoutes {
   static const String twoFactorAuthScreen = '/profile/two-factor-auth';
   static const String notificationScreen = '/home/notification';
   static const String signalsDetailsScreen = '/signals/details';
+  static const String badgeScreen = '/profile/badge';
   static const String home = '/home_demo';
 
   // ─── Add your routes below ───────────────────────────────────────────────

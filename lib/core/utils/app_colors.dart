@@ -44,9 +44,9 @@ class AppColors {
   // Green accents (from design)
   static const Color greenAccent = Color(0xFF00E676);
   static const Color greenAccentLight = Color(0xFF69F0AE);
-
   // Background colors
   static const Color background = Color(0xFF191932);
+  static const Color backgroundDark = Color(0xFF0D1016);
   static const Color navBackground = Color(0xFF191826);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color white = Colors.white;

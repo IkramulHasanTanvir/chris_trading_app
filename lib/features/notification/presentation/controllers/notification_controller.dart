@@ -1,112 +1,122 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_task/core/enums/loading_state.dart';
-// import 'package:flutter_task/core/extensions/app_extension.dart';
-// import 'package:flutter_task/core/helpers/toast_message_helper.dart';
-// import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
-// import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
-// import 'package:get/get.dart';
-//
-// class ProfileController extends GetxController {
-//   final ProfileService _service;
-//
-//   static ProfileController get to => Get.find();
-//
-//   ProfileController({required ProfileService service}) : _service = service;
-//
-//   // ─── Controllers ─────────────────────────────────────────────────
-//   final nameController = TextEditingController();
-//   final _formKey = GlobalKey<FormState>();
-//   GlobalKey<FormState> get formKey => _formKey;
-//
-//   // ─── State ────────────────────────────────────────────────────────
-//   final _loadingState = LoadingState.initial.obs;
-//   final _updateState = LoadingState.initial.obs;
-//   final _errorMessage = ''.obs;
-//
-//   LoadingState get loadingState => _loadingState.value;
-//   LoadingState get updateState => _updateState.value;
-//   String get errorMessage => _errorMessage.value;
-//
-//   // ─── Data ─────────────────────────────────────────────────────────
-//   final _userData = Rxn<UserResponseModel>();
-//   final _selectedImageUrl = ''.obs;
-//
-//   UserResponseModel? get userData => _userData.value;
-//   String get selectedImageUrl => _selectedImageUrl.value;
-//
-//   // ─── Helper Methods ───────────────────────────────────────────────
-//   void setImageUrl(String url) {
-//     _selectedImageUrl.value = url;
-//   }
-//
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     loadData();
-//   }
-//
-//   // ─── Load Profile ─────────────────────────────────────────────────
-//   Future<void> loadData() async {
-//     try {
-//       _errorMessage.value = '';
-//
-//       final hasCache = _service.hasCache();
-//       if (hasCache) {
-//         final cached = _service.getCachedData();
-//         _userData.value = cached;
-//         _loadingState.value = LoadingState.loaded;
-//       } else {
-//         _loadingState.value = LoadingState.loading;
-//       }
-//
-//       final fresh = await _service.fetchUserData();
-//       _userData.value = fresh;
-//       _populateFields(fresh);
-//       _loadingState.value = LoadingState.loaded;
-//     } catch (e) {
-//       if (!_service.hasCache()) {
-//         _loadingState.value = LoadingState.error;
-//         _errorMessage.value = e.errorMessage;
-//       }
-//     }
-//   }
-//
-//   void _populateFields(UserResponseModel user) {
-//     nameController.text = user.name ?? '';
-//     _selectedImageUrl.value = user.userProfileUrl ?? '';
-//   }
-//
-//   Future<void> retry() async => await loadData();
-//
-//   // ─── Update Profile ───────────────────────────────────────────────
-//   Future<void> updateProfile() async {
-//     if (!_formKey.currentState!.validate()) return;
-//     try {
-//       _updateState.value = LoadingState.loading;
-//
-//       await _service.updateProfile(
-//         name: nameController.text,
-//         imageUrl: _selectedImageUrl.value,
-//       );
-//
-//       _updateState.value = LoadingState.loaded;
-//       ToastMessageHelper.show('Profile updated successfully');
-//
-//       await loadData();
-//       Get.back(canPop: true);
-//     } catch (e) {
-//       _updateState.value = LoadingState.error;
-//       ToastMessageHelper.show(e.errorMessage);
-//     }
-//   }
-//
-//   Future<void> uploadImage() async {
-//
-//   }
-//
-//   @override
-//   void onClose() {
-//     nameController.dispose();
-//     super.onClose();
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:flutter_task/core/enums/loading_state.dart';
+import 'package:flutter_task/core/extensions/app_extension.dart';
+import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/features/notification/data/models/notification_model.dart';
+import 'package:flutter_task/features/notification/domain/services/notification_services.dart';
+import 'package:get/get.dart';
+
+class NotificationController extends GetxController {
+  final NotificationServices _service;
+
+  static NotificationController get to => Get.find();
+
+  NotificationController({required NotificationServices service})
+    : _service = service;
+
+  // ─── Loading States ───────────────────────────────────────────────
+  final _loadingState = LoadingState.initial.obs;
+
+  LoadingState get loadingState => _loadingState.value;
+
+  // ─── Data ─────────────────────────────────────────────────────────
+  final _notification = <NotificationModel>[].obs;
+
+  final _notificationCount = 0.obs;
+
+  int get notificationCount => _notificationCount.value;
+
+  List<NotificationModel> get notification => _notification;
+
+  // ─── Signals Pagination ───────────────────────────────────────────
+  int _currentPage = 1;
+  static const int _pageSize = 10;
+
+  final _isLoadingMore = false.obs;
+  final _hasMore = true.obs;
+
+  bool get isLoadingMore => _isLoadingMore.value;
+
+  bool get hasMore => _hasMore.value;
+
+  // ─── Scroll ───────────────────────────────────────────────────────
+  ScrollController? scrollController;
+
+  @override
+  void onInit() {
+    super.onInit();
+    scrollController = ScrollController()..addListener(_onScroll);
+    loadData();
+  }
+
+  void _onScroll() {
+    if (scrollController == null) return;
+    final position = scrollController!.position;
+
+    if (position.pixels >= position.maxScrollExtent - 200 &&
+        !isLoadingMore &&
+        hasMore) {
+      loadMore();
+    }
+  }
+
+  // ─── Load notification ─────────────────────────────────────────────────
+  Future<void> loadData() async {
+    try {
+      if (_service.hasCache()) {
+        _notification.assignAll(_service.getCachedData().notification);
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.loading;
+      }
+
+      await _service.fetchAllNotification();
+      final fresh = _service.getCachedData().notification;
+      _notificationCount.value = _service.getCachedData().notificationCount;
+      _notification.assignAll(fresh);
+
+      _hasMore.value = fresh.length >= _pageSize;
+      _loadingState.value = LoadingState.loaded;
+
+    } catch (e) {
+      if (!_service.hasCache()) {
+        _loadingState.value = LoadingState.error;
+
+      }
+    }
+  }
+
+  // ─── Load More Signals ────────────────────────────────────────────
+  Future<void> loadMore() async {
+    if (isLoadingMore || !hasMore) return;
+
+    try {
+      _isLoadingMore.value = true;
+      _currentPage++;
+
+      final data = await _service.fetchMoreNotification(
+        page: _currentPage,
+        limit: _pageSize,
+      );
+      _notification.addAll(data);
+
+      if (data.length < _pageSize) _hasMore.value = false;
+    } catch (e) {
+      _currentPage--;
+      ToastMessageHelper.show(e.errorMessage);
+    } finally {
+      _isLoadingMore.value = false;
+    }
+  }
+
+  Future<void> retry() async => await loadData();
+
+  // ─── Dispose ──────────────────────────────────────────────────────
+  @override
+  void onClose() {
+    scrollController?.removeListener(_onScroll);
+    scrollController?.dispose();
+    scrollController = null;
+    super.onClose();
+  }
+}

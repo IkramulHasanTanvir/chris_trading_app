@@ -14,11 +14,15 @@ import 'package:flutter_task/features/home/presentation/controllers/home_control
 import 'package:flutter_task/features/home/presentation/screens/contributor_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/leaderboard_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/top_trader_screen.dart';
+import 'package:flutter_task/features/notification/data/repositories/notification_repository.dart';
+import 'package:flutter_task/features/notification/domain/services/notification_services.dart';
+import 'package:flutter_task/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:flutter_task/features/notification/presentation/screens/notification_screen.dart';
 import 'package:flutter_task/features/onboarding/onboarding_screen.dart';
 import 'package:flutter_task/features/pasar/data/repositories/history_repository.dart';
 import 'package:flutter_task/features/pasar/domain/services/history_service.dart';
 import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
+import 'package:flutter_task/features/profile/presentation/screens/badge_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/setting_change_password.dart';
 import 'package:flutter_task/features/profile/presentation/screens/support_screen.dart';
@@ -147,6 +151,11 @@ abstract class AppPages {
       page: () => const SignalsDetailsScreen(),
     ),
 
+    GetPage(
+      name: AppRoutes.badgeScreen,
+      page: () => const BadgeScreen(),
+    ),
+
   ];
 }
 
@@ -209,6 +218,23 @@ class BottomNavBinding extends Bindings {
 
     Get.lazyPut<HistoryController>(
       () => HistoryController(service: Get.find<HistoryService>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<NotificationRepository>(
+      () => NotificationRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<NotificationServices>(
+      () => NotificationServices(repository: Get.find<NotificationRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut<NotificationController>(
+      () => NotificationController(service: Get.find<NotificationServices>()),
       fenix: true,
     );
 

@@ -43,6 +43,11 @@ class ApiConstants {
   static const String profileUpdate = '/api/v1/user/update-profile';
   static const String imageUpload = '/api/v1/upload/file';
   static  String deleteAccount(userID) => '/api/v1/user/$userID';
+  static const String badge = '/api/v1/badges';
+
+  // Notification
+  static  String notifications(int page,int limit) => '/api/v1/notifications?page=$page&limit=$limit';
+  static const String notificationCount = '/api/v1/notifications/unread-count';
 
 
 

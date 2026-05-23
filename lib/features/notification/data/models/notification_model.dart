@@ -1,78 +1,89 @@
-class UserResponseModel {
-  final String id;
-  final String name;
-  final String email;
-  final String role;
-  final String accountStatus;
-  final bool isVerified;
-  final String userProfileUrl;
-  final String subscriptionStatus;
-  final String subscriptionTier;
-  final bool twoFactorEnabled;
-  final String createdAt;
+class NotificationModel {
+  String? sId;
+  String? accountId;
+  String? type;
+  String? title;
+  String? message;
+  bool? isRead;
+  String? link;
+  Data? data;
+  String? createdAt;
+  String? updatedAt;
 
-  final int walletBalance;
-  final String referralCode;
-  final String subscriptionExpiresAt;
-  final bool trialUsed;
-
-  UserResponseModel({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
-    required this.accountStatus,
-    required this.isVerified,
-    required this.userProfileUrl,
-    required this.subscriptionStatus,
-    required this.subscriptionTier,
-    required this.twoFactorEnabled,
-    required this.createdAt,
-    required this.walletBalance,
-    required this.referralCode,
-    required this.subscriptionExpiresAt,
-    required this.trialUsed,
+  NotificationModel({
+    this.sId,
+    this.accountId,
+    this.type,
+    this.title,
+    this.message,
+    this.isRead,
+    this.link,
+    this.data,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  factory UserResponseModel.fromJson(Map<String, dynamic> json) {
-    return UserResponseModel(
-      id: json['_id'] ?? '',
-      name: json['name'] ?? '',
-      email: json['email'] ?? '',
-      role: json['role'] ?? 'USER',
-      accountStatus: json['accountStatus'] ?? 'ACTIVE',
-      isVerified: json['isVerified'] ?? false,
-      userProfileUrl: json['userProfileUrl'] ?? '',
-      subscriptionStatus: json['subscriptionStatus'] ?? 'none',
-      subscriptionTier: json['subscriptionTier'] ?? 'free',
-      twoFactorEnabled: json['twoFactorEnabled'] ?? false,
-      createdAt: json['createdAt'] ?? '',
-      walletBalance: json['walletBalance'] ?? 0,
-      referralCode: json['referralCode'] ?? '',
-      subscriptionExpiresAt: json['subscriptionExpiresAt'] ?? '',
-      trialUsed: json['trialUsed'] ?? false,
-    );
+  NotificationModel.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    accountId = json['accountId'];
+    type = json['type'];
+    title = json['title'];
+    message = json['message'];
+    isRead = json['isRead'];
+    link = json['link'];
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
   }
-
 
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-      'email': email,
-      'role': role,
-      'accountStatus': accountStatus,
-      'isVerified': isVerified,
-      'userProfileUrl': userProfileUrl,
-      'subscriptionStatus': subscriptionStatus,
-      'subscriptionTier': subscriptionTier,
-      'twoFactorEnabled': twoFactorEnabled,
-      'createdAt': createdAt,
-      'walletBalance': walletBalance,
-      'referralCode': referralCode,
-      'subscriptionExpiresAt': subscriptionExpiresAt,
-      'trialUsed': trialUsed,
-    };
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['accountId'] = accountId;
+    data['type'] = type;
+    data['title'] = title;
+    data['message'] = message;
+    data['isRead'] = isRead;
+    data['link'] = link;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
+    }
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    return data;
+  }
+}
+
+class Data {
+  String? badgeKey;
+  String? badgeName;
+  String? signalId;
+  String? symbol;
+  String? signalType;
+
+  Data({
+    this.badgeKey,
+    this.badgeName,
+    this.signalId,
+    this.symbol,
+    this.signalType,
+  });
+
+  Data.fromJson(Map<String, dynamic> json) {
+    badgeKey = json['badgeKey'];
+    badgeName = json['badgeName'];
+    signalId = json['signalId'];
+    symbol = json['symbol'];
+    signalType = json['signalType'];
   }
 
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['badgeKey'] = badgeKey;
+    data['badgeName'] = badgeName;
+    data['signalId'] = signalId;
+    data['symbol'] = symbol;
+    data['signalType'] = signalType;
+    return data;
+  }
 }

@@ -7,30 +7,34 @@ import 'package:flutter_task/core/constants/app_constants.dart';
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
+import 'package:flutter_task/features/notification/data/models/notification_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileRepository {
+class NotificationRepository {
   final ApiService _apiService;
   final CacheService _cacheService;
 
-  ProfileRepository({
+  NotificationRepository({
     required ApiService apiService,
     required CacheService cacheService,
   }) : _apiService = apiService,
        _cacheService = cacheService;
 
-  // ─── Profile Data ───────────────────────────────────────────────
-  Future<UserResponseModel> getUserData() async {
+
+
+  Future<List<NotificationModel>> getNotification(int page, int limit) async {
     try {
-      final response = await _apiService.get(ApiConstants.profile);
-      final model = UserResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>,
+      final response = await _apiService.get(ApiConstants.notifications(page, limit));
+      final list = response.data['data'] as List? ?? [];
+      final model = list.map((e) => NotificationModel.fromJson(e)).toList();
+      await _cacheService.put(
+        AppConstants.cacheNotifications,
+        model.map((e) => e.toJson()).toList(),
       );
-      await _cacheService.put(AppConstants.cacheUser, model.toJson());
       return model;
     } on AppException {
-      final cached = getCachedUserData();
+      final cached = getCachedNotification();
       if (cached != null) return cached;
       rethrow;
     } catch (e) {
@@ -38,52 +42,74 @@ class ProfileRepository {
     }
   }
 
-  UserResponseModel? getCachedUserData() {
+  Future<List<NotificationModel>> fetchMoreNotification({
+    required int page,
+    required int limit,
+  }) async {
+    final newData = await getNotification(page, limit);
+    if (newData.isNotEmpty) {
+      final current = getCachedNotification() ?? [];
+      final merged = [...current, ...newData];
+      await _cacheService.put(
+        AppConstants.cacheNotifications,
+        merged.map((e) => e.toJson()).toList(),
+      );
+    }
+    return newData;
+  }
+
+  List<NotificationModel>? getCachedNotification() {
     try {
-      final json = _cacheService.get<Map<String, dynamic>>(
-        AppConstants.cacheUser,
+      final jsonList = _cacheService.get<List>(
+        AppConstants.cacheNotifications,
         defaultValue: null,
       );
-      if (json == null) return null;
-      return UserResponseModel.fromJson(json);
+      if (jsonList == null) return null;
+      return jsonList
+          .map((json) => NotificationModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('Error getting cached referral data: $e');
       return null;
     }
   }
 
-  Future<void> updateProfile(String name, String imageUrl) async {
+
+
+
+  Future<int> getNotificationCount() async {
     try {
-      await _apiService.patch(
-        ApiConstants.profileUpdate,
-        data: {"name": name, "userProfileUrl": imageUrl},
+      final response = await _apiService.get(ApiConstants.notificationCount);
+      final data = response.data['data'] as Map<String, dynamic>?;
+      final count = (data?['unreadCount'] as num?)?.toInt() ?? 0;
+      await _cacheService.put(
+        AppConstants.cacheNotificationCount, count);
+      return count;
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  int? getCachedNotificationCount() {
+    try {
+      final json = _cacheService.get<int>(
+        AppConstants.cacheNotificationCount,
+        defaultValue: null,
       );
-      await getUserData();
-    } on AppException {
-      rethrow;
-    } catch (e) {
-      throw UnknownException(e.toString());
+      if (json == null) return null;
+      return (json as num?)?.toInt() ?? 0;
+      } catch (e) {
+      debugPrint('Error getting cached referral data: $e');
+      return null;
     }
   }
 
 
-  Future<String> uploadImage(File file) async {
-
-    final image = await MultipartFile.fromFile(file.path);
-    try{
-      final response = await _apiService.uploadFile(ApiConstants.profileUpdate,file: image);
-      return response.data['url'];
-
-    } on AppException {
-      rethrow;
-    } catch (e) {
-      throw UnknownException(e.toString());
-    }
-
-  }
 
   bool hasCache() {
-    return _cacheService.containsKey(AppConstants.cacheUser);
+    return _cacheService.containsKey(AppConstants.cacheNotifications);
   }
 
 

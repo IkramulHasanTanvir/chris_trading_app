@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
+import 'package:flutter_task/features/profile/data/models/badge_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
 
@@ -10,13 +11,17 @@ class ProfileService {
   ProfileService({required ProfileRepository repository})
       : _repository = repository;
 
-  Future<UserResponseModel> fetchUserData() async {
+  
+  Future<void> fetchAllProfileData() async {
     try {
-      return await _repository.getUserData();
+      await Future.wait([
+        _repository.getUserData(),
+        _repository.getBadge(),
+      ]);
     } on AppException {
-      final cached = _repository.getCachedUserData();
-      if (cached != null) return cached;
-      rethrow;
+      if (!hasCache()) {
+        rethrow;
+      }
     } catch (e) {
       throw UnknownException(e.toString());
     }
@@ -60,7 +65,20 @@ class ProfileService {
     return _repository.hasCache();
   }
 
-  UserResponseModel? getCachedData() {
-    return _repository.getCachedUserData();
+  ProfileScreenData getCachedData() {
+    return ProfileScreenData(
+      badge: _repository.getCachedBadge(),
+      user: _repository.getCachedUserData(),
+    );
   }
+}
+
+class ProfileScreenData {
+  final BadgeModel? badge;
+  final UserResponseModel? user;
+
+  ProfileScreenData({
+    required this.badge,
+    required this.user,
+  });
 }

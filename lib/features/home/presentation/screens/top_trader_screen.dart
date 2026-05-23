@@ -12,7 +12,6 @@ class TopTraderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = HomeController.to;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -72,7 +71,7 @@ class TopTraderScreen extends StatelessWidget {
             body: TabBarView(
               children: [
                 /// ───── All Tab ─────
-                _buildSignalList(HomeController.to.topTraders),
+                 Obx(() => _buildSignalList(HomeController.to.topTraders)),
 
                 /// ───── Follow Tab ─────
                 Obx(() => _buildSignalList(HomeController.to.followTraders)),
@@ -86,20 +85,13 @@ class TopTraderScreen extends StatelessWidget {
 
   /// 🔥 Signal List (Reusable)
   Widget _buildSignalList(List<TraderModel> data) {
-    return Column(
-      children: [
-        SizedBox(height: 24.h),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          itemCount: data.length,
-          separatorBuilder: (_, __) => SizedBox(height: 12.h),
-          itemBuilder: (context, index) {
-            return TraderCard(trader: data[index]);
-          },
-        ),
-        SizedBox(height: 100.h),
-      ],
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 16.w,vertical: 24.h),
+      itemCount: data.length,
+      separatorBuilder: (_, __) => SizedBox(height: 12.h),
+      itemBuilder: (context, index) {
+        return TraderCard(trader: data[index]);
+      },
     );
   }}
