@@ -209,36 +209,36 @@ class SignalDetailsCard extends StatelessWidget {
         ),
 
         // ✅ View Details Button
-        GestureDetector(
-          onTap: () {
-            Get.toNamed(AppRoutes.signalsDetailsScreen, arguments: item.sId);
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: const Color(0xFF7C5FFC).withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: const Color(0xFF7C5FFC).withValues(alpha: 0.45),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.arrow_forward_rounded,
-                    size: 13.sp, color: const Color(0xFFB197FC)),
-                SizedBox(width: 5.w),
-                CustomText(
-                  text: 'Details',
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFB197FC),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: () {
+        //     Get.toNamed(AppRoutes.signalsDetailsScreen, arguments: item.sId);
+        //   },
+        //   child: Container(
+        //     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        //     decoration: BoxDecoration(
+        //       color: const Color(0xFF7C5FFC).withValues(alpha: 0.18),
+        //       borderRadius: BorderRadius.circular(8.r),
+        //       border: Border.all(
+        //         color: const Color(0xFF7C5FFC).withValues(alpha: 0.45),
+        //         width: 1,
+        //       ),
+        //     ),
+        //     child: Row(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         Icon(Icons.arrow_forward_rounded,
+        //             size: 13.sp, color: const Color(0xFFB197FC)),
+        //         SizedBox(width: 5.w),
+        //         CustomText(
+        //           text: 'Details',
+        //           fontSize: 11.sp,
+        //           fontWeight: FontWeight.w600,
+        //           color: const Color(0xFFB197FC),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

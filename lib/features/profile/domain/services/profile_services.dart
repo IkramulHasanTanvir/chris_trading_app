@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/features/profile/data/models/badge_model.dart';
+import 'package:flutter_task/features/profile/data/models/dashboard_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
 
@@ -17,6 +18,7 @@ class ProfileService {
       await Future.wait([
         _repository.getUserData(),
         _repository.getBadge(),
+        _repository.getDashboard(),
       ]);
     } on AppException {
       if (!hasCache()) {
@@ -67,6 +69,7 @@ class ProfileService {
 
   ProfileScreenData getCachedData() {
     return ProfileScreenData(
+      dashboard: _repository.getCachedDashboard(),
       badge: _repository.getCachedBadge(),
       user: _repository.getCachedUserData(),
     );
@@ -76,9 +79,11 @@ class ProfileService {
 class ProfileScreenData {
   final BadgeModel? badge;
   final UserResponseModel? user;
+  final DashboardModel? dashboard;
 
   ProfileScreenData({
     required this.badge,
     required this.user,
+    required this.dashboard,
   });
 }

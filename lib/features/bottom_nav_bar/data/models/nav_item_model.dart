@@ -36,13 +36,8 @@ class NavItemModel {
       screen: const SignalsScreen(),
     ),
     NavItemModel(
-      icon: Assets.icons.add.path,
-      label: 'Top Up',
-      screen: const TopOpScreen(),
-    ),
-    NavItemModel(
       icon: Assets.icons.line.path,
-      label: 'Pasar',
+      label: 'Academy',
       screen: const PasarScreen(),
     ),
 

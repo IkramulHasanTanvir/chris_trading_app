@@ -4,9 +4,10 @@ import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/top_up/data/models/plan_model.dart';
 import 'package:flutter_task/features/top_up/presentation/widgets/plan_card_widget.dart';
+import 'package:get/get.dart';
 
-class TopOpScreen extends StatelessWidget {
-  const TopOpScreen({super.key});
+class TopUpScreen extends StatelessWidget {
+  const TopUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,12 @@ class TopOpScreen extends StatelessWidget {
             scrolledUnderElevation: 0,
             backgroundColor: AppColors.background,
             elevation: 0,
+            leading: IconButton(
+              onPressed: () {
+                Get.back(canPop: true);
+              },
+              icon: const Icon(Icons.arrow_back_ios, color: AppColors.white),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               expandedTitleScale: 2.0,
               title: CustomText(

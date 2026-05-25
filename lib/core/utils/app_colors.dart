@@ -50,6 +50,10 @@ class AppColors {
   static const Color navBackground = Color(0xFF191826);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color white = Colors.white;
+  static const winBlue = Color(0xFF4A90D9);
+  static const lossRed = Color(0xFFE05A5A);
+  static const barGreen = Color(0xFF4CAF50);
+  static const barRed = Color(0xFFE05A5A);
 
   // Text colors
   static const Color textPrimary = Color(0xFF212121);

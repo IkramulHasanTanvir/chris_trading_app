@@ -44,54 +44,66 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: AppColors.background,
                 elevation: 0,
                 actions: [
+                  CustomContainer(
+                    onTap: () {
+                      Get.toNamed(AppRoutes.dashboardScreen);
+                    },
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    radiusAll: 12.r,
+                    paddingAll: 6.r,
+                    child: Icon(
+                      Icons.bar_chart_rounded,
+                      color: AppColors.primary,
+                    ),
+                  ),
                   Obx(() {
-                    final notificationCount = NotificationController.to.notificationCount;
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Get.toNamed(AppRoutes.notificationScreen);
-                            },
-                            icon: const Icon(
-                              Icons.notifications_none,
-                              color: AppColors.white,
-                            ),
+                    final notificationCount =
+                        NotificationController.to.notificationCount;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Get.toNamed(AppRoutes.notificationScreen);
+                          },
+                          icon: const Icon(
+                            Icons.notifications_none,
+                            color: AppColors.white,
                           ),
+                        ),
 
-                          /// 🔴 Badge
-                          if (notificationCount > 0)
-                            Positioned(
-                              right: 8.w,
-                              top: 8.h,
-                              child: Container(
-                                padding: EdgeInsets.all(3.r),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                constraints:  BoxConstraints(
-                                  minWidth: 18.w,
-                                  minHeight: 18.h,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    notificationCount > 99
-                                        ? '99+'
-                                        : notificationCount.toString(),
-                                    style:  TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        /// 🔴 Badge
+                        if (notificationCount > 0)
+                          Positioned(
+                            right: 8.w,
+                            top: 8.h,
+                            child: Container(
+                              padding: EdgeInsets.all(3.r),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: BoxConstraints(
+                                minWidth: 18.w,
+                                minHeight: 18.h,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  notificationCount > 99
+                                      ? '99+'
+                                      : notificationCount.toString(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
-                        ],
-                      );
-                    },
-                  ),
+                          ),
+                      ],
+                    );
+                  }),
                 ],
                 leadingWidth: 0,
                 flexibleSpace: FlexibleSpaceBar(
@@ -112,19 +124,19 @@ class HomeScreen extends StatelessWidget {
                           height: 32.h,
                           boxShape: BoxShape.circle,
                           fit: BoxFit.cover,
-                          imageUrl: ProfileController.to.userData?.userProfileUrl ?? '',
+                          imageUrl:
+                              ProfileController.to.userData?.userProfileUrl ??
+                              '',
                         ),
-                        Obx(
-                           () {
-
-                            return CustomText(
-                              left: 6.w,
-                              text: 'Hello, ${ProfileController.to.userData?.name ?? ''}',
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                            );
-                          }
-                        ),
+                        Obx(() {
+                          return CustomText(
+                            left: 6.w,
+                            text:
+                                'Hello, ${ProfileController.to.userData?.name ?? ''}',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -134,7 +146,8 @@ class HomeScreen extends StatelessWidget {
               // ─── Sliver Body ─────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Obx(() {
-                  final leaderBoardData = controller.leaderBoard?.topThree ?? [];
+                  final leaderBoardData =
+                      controller.leaderBoard?.topThree ?? [];
                   final contributors = controller.contributors;
                   final traders = controller.topTraders;
                   switch (controller.loadingState) {
@@ -150,75 +163,81 @@ class HomeScreen extends StatelessWidget {
                       );
 
                     case LoadingState.loaded:
-                    return Column(
-                      children: [
-                        SizedBox(height: 16.h),
-                        if(leaderBoardData.isNotEmpty)...[
-                          ChampionsTopThreeCard(
-                            onTap: (){
-                              Get.toNamed(AppRoutes.leaderboardScreen);
-                            },
-                            items: leaderBoardData,
-                          ),
-
-                          SizedBox(height: 24.h),
-                        ],
-
-
-                        if(contributors.isNotEmpty)...[
-                          SectionTitleWidget(title: 'Top Contributors', onTap: () {
-                            Get.toNamed(AppRoutes.contributorScreen,);
-                          }),
-                          SizedBox(height: 12.h),
-                          SizedBox(
-                            height: 160.h,
-                            child: ListView.separated(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              scrollDirection: Axis.horizontal,
-                              itemCount: contributors.length,
-                              separatorBuilder: (_, index) {
-                                return SizedBox(width: 12.w);
+                      return Column(
+                        children: [
+                          SizedBox(height: 16.h),
+                          if (leaderBoardData.isNotEmpty) ...[
+                            ChampionsTopThreeCard(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.leaderboardScreen);
                               },
-                              itemBuilder: (context, index) {
-                                final item = contributors[index];
+                              items: leaderBoardData,
+                            ),
 
-                                return ContributorCard(item: item,isHorizontal: true);
+                            SizedBox(height: 24.h),
+                          ],
+
+                          if (contributors.isNotEmpty) ...[
+                            SectionTitleWidget(
+                              title: 'Top Contributors',
+                              onTap: () {
+                                Get.toNamed(AppRoutes.contributorScreen);
                               },
                             ),
-                          ),
+                            SizedBox(height: 12.h),
+                            SizedBox(
+                              height: 160.h,
+                              child: ListView.separated(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: contributors.length,
+                                separatorBuilder: (_, index) {
+                                  return SizedBox(width: 12.w);
+                                },
+                                itemBuilder: (context, index) {
+                                  final item = contributors[index];
 
-                          SizedBox(height: 24.h),
+                                  return ContributorCard(
+                                    item: item,
+                                    isHorizontal: true,
+                                  );
+                                },
+                              ),
+                            ),
+
+                            SizedBox(height: 24.h),
+                          ],
+
+                          if (traders.isNotEmpty) ...[
+                            SectionTitleWidget(
+                              title: 'Top traders',
+                              onTap: () {
+                                Get.toNamed(AppRoutes.topTraderScreen);
+                              },
+                            ),
+                            SizedBox(height: 12.h),
+
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              itemCount: traders.length,
+                              separatorBuilder: (_, index) {
+                                return SizedBox(height: 12.w);
+                              },
+                              itemBuilder: (context, index) {
+                                final item = traders[index];
+
+                                return TraderCard(trader: item);
+                              },
+                            ),
+                          ],
+
+                          SizedBox(height: 100.h),
                         ],
-
-                        if(traders.isNotEmpty)...[
-                          SectionTitleWidget(title: 'Top traders', onTap: () {
-                            Get.toNamed(AppRoutes.topTraderScreen);
-                          }),
-                          SizedBox(height: 12.h),
-
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            itemCount: traders.length,
-                            separatorBuilder: (_, index) {
-                              return SizedBox(height: 12.w);
-                            },
-                            itemBuilder: (context, index) {
-                              final item = traders[index];
-
-                              return TraderCard(trader: item,);
-                            },
-                          ),
-                        ],
-
-
-                        SizedBox(height: 100.h),
-                      ],
-                    );
+                      );
                   }
-                }
-                  )
+                }),
               ),
             ],
           ),

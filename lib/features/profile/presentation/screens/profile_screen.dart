@@ -81,7 +81,7 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           ActiveCard(
                             onTap: () {
-                              BottomNavBarController.to.onChange(2);
+                              Get.toNamed(AppRoutes.topUpScreen);
                             },
                             isActive: data?.subscriptionStatus == 'active',
                             title: data?.subscriptionStatus,
@@ -89,6 +89,9 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 12.w),
                           ActiveCard(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.topUpScreen);
+                            },
                             isActive: data?.subscriptionTier == 'pro',
                             title: "Pro",
                           ),

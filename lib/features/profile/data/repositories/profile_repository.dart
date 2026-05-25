@@ -8,6 +8,7 @@ import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/features/profile/data/models/badge_model.dart';
+import 'package:flutter_task/features/profile/data/models/dashboard_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 
 class ProfileRepository {
@@ -125,6 +126,39 @@ class ProfileRepository {
       );
       if (json == null) return null;
       return BadgeModel.fromJson(json);
+    } catch (e) {
+      debugPrint('Error getting cached referral data: $e');
+      return null;
+    }
+  }
+
+
+
+  Future<DashboardModel> getDashboard() async {
+    try {
+      final response = await _apiService.get(ApiConstants.dashboard);
+      final model = DashboardModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      await _cacheService.put(AppConstants.cacheDashboard, model.toJson());
+      return model;
+    } on AppException {
+      final cached = getCachedDashboard();
+      if (cached != null) return cached;
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  DashboardModel? getCachedDashboard() {
+    try {
+      final json = _cacheService.get<Map<String, dynamic>>(
+        AppConstants.cacheDashboard,
+        defaultValue: null,
+      );
+      if (json == null) return null;
+      return DashboardModel.fromJson(json);
     } catch (e) {
       debugPrint('Error getting cached referral data: $e');
       return null;

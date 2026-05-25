@@ -44,6 +44,8 @@ class ApiConstants {
   static const String imageUpload = '/api/v1/upload/file';
   static  String deleteAccount(userID) => '/api/v1/user/$userID';
   static const String badge = '/api/v1/badges';
+  static const String dashboard = '/api/v1/copied-trades/dashboard?timeframe=all';
+
 
   // Notification
   static  String notifications(int page,int limit) => '/api/v1/notifications?page=$page&limit=$limit';

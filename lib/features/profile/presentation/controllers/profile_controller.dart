@@ -5,6 +5,7 @@ import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/features/profile/data/models/badge_model.dart';
+import 'package:flutter_task/features/profile/data/models/dashboard_model.dart';
 import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
 import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
 import 'package:get/get.dart';
@@ -53,8 +54,11 @@ class ProfileController extends GetxController {
   // ─── Data ─────────────────────────────────────────────────────────
   final _userData = Rxn<UserResponseModel>();
   final _badge = Rxn<BadgeModel>();
+  final _dashboard = Rxn<DashboardModel>();
   UserResponseModel? get userData => _userData.value;
   BadgeModel? get badge => _badge.value;
+  DashboardModel? get dashboard => _dashboard.value;
+
 
   // ─── Computed ─────────────────────────────────────────────────────
   bool get codeChanged => _userData.value?.referralCodeChanged == true;
@@ -74,6 +78,8 @@ class ProfileController extends GetxController {
       if (hasCache) {
         final cached = _service.getCachedData().user;
         _userData.value = cached;
+        _badge.value = _service.getCachedData().badge;
+        _dashboard.value = _service.getCachedData().dashboard;
         _populateControllers(cached);
         _loadingState.value = LoadingState.loaded;
       } else {
@@ -83,6 +89,7 @@ class ProfileController extends GetxController {
        await _service.fetchAllProfileData();
       final fresh = _service.getCachedData().user;
       _badge.value = _service.getCachedData().badge;
+      _dashboard.value = _service.getCachedData().dashboard;
       _userData.value = fresh;
       _populateControllers(fresh);
       _loadingState.value = LoadingState.loaded;
