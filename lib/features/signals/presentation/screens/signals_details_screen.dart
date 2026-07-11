@@ -28,11 +28,8 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
   void initState() {
     super.initState();
     final String signalId = Get.arguments;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      SignalsController.to.getSignalDetails(signalId);
-      SignalsController.to.loadComments(signalId);
-
-    });
+    SignalsController.to.getSignalDetails(signalId);
+    SignalsController.to.loadComments(signalId);
   }
 
   @override
@@ -83,7 +80,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                   SliverToBoxAdapter(
                     child: Obx(() {
                       final signal = controller.signalDetail;
-                      switch (controller.loadingState) {
+                      switch (controller.detailsState) {
                         case LoadingState.initial:
                         case LoadingState.loading:
                           return HomeShimmerWidgets.buildLoadingShimmer();
@@ -92,7 +89,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                           return RetryWidget(
                             message: controller.errorMessage,
                             onRetry: () => controller.getSignalDetails(signalId),
-                            isOffline: controller.loadingState.isOffline,
+                            isOffline: controller.detailsState.isOffline,
                           );
                         case LoadingState.loaded:
                       return Padding(
@@ -267,36 +264,38 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
             ),
           )
       ),
-      bottomNavigationBar: Padding(
-        padding:  EdgeInsets.all(16.r),
-        child: Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                fontSize: 14.sp,
-                height: 36.h,
-                backgroundColor: AppColors.primaryBTN,
-                onPressed: () {
-                  _showCopyDialog(context, controller);
-                },
-                label: 'Copy Trade',
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding:  EdgeInsets.all(16.r),
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  fontSize: 14.sp,
+                  height: 36.h,
+                  backgroundColor: AppColors.primaryBTN,
+                  onPressed: () {
+                    _showCopyDialog(context, controller);
+                  },
+                  label: 'Copy Trade',
+                ),
               ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: CustomButton(
-                fontSize: 14.sp,
-                height: 36.h,
-                onPressed: () {
-                  Get.toNamed(
-                    AppRoutes.logUpdateScreen,
-                    arguments: controller.signalDetail?.sId,
-                  );
-                },
-                label: 'Log Trade',
+              SizedBox(width: 10.w),
+              Expanded(
+                child: CustomButton(
+                  fontSize: 14.sp,
+                  height: 36.h,
+                  onPressed: () {
+                    Get.toNamed(
+                      AppRoutes.logUpdateScreen,
+                      arguments: controller.signalDetail?.sId,
+                    );
+                  },
+                  label: 'Log Trade',
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

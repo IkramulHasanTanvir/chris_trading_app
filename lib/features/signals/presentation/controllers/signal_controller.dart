@@ -185,12 +185,14 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   Future<void> getSignalDetails(String signalId) async {
     try {
       _signalDetail.value = null;
+      _errorMessage.value = '';
       _detailsState.value = LoadingState.loading;
       final data = await _service.getSignalDetails(signalId);
       _signalDetail.value = data;
       _detailsState.value = LoadingState.loaded;
     } catch (e) {
       _detailsState.value = LoadingState.error;
+      _errorMessage.value = e.errorMessage;
       ToastMessageHelper.show(e.errorMessage);
     }
   }
