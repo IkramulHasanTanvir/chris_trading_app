@@ -37,11 +37,7 @@ class AuthorData extends StatelessWidget {
               ),
               SizedBox(height: 2.h),
               CustomText(
-                text: signal?.publishedAt != null
-                    ? TimeFormatHelper.timeFormat(
-                        DateTime.parse(signal?.publishedAt ?? ''),
-                      )
-                    : '--',
+                text: _formatPublishedAt(signal),
                 fontSize: 11.sp,
                 color: AppColors.textSecondary,
               ),
@@ -73,5 +69,13 @@ class AuthorData extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatPublishedAt(SignalsModel? signal) {
+    final raw = signal?.publishedAt ?? signal?.createdAt;
+    if (raw == null || raw.isEmpty || raw == 'null') return '--';
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return '--';
+    return TimeFormatHelper.timeFormat(parsed);
   }
 }

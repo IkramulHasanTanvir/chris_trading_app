@@ -59,7 +59,8 @@ class ApiConstants {
 
   /// PROFILE ──────────────────────────────────────────
   static const String withdrawalRequest = '/api/v1/withdrawals/request';
-  static  String myWithdrawals(int page) => '/api/v1/withdrawals/my-requests?page=$page&limit=20';
+  static String myWithdrawals(int page, {int limit = 10}) =>
+      '/api/v1/withdrawals/my-requests?page=$page&limit=$limit';
 
 
   // COMMENT ──────────────────────────────────────────

@@ -73,10 +73,14 @@ class ReferralRepository {
     }
   }
 
-  Future<List<WithdrawalModel>> getWithdrawalData({int page = 1}) async {
+  Future<List<WithdrawalModel>> getWithdrawalData({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
-      final response = await _apiService.get(ApiConstants.myWithdrawals(page));
-      final list = response.data['data'] as List? ?? [];
+      final response = await _apiService.get(
+        ApiConstants.myWithdrawals(page, limit: limit),
+      );      final list = response.data['data'] as List? ?? [];
 
       final data = list.map((e) => WithdrawalModel.fromJson(e)).toList();
       if (page == 1) {
@@ -99,8 +103,9 @@ class ReferralRepository {
 
   Future<List<WithdrawalModel>> fetchMoreWithdrawals({
     required int page,
+    int limit = 10,
   }) async {
-    final newData = await getWithdrawalData(page: page);
+    final newData = await getWithdrawalData(page: page, limit: limit);
     if (newData.isNotEmpty) {
       final current = getCachedWithdrawalData() ?? [];
       final merged = [...current, ...newData];

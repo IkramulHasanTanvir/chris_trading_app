@@ -69,12 +69,9 @@ class ContributorScreen extends StatelessWidget {
                     );
                   }),
                   Obx(
-                    () => controller.isLoadingMoreContributors
-                        ? Padding(
-                            padding: EdgeInsets.all(16.w),
-                            child: const Center(child: CustomLoader()),
-                          )
-                        : const SizedBox.shrink(),
+                    () => PaginationLoader(
+                      show: controller.isLoadingMoreContributors,
+                    ),
                   ),
 
                   SizedBox(height: 100.h),

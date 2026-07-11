@@ -84,15 +84,6 @@ class ReferralContent extends StatelessWidget {
           );
         }),
 
-        Obx(
-          () => controller.isLoadingMore
-              ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  child: const Center(child: CustomLoader()),
-                )
-              : const SizedBox.shrink(),
-        ),
-
         SizedBox(height: 100.h),
       ],
     );

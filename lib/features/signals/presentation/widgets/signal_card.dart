@@ -214,14 +214,20 @@ class SignalCard extends StatelessWidget {
           bordersColor: AppColors.white,
           radiusAll: 20.r,
           child: CustomText(
-            text: TimeFormatHelper.timeFormat(
-              DateTime.parse(item.publishedAt.toString()),
-            ),
+            text: _formatSignalTime(item),
             fontSize: 8.sp,
           ),
         ),
       ],
     );
+  }
+
+  String _formatSignalTime(SignalsModel item) {
+    final raw = item.publishedAt ?? item.createdAt;
+    if (raw == null || raw.isEmpty || raw == 'null') return '--';
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return '--';
+    return TimeFormatHelper.timeFormat(parsed);
   }
 
   /// 🔹 Chart Image

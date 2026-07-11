@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/services/paginated_list.dart';
+import 'package:flutter_task/core/services/paginated_loader_ui.dart';
 import 'package:flutter_task/features/referral/data/model/payment_method_model.dart';
 import 'package:flutter_task/features/referral/data/model/referral_data.dart';
 import 'package:flutter_task/features/referral/data/model/withdrawal_model.dart';
 import 'package:flutter_task/features/referral/domain/services/referral_service.dart';
 import 'package:get/get.dart';
 
-class ReferralController extends GetxController {
+class ReferralController extends GetxController with PaginatedLoaderUi {
   final ReferralService _service;
 
   static ReferralController get to => Get.find();
@@ -23,7 +25,6 @@ class ReferralController extends GetxController {
   GlobalKey<FormState> get formKey => _formKey;
 
   final RxInt _selectedIndex = 0.obs;
-
   int get selectedIndex => _selectedIndex.value;
 
   // ─── State ────────────────────────────────────────────────────────
@@ -32,34 +33,25 @@ class ReferralController extends GetxController {
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
   LoadingState get requestState => _requestState.value;
-
   String get errorMessage => _errorMessage.value;
 
   // ─── Data ─────────────────────────────────────────────────────────
   final _referralData = Rxn<ReferralData>();
-  final _withdrawals = <WithdrawalModel>[].obs;
-
   ReferralData? get referralData => _referralData.value;
 
-  List<WithdrawalModel> get withdrawals => _withdrawals;
+  late final PaginatedList<WithdrawalModel> withdrawalsList;
 
-  // ─── Pagination ───────────────────────────────────────────────────
-  int _currentPage = 1;
-  static const int _pageSize = 10;
+  List<WithdrawalModel> get withdrawals => withdrawalsList.items;
+  ScrollController? get scrollController => withdrawalsList.scrollController;
+  bool get isLoadingMore => withdrawalsList.showLoadMoreLoader;
 
-  final _isLoadingMore = false.obs;
-  final _hasMore = true.obs;
+  @override
+  LoadingState get paginationContentState => loadingState;
 
-  bool get isLoadingMore => _isLoadingMore.value;
+  @override
+  PaginatedList<dynamic> get paginatedList => withdrawalsList;
 
-  bool get hasMore => _hasMore.value;
-
-  // ─── Scroll ───────────────────────────────────────────────────────
-  ScrollController? scrollController;
-
-  // ─── Helper Method ───────────────────────────────────────────────────
   void selectMethod(int index) {
     _selectedIndex.value = index;
   }
@@ -67,22 +59,28 @@ class ReferralController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    scrollController = ScrollController()..addListener(_onScroll);
+    withdrawalsList = PaginatedList<WithdrawalModel>(
+      limit: 10,
+      fetchPage: _fetchWithdrawalsPage,
+      onError: (e) => ToastMessageHelper.show(e.errorMessage),
+    );
+    withdrawalsList.initScroll();
     loadData();
   }
 
-  void _onScroll() {
-    if (scrollController == null) return;
-    final position = scrollController!.position;
-
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMore &&
-        hasMore) {
-      loadMore();
+  Future<List<WithdrawalModel>> _fetchWithdrawalsPage(
+    int page,
+    int limit,
+  ) async {
+    if (page == 1) {
+      await _service.fetchAllReferralData();
+      final fresh = _service.getCachedData();
+      _referralData.value = fresh.referralData;
+      return fresh.withdrawals;
     }
+    return _service.fetchMoreWithdrawals(page: page, limit: limit);
   }
 
-  // ─── Load All ─────────────────────────────────────────────────────
   Future<void> loadData() async {
     try {
       _errorMessage.value = '';
@@ -91,18 +89,13 @@ class ReferralController extends GetxController {
       if (hasCache) {
         final cached = _service.getCachedData();
         _referralData.value = cached.referralData;
-        _withdrawals.assignAll(cached.withdrawals);
+        withdrawalsList.items.assignAll(cached.withdrawals);
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
 
-      await _service.fetchAllReferralData();
-
-      final fresh = _service.getCachedData();
-      _referralData.value = fresh.referralData;
-      _withdrawals.assignAll(fresh.withdrawals);
-      _hasMore.value = _withdrawals.length >= _pageSize;
+      await withdrawalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
       if (!_service.hasCache()) {
@@ -112,29 +105,10 @@ class ReferralController extends GetxController {
     }
   }
 
-  // ─── Pagination ───────────────────────────────────────────────────
-  Future<void> loadMore() async {
-    if (isLoadingMore || !hasMore) return;
-
-    try {
-      _isLoadingMore.value = true;
-      _currentPage++;
-
-      final data = await _service.fetchMoreWithdrawals(page: _currentPage);
-      _withdrawals.addAll(data);
-
-      if (data.length < _pageSize) _hasMore.value = false;
-    } catch (e) {
-      _currentPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMore.value = false;
-    }
-  }
-
   Future<void> retry() async => await loadData();
 
-  // ─── Request Withdrawal ───────────────────────────────────────────────────
+  @override
+  Future<void> refresh() => withdrawalsList.refreshWith(loadData);
 
   Future<void> requestWithdrawal() async {
     if (!_formKey.currentState!.validate()) return;
@@ -168,9 +142,10 @@ class ReferralController extends GetxController {
 
   @override
   void onClose() {
-    scrollController?.removeListener(_onScroll);
-    scrollController?.dispose();
-    scrollController = null;
+    withdrawalsList.dispose();
+    amountController.dispose();
+    emailController.dispose();
+    numberController.dispose();
     super.onClose();
   }
 }

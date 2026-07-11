@@ -19,7 +19,7 @@ class NotificationScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: RefreshIndicator(
         onRefresh: () async {
-          await controller.loadData();
+          await controller.refresh();
         },
         edgeOffset: 100.h,
         color: AppColors.primary,
@@ -145,14 +145,7 @@ class NotificationScreen extends StatelessWidget {
             }),
 
             // ─── Load More Indicator ─────────────────────────────────
-            Obx(() => SliverToBoxAdapter(
-              child: controller.isLoadingMore
-                  ? Padding(
-                padding: EdgeInsets.all(16.w),
-                child: const Center(child: CustomLoader()),
-              )
-                  : const SizedBox.shrink(),
-            )),
+            PaginationLoaderSliver(controller: controller),
           ],
         ),
       ),

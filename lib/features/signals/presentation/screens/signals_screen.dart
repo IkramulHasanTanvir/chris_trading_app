@@ -21,7 +21,7 @@ class SignalsScreen extends StatelessWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await controller.loadData();
+            await controller.refresh();
           },
           edgeOffset: 60.h,
           color: AppColors.primary,
@@ -92,6 +92,7 @@ class SignalsScreen extends StatelessWidget {
                   }}
                 ),
               ),
+              PaginationLoaderSliver(controller: controller),
             ],
           ),
         ),

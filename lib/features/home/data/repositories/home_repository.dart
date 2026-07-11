@@ -46,26 +46,38 @@ class HomeRepository {
     required int page,
     required int limit,
   }) async {
-    final newData = await getLeaderboardData(page, limit);
+    final current = getCachedLeaderBoardData() ?? LeaderBoardModel();
 
-    if (newData.leaderBoardItems != null) {
-      final current = getCachedLeaderBoardData() ?? LeaderBoardModel();
-      final merged = [
-        ...current.leaderBoardItems!,
-        ...newData.leaderBoardItems!,
-      ];
-      await _cacheService.put(AppConstants.cacheLeaderBoard, {
-        "leaderBoardItems": merged,
-        "topThree": current.topThree,
-        "stats": current.stats,
-      });
-      return LeaderBoardModel(
+    try {
+      final response = await _apiService.get(
+        ApiConstants.leaderboard(page, limit),
+      );
+      final newData = LeaderBoardModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      final newItems = newData.leaderBoardItems ?? [];
+      final merged = [...?current.leaderBoardItems, ...newItems];
+
+      final mergedModel = LeaderBoardModel(
         leaderBoardItems: merged,
         topThree: current.topThree,
         stats: current.stats,
       );
-    } else {
-      return LeaderBoardModel(leaderBoardItems: [], topThree: [], stats: null);
+      await _cacheService.put(
+        AppConstants.cacheLeaderBoard,
+        mergedModel.toJson(),
+      );
+
+      // Return only the new page so PaginatedList can append correctly.
+      return LeaderBoardModel(
+        leaderBoardItems: newItems,
+        topThree: current.topThree,
+        stats: current.stats,
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
     }
   }
 

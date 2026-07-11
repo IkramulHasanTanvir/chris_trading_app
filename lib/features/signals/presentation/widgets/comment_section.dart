@@ -140,8 +140,11 @@ class _CommentTile extends StatelessWidget {
                       ),
                       CustomText(
                         text: comment.createdAt != null
-                            ? TimeFormatHelper.timeFormat(DateTime.parse(comment.createdAt ?? ''))
-                            : '',
+                            ? TimeFormatHelper.timeFormat(
+                                DateTime.tryParse(comment.createdAt!) ??
+                                    DateTime.now(),
+                              )
+                            : '--',
                         fontSize: 11.sp,
                         color: AppColors.textSecondary,
                       ),

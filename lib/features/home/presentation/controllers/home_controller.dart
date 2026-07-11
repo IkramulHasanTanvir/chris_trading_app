@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/services/paginated_list.dart';
 import 'package:flutter_task/features/home/data/models/contributor_model.dart';
 import 'package:flutter_task/features/home/data/models/leader_board_model.dart';
 import 'package:flutter_task/features/home/data/models/trader_model.dart';
@@ -20,118 +21,119 @@ class HomeController extends GetxController {
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
   String get errorMessage => _errorMessage.value;
 
-  // ─── Data ─────────────────────────────────────────────────────────
+  // ─── Leaderboard meta (topThree / stats) ──────────────────────────
   final _leaderBoard = Rxn<LeaderBoardModel>();
-  final _topTraders = <TraderModel>[].obs;
-  final _contributors = <ContributorModel>[].obs;
-  final _followTraders = <TraderModel>[].obs;
-
   LeaderBoardModel? get leaderBoard => _leaderBoard.value;
 
-  List<TraderModel> get topTraders => _topTraders;
+  // ─── Paginated lists ──────────────────────────────────────────────
+  late final PaginatedList<LeaderBoardItem> leaderboardList;
+  late final PaginatedList<TraderModel> tradersList;
+  late final PaginatedList<ContributorModel> contributorsList;
+  late final PaginatedList<TraderModel> followTradersList;
 
-  List<ContributorModel> get contributors => _contributors;
+  List<TraderModel> get topTraders => tradersList.items;
+  List<ContributorModel> get contributors => contributorsList.items;
+  List<TraderModel> get followTraders => followTradersList.items;
+  List<LeaderBoardItem> get leaderboardItems => leaderboardList.items;
 
-  List<TraderModel> get followTraders => _followTraders;
+  ScrollController? get leaderboardScrollController =>
+      leaderboardList.scrollController;
+  ScrollController? get tradersScrollController => tradersList.scrollController;
+  ScrollController? get contributorsScrollController =>
+      contributorsList.scrollController;
+  ScrollController? get followTradersScrollController =>
+      followTradersList.scrollController;
 
-  // ─── Pagination ───────────────────────────────────────────────────
-  static const int _pageSize = 10;
-
-  int _leaderboardPage = 1;
-  int _tradersPage = 1;
-  int _contributorsPage = 1;
-  int _followTradersPage = 1;
-
-  final _isLoadingMoreLeaderboard = false.obs;
-  final _isLoadingMoreTraders = false.obs;
-  final _isLoadingMoreContributors = false.obs;
-  final _isLoadingMoreFollowTraders = false.obs;
-
-  final _hasMoreLeaderboard = true.obs;
-  final _hasMoreTraders = true.obs;
-  final _hasMoreContributors = true.obs;
-  final _hasMoreFollowTraders = true.obs;
-
-  bool get isLoadingMoreLeaderboard => _isLoadingMoreLeaderboard.value;
-
-  bool get isLoadingMoreTraders => _isLoadingMoreTraders.value;
-
-  bool get isLoadingMoreContributors => _isLoadingMoreContributors.value;
-
-  bool get isLoadingMoreFollowTraders => _isLoadingMoreFollowTraders.value;
-
-  bool get hasMoreLeaderboard => _hasMoreLeaderboard.value;
-
-  bool get hasMoreTraders => _hasMoreTraders.value;
-
-  bool get hasMoreContributors => _hasMoreContributors.value;
-
-  bool get hasMoreFollowTraders => _hasMoreFollowTraders.value;
-
-  // ─── Scroll Controllers ───────────────────────────────────────────
-  ScrollController? leaderboardScrollController;
-  ScrollController? tradersScrollController;
-  ScrollController? contributorsScrollController;
-  ScrollController? followTradersScrollController;
+  bool get isLoadingMoreLeaderboard => leaderboardList.showLoadMoreLoader;
+  bool get isLoadingMoreTraders => tradersList.showLoadMoreLoader;
+  bool get isLoadingMoreContributors => contributorsList.showLoadMoreLoader;
+  bool get isLoadingMoreFollowTraders => followTradersList.showLoadMoreLoader;
 
   @override
   void onInit() {
     super.onInit();
-    leaderboardScrollController = ScrollController()
-      ..addListener(_onLeaderboardScroll);
-    tradersScrollController = ScrollController()..addListener(_onTradersScroll);
-    contributorsScrollController = ScrollController()
-      ..addListener(_onContributorsScroll);
-    followTradersScrollController = ScrollController()
-      ..addListener(_onFollowTradersScroll);
+    void onError(Object e) => ToastMessageHelper.show(e.errorMessage);
+
+    leaderboardList = PaginatedList<LeaderBoardItem>(
+      limit: 10,
+      fetchPage: _fetchLeaderboardPage,
+      onError: onError,
+    );
+    tradersList = PaginatedList<TraderModel>(
+      limit: 10,
+      fetchPage: _fetchTradersPage,
+      onError: onError,
+    );
+    contributorsList = PaginatedList<ContributorModel>(
+      limit: 10,
+      fetchPage: _fetchContributorsPage,
+      onError: onError,
+    );
+    followTradersList = PaginatedList<TraderModel>(
+      limit: 10,
+      fetchPage: _fetchFollowTradersPage,
+      onError: onError,
+    );
+
+    leaderboardList.initScroll();
+    contributorsList.initScroll();
+    // Top traders / following use NestedScrollView + scroll notifications.
     loadData();
   }
 
-  // ─── Scroll Listeners ─────────────────────────────────────────────
-  void _onLeaderboardScroll() {
-    if (leaderboardScrollController == null) return;
-    final position = leaderboardScrollController!.position;
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMoreLeaderboard &&
-        hasMoreLeaderboard) {
-      loadMoreLeaderboard();
+  Future<List<LeaderBoardItem>> _fetchLeaderboardPage(
+    int page,
+    int limit,
+  ) async {
+    if (page == 1) {
+      final cached = _service.getCachedData().leaderBoard;
+      _leaderBoard.value = cached;
+      return cached?.leaderBoardItems ?? [];
     }
+    final data = await _service.fetchMoreLeaderboard(page: page, limit: limit);
+    _leaderBoard.value = LeaderBoardModel(
+      leaderBoardItems: [
+        ...leaderboardList.items,
+        ...?data.leaderBoardItems,
+      ],
+      topThree: data.topThree ?? _leaderBoard.value?.topThree,
+      stats: data.stats ?? _leaderBoard.value?.stats,
+    );
+    return data.leaderBoardItems ?? [];
   }
 
-  void _onTradersScroll() {
-    if (tradersScrollController == null) return;
-    final position = tradersScrollController!.position;
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMoreTraders &&
-        hasMoreTraders) {
-      loadMoreTraders();
-    }
+  Future<List<TraderModel>> _fetchTradersPage(int page, int limit) async {
+    if (page == 1) return _service.getCachedData().topTraders;
+    return _service.fetchMoreTopTraders(page: page, limit: limit);
   }
 
-  void _onContributorsScroll() {
-    if (contributorsScrollController == null) return;
-    final position = contributorsScrollController!.position;
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMoreContributors &&
-        hasMoreContributors) {
-      loadMoreContributors();
-    }
+  Future<List<ContributorModel>> _fetchContributorsPage(
+    int page,
+    int limit,
+  ) async {
+    if (page == 1) return _service.getCachedData().contributors;
+    return _service.fetchMoreContributors(page: page, limit: limit);
   }
 
-  void _onFollowTradersScroll() {
-    if (followTradersScrollController == null) return;
-    final position = followTradersScrollController!.position;
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMoreFollowTraders &&
-        hasMoreFollowTraders) {
-      loadMoreFollowTraders();
+  Future<List<TraderModel>> _fetchFollowTradersPage(
+    int page,
+    int limit,
+  ) async {
+    if (page == 1) {
+      final traders = _service.getCachedData().followTraders;
+      setInitialFollowState(traders);
+      return traders;
     }
+    final data = await _service.fetchMoreFollowTraders(
+      page: page,
+      limit: limit,
+    );
+    appendFollowState(data);
+    return data;
   }
 
-  // ─── Load All ─────────────────────────────────────────────────────
   Future<void> loadData() async {
     try {
       _errorMessage.value = '';
@@ -140,28 +142,23 @@ class HomeController extends GetxController {
       if (hasCache) {
         final cached = _service.getCachedData();
         _leaderBoard.value = cached.leaderBoard;
-        _topTraders.assignAll(cached.topTraders);
-        _contributors.assignAll(cached.contributors);
-        _followTraders.assignAll(cached.followTraders);
+        leaderboardList.items.assignAll(cached.leaderBoard?.leaderBoardItems ?? []);
+        tradersList.items.assignAll(cached.topTraders);
+        contributorsList.items.assignAll(cached.contributors);
+        followTradersList.items.assignAll(cached.followTraders);
+        setInitialFollowState(cached.followTraders);
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
 
       await _service.fetchAllHomeData();
-
-      final fresh = _service.getCachedData();
-      _leaderBoard.value = fresh.leaderBoard;
-      _topTraders.assignAll(fresh.topTraders);
-      _contributors.assignAll(fresh.contributors);
-      _followTraders.assignAll(fresh.followTraders);
-      setInitialFollowState(fresh.followTraders);
-
-      _hasMoreLeaderboard.value =
-          (fresh.leaderBoard?.leaderBoardItems?.length ?? 0) >= _pageSize;
-      _hasMoreTraders.value = fresh.topTraders.length >= _pageSize;
-      _hasMoreContributors.value = fresh.contributors.length >= _pageSize;
-      _hasMoreFollowTraders.value = fresh.followTraders.length >= _pageSize;
+      await Future.wait([
+        leaderboardList.loadFirst(),
+        tradersList.loadFirst(),
+        contributorsList.loadFirst(),
+        followTradersList.loadFirst(),
+      ]);
 
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
@@ -172,96 +169,14 @@ class HomeController extends GetxController {
     }
   }
 
-  // ─── Pagination ───────────────────────────────────────────────────
-  Future<void> loadMoreLeaderboard() async {
-    if (isLoadingMoreLeaderboard || !hasMoreLeaderboard) return;
-    try {
-      _isLoadingMoreLeaderboard.value = true;
-      _leaderboardPage++;
-
-      final data = await _service.fetchMoreLeaderboard(
-        page: _leaderboardPage,
-        limit: _pageSize,
-      );
-
-      final newItems = data.leaderBoardItems ?? [];
-      if (newItems.length < _pageSize) _hasMoreLeaderboard.value = false;
-
-      // Repository already merged into cache; just reflect the updated model
-      _leaderBoard.value = data;
-    } catch (e) {
-      _leaderboardPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMoreLeaderboard.value = false;
-    }
-  }
-
-  Future<void> loadMoreTraders() async {
-    if (isLoadingMoreTraders || !hasMoreTraders) return;
-    try {
-      _isLoadingMoreTraders.value = true;
-      _tradersPage++;
-
-      final data = await _service.fetchMoreTopTraders(
-        page: _tradersPage,
-        limit: _pageSize,
-      );
-      _topTraders.addAll(data);
-
-      if (data.length < _pageSize) _hasMoreTraders.value = false;
-    } catch (e) {
-      _tradersPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMoreTraders.value = false;
-    }
-  }
-
-  Future<void> loadMoreContributors() async {
-    if (isLoadingMoreContributors || !hasMoreContributors) return;
-    try {
-      _isLoadingMoreContributors.value = true;
-      _contributorsPage++;
-
-      final data = await _service.fetchMoreContributors(
-        page: _contributorsPage,
-        limit: _pageSize,
-      );
-      _contributors.addAll(data);
-
-      if (data.length < _pageSize) _hasMoreContributors.value = false;
-    } catch (e) {
-      _contributorsPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMoreContributors.value = false;
-    }
-  }
-
-  Future<void> loadMoreFollowTraders() async {
-    if (isLoadingMoreFollowTraders || !hasMoreFollowTraders) return;
-    try {
-      _isLoadingMoreFollowTraders.value = true;
-      _followTradersPage++;
-      final data = await _service.fetchMoreFollowTraders(
-        page: _followTradersPage,
-        limit: _pageSize,
-      );
-      _followTraders.addAll(data);
-      appendFollowState(data);
-      if (data.length < _pageSize) _hasMoreFollowTraders.value = false;
-    } catch (e) {
-      _followTradersPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMoreFollowTraders.value = false;
-    }
-  }
-
   Future<void> retry() async => await loadData();
 
-  // ─── Follow State ──────────────────────────────────────────────────────────
+  @override
+  Future<void> refresh() async {
+    await tradersList.refreshWith(loadData);
+  }
+
+  // ─── Follow State ─────────────────────────────────────────────────
   final RxSet<String> _followingIds = <String>{}.obs;
 
   bool isFollowing(String traderId) {
@@ -271,7 +186,6 @@ class HomeController extends GetxController {
 
   void setInitialFollowState(List<TraderModel> traders) {
     _followingIds.clear();
-
     _followingIds.addAll(
       traders
           .where((e) => e.isFollow == true)
@@ -293,8 +207,6 @@ class HomeController extends GetxController {
     if (traderId.isEmpty) return;
 
     final wasFollowing = _followingIds.contains(traderId);
-
-    // optimistic
     wasFollowing ? _followingIds.remove(traderId) : _followingIds.add(traderId);
 
     try {
@@ -305,39 +217,24 @@ class HomeController extends GetxController {
       } else if (action == 'unfollowed') {
         _followingIds.remove(traderId);
       }
-      _service.fetchMoreFollowTraders(page: 1, limit: _pageSize).then((fresh) {
-        _followTraders.assignAll(fresh);
+      _service.fetchMoreFollowTraders(page: 1, limit: 10).then((fresh) {
+        followTradersList.items.assignAll(fresh);
         setInitialFollowState(fresh);
       });
     } catch (e) {
-      // rollback
       wasFollowing
           ? _followingIds.add(traderId)
           : _followingIds.remove(traderId);
-
       ToastMessageHelper.show(e.errorMessage);
     }
   }
 
-  // ─── Dispose ──────────────────────────────────────────────────────
   @override
   void onClose() {
-    leaderboardScrollController?.removeListener(_onLeaderboardScroll);
-    leaderboardScrollController?.dispose();
-    leaderboardScrollController = null;
-
-    tradersScrollController?.removeListener(_onTradersScroll);
-    tradersScrollController?.dispose();
-    tradersScrollController = null;
-
-    contributorsScrollController?.removeListener(_onContributorsScroll);
-    contributorsScrollController?.dispose();
-    contributorsScrollController = null;
-
-    followTradersScrollController?.removeListener(_onFollowTradersScroll);
-    followTradersScrollController?.dispose();
-    followTradersScrollController = null;
-
+    leaderboardList.dispose();
+    tradersList.dispose();
+    contributorsList.dispose();
+    followTradersList.dispose();
     super.onClose();
   }
 }

@@ -74,6 +74,7 @@ class ReferralScreen extends StatelessWidget {
               }),
             ),
           ),
+          PaginationLoaderSliver(controller: controller),
         ],
       ),
     );

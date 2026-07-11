@@ -2,121 +2,94 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/services/paginated_list.dart';
+import 'package:flutter_task/core/services/paginated_loader_ui.dart';
 import 'package:flutter_task/features/notification/data/models/notification_model.dart';
 import 'package:flutter_task/features/notification/domain/services/notification_services.dart';
 import 'package:get/get.dart';
 
-class NotificationController extends GetxController {
+class NotificationController extends GetxController with PaginatedLoaderUi {
   final NotificationServices _service;
 
   static NotificationController get to => Get.find();
 
   NotificationController({required NotificationServices service})
-    : _service = service;
+      : _service = service;
 
   // ─── Loading States ───────────────────────────────────────────────
   final _loadingState = LoadingState.initial.obs;
+  final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
-  // ─── Data ─────────────────────────────────────────────────────────
-  final _notification = <NotificationModel>[].obs;
+  String get errorMessage => _errorMessage.value;
 
   final _notificationCount = 0.obs;
-
   int get notificationCount => _notificationCount.value;
 
-  List<NotificationModel> get notification => _notification;
+  late final PaginatedList<NotificationModel> notificationList;
 
-  // ─── Signals Pagination ───────────────────────────────────────────
-  int _currentPage = 1;
-  static const int _pageSize = 10;
+  List<NotificationModel> get notification => notificationList.items;
+  ScrollController? get scrollController => notificationList.scrollController;
 
-  final _isLoadingMore = false.obs;
-  final _hasMore = true.obs;
+  @override
+  LoadingState get paginationContentState => loadingState;
 
-  bool get isLoadingMore => _isLoadingMore.value;
-
-  bool get hasMore => _hasMore.value;
-
-  // ─── Scroll ───────────────────────────────────────────────────────
-  ScrollController? scrollController;
+  @override
+  PaginatedList<dynamic> get paginatedList => notificationList;
 
   @override
   void onInit() {
     super.onInit();
-    scrollController = ScrollController()..addListener(_onScroll);
+    notificationList = PaginatedList<NotificationModel>(
+      limit: 10,
+      fetchPage: _fetchPage,
+      onError: (e) => ToastMessageHelper.show(e.errorMessage),
+    );
+    notificationList.initScroll();
     loadData();
   }
 
-  void _onScroll() {
-    if (scrollController == null) return;
-    final position = scrollController!.position;
-
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMore &&
-        hasMore) {
-      loadMore();
+  Future<List<NotificationModel>> _fetchPage(int page, int limit) async {
+    if (page == 1) {
+      await _service.fetchAllNotification();
+      final fresh = _service.getCachedData();
+      _notificationCount.value = fresh.notificationCount;
+      return fresh.notification;
     }
+    return _service.fetchMoreNotification(page: page, limit: limit);
   }
 
-  // ─── Load notification ─────────────────────────────────────────────────
   Future<void> loadData() async {
     try {
+      _errorMessage.value = '';
+
       if (_service.hasCache()) {
-        _notification.assignAll(_service.getCachedData().notification);
+        final cached = _service.getCachedData();
+        notificationList.items.assignAll(cached.notification);
+        _notificationCount.value = cached.notificationCount;
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
 
-      await _service.fetchAllNotification();
-      final fresh = _service.getCachedData().notification;
-      _notificationCount.value = _service.getCachedData().notificationCount;
-      _notification.assignAll(fresh);
-
-      _hasMore.value = fresh.length >= _pageSize;
+      await notificationList.loadFirst();
       _loadingState.value = LoadingState.loaded;
-
     } catch (e) {
       if (!_service.hasCache()) {
         _loadingState.value = LoadingState.error;
-
+        _errorMessage.value = e.errorMessage;
       }
-    }
-  }
-
-  // ─── Load More Signals ────────────────────────────────────────────
-  Future<void> loadMore() async {
-    if (isLoadingMore || !hasMore) return;
-
-    try {
-      _isLoadingMore.value = true;
-      _currentPage++;
-
-      final data = await _service.fetchMoreNotification(
-        page: _currentPage,
-        limit: _pageSize,
-      );
-      _notification.addAll(data);
-
-      if (data.length < _pageSize) _hasMore.value = false;
-    } catch (e) {
-      _currentPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMore.value = false;
     }
   }
 
   Future<void> retry() async => await loadData();
 
-  // ─── Dispose ──────────────────────────────────────────────────────
+  @override
+  Future<void> refresh() => notificationList.refreshWith(loadData);
+
   @override
   void onClose() {
-    scrollController?.removeListener(_onScroll);
-    scrollController?.dispose();
-    scrollController = null;
+    notificationList.dispose();
     super.onClose();
   }
 }

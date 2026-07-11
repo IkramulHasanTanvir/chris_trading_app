@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/services/paginated_list.dart';
+import 'package:flutter_task/core/services/paginated_loader_ui.dart';
 import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/signals/data/models/comment_model.dart';
@@ -13,7 +15,7 @@ import 'package:flutter_task/features/signals/domain/services/signal_service.dar
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-class SignalsController extends GetxController {
+class SignalsController extends GetxController with PaginatedLoaderUi {
   final SignalsService _service;
 
   static SignalsController get to => Get.find();
@@ -78,7 +80,6 @@ class SignalsController extends GetxController {
   final _logState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
   final _detailsState = LoadingState.initial.obs;
-  //final _commentLoadingState = LoadingState.initial.obs;
   final _addCommentState = LoadingState.initial.obs;
 
   final _errorMessage = ''.obs;
@@ -88,60 +89,72 @@ class SignalsController extends GetxController {
   LoadingState get logState => _logState.value;
   LoadingState get imageState => _imageState.value;
   LoadingState get detailsState => _detailsState.value;
-  //LoadingState get commentLoadingState => _commentLoadingState.value;
   LoadingState get addCommentState => _addCommentState.value;
   String get errorMessage => _errorMessage.value;
 
-  // ─── Data ─────────────────────────────────────────────────────────
-  final _signals = <SignalsModel>[].obs;
-  final _signalDetail = Rxn<SignalsModel>();
-  final _comments = <CommentModel>[].obs;
-
-  List<SignalsModel> get signals => _signals;
-  SignalsModel? get signalDetail => _signalDetail.value;
-  List<CommentModel> get comments => _comments;
-
   // ─── Signals Pagination ───────────────────────────────────────────
-  int _currentPage = 1;
-  static const int _pageSize = 10;
+  late final PaginatedList<SignalsModel> signalsList;
+  late final PaginatedList<CommentModel> commentsList;
 
-  final _isLoadingMore = false.obs;
-  final _hasMore = true.obs;
+  String? _activeCommentSignalId;
 
-  bool get isLoadingMore => _isLoadingMore.value;
-  bool get hasMore => _hasMore.value;
+  List<SignalsModel> get signals => signalsList.items;
+  SignalsModel? get signalDetail => _signalDetail.value;
+  List<CommentModel> get comments => commentsList.items;
 
-  // ─── Comments Pagination ──────────────────────────────────────────
-  int _commentPage = 1;
+  final _signalDetail = Rxn<SignalsModel>();
 
-  final _isLoadingMoreComments = false.obs;
-  final _hasMoreComments = true.obs;
+  ScrollController? get scrollController => signalsList.scrollController;
 
-  bool get isLoadingMoreComments => _isLoadingMoreComments.value;
-  bool get hasMoreComments => _hasMoreComments.value;
+  bool get isLoadingMoreComments => commentsList.isLoadingMore.value;
+  bool get hasMoreComments => commentsList.hasMore.value;
 
-  // ─── Scroll ───────────────────────────────────────────────────────
-  ScrollController? scrollController;
+  @override
+  LoadingState get paginationContentState => loadingState;
+
+  @override
+  PaginatedList<dynamic> get paginatedList => signalsList;
 
   @override
   void onInit() {
     super.onInit();
-    scrollController = ScrollController()..addListener(_onScroll);
+    signalsList = PaginatedList<SignalsModel>(
+      limit: 10,
+      fetchPage: _fetchSignalsPage,
+      onError: (e) => ToastMessageHelper.show(e.errorMessage),
+    );
+    commentsList = PaginatedList<CommentModel>(
+      limit: 10,
+      fetchPage: _fetchCommentsPage,
+      onError: (e) => ToastMessageHelper.show(e.errorMessage),
+    );
+    signalsList.initScroll();
     loadData();
   }
 
-  void _onScroll() {
-    if (scrollController == null) return;
-    final position = scrollController!.position;
-
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !isLoadingMore &&
-        hasMore) {
-      loadMore();
+  Future<List<SignalsModel>> _fetchSignalsPage(int page, int limit) async {
+    if (page == 1) {
+      await _service.fetchAllSignalsData();
+      return _service.getCachedData().signals;
     }
+    return _service.fetchMoreSignals(page: page, limit: limit);
   }
 
-  // ─── Load Signals ─────────────────────────────────────────────────
+  Future<List<CommentModel>> _fetchCommentsPage(int page, int limit) async {
+    final signalId = _activeCommentSignalId;
+    if (signalId == null || signalId.isEmpty) return [];
+
+    if (page == 1) {
+      await _service.fetchInitialComments(signalId);
+      return _service.getCachedData().comments;
+    }
+    return _service.fetchMoreComments(
+      signalId: signalId,
+      page: page,
+      limit: limit,
+    );
+  }
+
   Future<void> loadData() async {
     try {
       _errorMessage.value = '';
@@ -149,17 +162,13 @@ class SignalsController extends GetxController {
       final hasCache = _service.hasCache();
       if (hasCache) {
         final cached = _service.getCachedData();
-        _signals.assignAll(cached.signals);
+        signalsList.items.assignAll(cached.signals);
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
 
-      await _service.fetchAllSignalsData();
-
-      final fresh = _service.getCachedData();
-      _signals.assignAll(fresh.signals);
-      _hasMore.value = _signals.length >= _pageSize;
+      await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
       if (!_service.hasCache()) {
@@ -169,28 +178,8 @@ class SignalsController extends GetxController {
     }
   }
 
-  // ─── Load More Signals ────────────────────────────────────────────
-  Future<void> loadMore() async {
-    if (isLoadingMore || !hasMore) return;
-
-    try {
-      _isLoadingMore.value = true;
-      _currentPage++;
-
-      final data = await _service.fetchMoreSignals(
-        page: _currentPage,
-        limit: _pageSize,
-      );
-      _signals.addAll(data);
-
-      if (data.length < _pageSize) _hasMore.value = false;
-    } catch (e) {
-      _currentPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMore.value = false;
-    }
-  }
+  @override
+  Future<void> refresh() => signalsList.refreshWith(loadData);
 
   // ─── Signal Details ───────────────────────────────────────────────
   Future<void> getSignalDetails(String signalId) async {
@@ -208,42 +197,21 @@ class SignalsController extends GetxController {
 
   // ─── Load Comments ────────────────────────────────────────────────
   Future<void> loadComments(String signalId, {bool refresh = false}) async {
-    if (refresh) {
-      _commentPage = 1;
-      _hasMoreComments.value = true;
-    }
-
+    _activeCommentSignalId = signalId;
     try {
-      await _service.fetchInitialComments(signalId);
-      final fresh = _service.getCachedData();
-      _comments.assignAll(fresh.comments);
-      _hasMoreComments.value = fresh.comments.length >= _pageSize;
+      if (refresh) {
+        await commentsList.loadFirst();
+      } else {
+        await commentsList.loadFirst();
+      }
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
     }
   }
-  // ─── Load More Comments ───────────────────────────────────────────
+
   Future<void> loadMoreComments(String signalId) async {
-    if (isLoadingMoreComments || !hasMoreComments) return;
-
-    try {
-      _isLoadingMoreComments.value = true;
-      _commentPage++;
-
-      final data = await _service.fetchMoreComments(
-        signalId: signalId,
-        page: _commentPage,
-        limit: _pageSize,
-      );
-      _comments.addAll(data);
-
-      if (data.length < _pageSize) _hasMoreComments.value = false;
-    } catch (e) {
-      _commentPage--;
-      ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _isLoadingMoreComments.value = false;
-    }
+    _activeCommentSignalId = signalId;
+    await commentsList.loadMore();
   }
 
   // ─── Submit Comment ───────────────────────────────────────────────
@@ -252,29 +220,29 @@ class SignalsController extends GetxController {
     if (text.isEmpty) return;
 
     final user = ProfileController.to.userData;
-    // ─── Optimistic Update ────────────────────────────────────────
     final tempId = DateTime.now().millisecondsSinceEpoch.toString();
     final optimisticComment = CommentModel(
       sId: tempId,
       message: text,
-      userId: UserId(sId: user?.sId, name: user?.name, userProfileUrl: user?.userProfileUrl),
+      userId: UserId(
+        sId: user?.sId,
+        name: user?.name,
+        userProfileUrl: user?.userProfileUrl,
+      ),
       createdAt: DateTime.now().toIso8601String(),
       isPending: true,
     );
 
     commentController.clear();
-    _comments.insert(0, optimisticComment);
+    commentsList.items.insert(0, optimisticComment);
 
     try {
       _addCommentState.value = LoadingState.loading;
       await _service.addComment(signalId: signalId, comment: text);
       _addCommentState.value = LoadingState.loaded;
-
-      // ─── Replace optimistic with real data ────────────────────
       await loadComments(signalId, refresh: true);
     } catch (e) {
-      // ─── Rollback on failure ──────────────────────────────────
-      _comments.removeWhere((c) => c.sId == tempId);
+      commentsList.items.removeWhere((c) => c.sId == tempId);
       _addCommentState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     }
@@ -346,12 +314,10 @@ class SignalsController extends GetxController {
 
   Future<void> retry() async => await loadData();
 
-  // ─── Dispose ──────────────────────────────────────────────────────
   @override
   void onClose() {
-    scrollController?.removeListener(_onScroll);
-    scrollController?.dispose();
-    scrollController = null;
+    signalsList.dispose();
+    commentsList.dispose();
     entryController.dispose();
     exitController.dispose();
     lotController.dispose();

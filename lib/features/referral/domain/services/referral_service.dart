@@ -46,8 +46,9 @@ class ReferralService {
 
   Future<List<WithdrawalModel>> fetchMoreWithdrawals({
     required int page,
+    int limit = 10,
   }) async {
-    return await _repository.fetchMoreWithdrawals(page: page);
+    return await _repository.fetchMoreWithdrawals(page: page, limit: limit);
   }
 
   bool hasCache() {

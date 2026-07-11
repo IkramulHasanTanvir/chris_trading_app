@@ -58,27 +58,35 @@ class HistoryRepository {
     required String status,
   }) async {
     final cacheKey = _cacheKeyForStatus(status);
-    final newData = await getTradeHistoryData(page, limit, status);
+    final current = getCachedData(status) ?? TradeHistoryModel();
 
-    if (newData.trades != null) {
-      final current = getCachedData(status) ?? TradeHistoryModel();
+    try {
+      final response = await _apiService.get(
+        ApiConstants.tradesHistory(page, limit, status),
+      );
+      final newData = TradeHistoryModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
+      final newTrades = newData.trades ?? [];
+      final merged = [...?current.trades, ...newTrades];
 
-      final merged = [
-        ...?current.trades,
-        ...newData.trades!,
-      ];
+      await _cacheService.put(
+        cacheKey,
+        TradeHistoryModel(
+          trades: merged,
+          summary: newData.summary,
+        ).toJson(),
+      );
 
-      await _cacheService.put(cacheKey, {
-        "trades": merged,
-        "summary": newData.summary,
-      });
-
+      // Return only the new page so PaginatedList can append correctly.
       return TradeHistoryModel(
-        trades: merged,
+        trades: newTrades,
         summary: newData.summary,
       );
-    } else {
-      return TradeHistoryModel();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
     }
   }
 

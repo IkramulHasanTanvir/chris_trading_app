@@ -44,8 +44,8 @@ class PasarScreen extends StatelessWidget {
                         unselectedLabelColor: AppColors.white,
                         dividerColor: AppColors.textSecondary,
                         tabs: const [
-                          Tab(text: "Copy Trade"),
-                          Tab(text: "Log Trade"),
+                          Tab(text: 'Copy Trade'),
+                          Tab(text: 'Log Trade'),
                         ],
                       ),
                     ),
@@ -55,25 +55,25 @@ class PasarScreen extends StatelessWidget {
             },
             body: Obx(() {
               final controller = HistoryController.to;
-              // ─── Tab Views ────────────────────────────────────────
               return TabBarView(
                 children: [
-                  /// ───── Pending Tab ─────
-                  _buildTradeList(
-                    trades: controller.pendingTrades,
-                    scrollController: controller.pendingScrollController,
-                    isLoadingMore: controller.isLoadingMorePending,
-                    hasMore: controller.hasMorePending,
-                    emptyText: 'No Pending Trades',
+                  NotificationListener<ScrollNotification>(
+                    onNotification:
+                        controller.pendingList.handleScrollNotification,
+                    child: _buildTradeList(
+                      trades: controller.pendingTrades,
+                      isLoadingMore: controller.isLoadingMorePending,
+                      emptyText: 'No Pending Trades',
+                    ),
                   ),
-
-                  /// ───── Completed Tab ─────
-                  _buildTradeList(
-                    trades: controller.completedTrades,
-                    scrollController: controller.completedScrollController,
-                    isLoadingMore: controller.isLoadingMoreCompleted,
-                    hasMore: controller.hasMoreCompleted,
-                    emptyText: 'No Completed Trades',
+                  NotificationListener<ScrollNotification>(
+                    onNotification:
+                        controller.completedList.handleScrollNotification,
+                    child: _buildTradeList(
+                      trades: controller.completedTrades,
+                      isLoadingMore: controller.isLoadingMoreCompleted,
+                      emptyText: 'No Completed Trades',
+                    ),
                   ),
                 ],
               );
@@ -84,12 +84,9 @@ class PasarScreen extends StatelessWidget {
     );
   }
 
-  // ─── Trade List Builder ───────────────────────────────────────────
   Widget _buildTradeList({
     required List<Trades> trades,
-    required ScrollController? scrollController,
     required bool isLoadingMore,
-    required bool hasMore,
     required String emptyText,
   }) {
     if (trades.isEmpty) {
@@ -105,13 +102,12 @@ class PasarScreen extends StatelessWidget {
     return RefreshIndicator(
       color: AppColors.navBackground,
       onRefresh: () async {
-        await HistoryController.to.retry();
+        await HistoryController.to.refresh();
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        controller: scrollController,
         padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
           top: 24.h,
           bottom: 100.h,
@@ -119,16 +115,10 @@ class PasarScreen extends StatelessWidget {
         itemCount: trades.length + (isLoadingMore ? 1 : 0),
         separatorBuilder: (_, __) => SizedBox(height: 12.h),
         itemBuilder: (context, index) {
-          // ─── Load More Indicator ───────────────────────────────
           if (index == trades.length) {
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.h),
-              child: const Center(child: CircularProgressIndicator()),
-            );
+            return const PaginationLoader(show: true);
           }
-
-          final item = trades[index];
-          return SignalDetailsCard(item: item);
+          return SignalDetailsCard(item: trades[index]);
         },
       ),
     );

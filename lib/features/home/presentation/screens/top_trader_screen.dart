@@ -12,6 +12,8 @@ class TopTraderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = HomeController.to;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -36,45 +38,55 @@ class TopTraderScreen extends StatelessWidget {
                       color: AppColors.white,
                     ),
                   ),
-
                   title: CustomText(
                     text: 'Top Traders',
                     fontSize: 26.sp,
                     fontWeight: FontWeight.w700,
                   ),
                   centerTitle: true,
-
-                  /// 🔥 TabBar
                   bottom: PreferredSize(
                     preferredSize: Size.fromHeight(30.h),
                     child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: TabBar(
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          indicatorColor: AppColors.primary,
-                          indicatorWeight: 2.5,
-                          labelColor: AppColors.primary,
-                          unselectedLabelColor: AppColors.white,
-                          dividerColor: AppColors.textSecondary,
-                          tabs: const [
-                            Tab(text: "Explore"),
-                            Tab(text: "Following"),
-                          ],
-                        )
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: TabBar(
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorColor: AppColors.primary,
+                        indicatorWeight: 2.5,
+                        labelColor: AppColors.primary,
+                        unselectedLabelColor: AppColors.white,
+                        dividerColor: AppColors.textSecondary,
+                        tabs: const [
+                          Tab(text: 'Explore'),
+                          Tab(text: 'Following'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ];
             },
-
-            /// 🔥 Tab Views
             body: TabBarView(
               children: [
-                /// ───── All Tab ─────
-                 Obx(() => _buildSignalList(HomeController.to.topTraders)),
-
-                /// ───── Follow Tab ─────
-                Obx(() => _buildSignalList(HomeController.to.followTraders)),
+                NotificationListener<ScrollNotification>(
+                  onNotification:
+                      controller.tradersList.handleScrollNotification,
+                  child: Obx(
+                    () => _buildTraderList(
+                      data: controller.topTraders,
+                      isLoadingMore: controller.isLoadingMoreTraders,
+                    ),
+                  ),
+                ),
+                NotificationListener<ScrollNotification>(
+                  onNotification:
+                      controller.followTradersList.handleScrollNotification,
+                  child: Obx(
+                    () => _buildTraderList(
+                      data: controller.followTraders,
+                      isLoadingMore: controller.isLoadingMoreFollowTraders,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -83,15 +95,23 @@ class TopTraderScreen extends StatelessWidget {
     );
   }
 
-  /// 🔥 Signal List (Reusable)
-  Widget _buildSignalList(List<TraderModel> data) {
+  Widget _buildTraderList({
+    required List<TraderModel> data,
+    required bool isLoadingMore,
+  }) {
     return ListView.separated(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 16.w,vertical: 24.h),
-      itemCount: data.length,
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+      itemCount: data.length + (isLoadingMore ? 1 : 0),
       separatorBuilder: (_, __) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
+        if (index == data.length) {
+          return const PaginationLoader(show: true);
+        }
         return TraderCard(trader: data[index]);
       },
     );
-  }}
+  }
+}
