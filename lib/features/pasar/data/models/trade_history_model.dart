@@ -37,6 +37,7 @@ class Trades {
   final double? exitPrice;
   final double? lotSize;
   final int? resultPnl;
+  final String? pnlUnit;
   final String? outcome;
   final String? notes;
   final String? screenshotUrl;
@@ -56,6 +57,7 @@ class Trades {
     this.exitPrice,
     this.lotSize,
     this.resultPnl,
+    this.pnlUnit,
     this.outcome,
     this.notes,
     this.screenshotUrl,
@@ -81,6 +83,7 @@ class Trades {
       exitPrice: (json['exitPrice'] as num?)?.toDouble(),
       lotSize: (json['lotSize'] as num?)?.toDouble(),
       resultPnl: (json['resultPnl'] as num?)?.toInt(),
+      pnlUnit: json['pnlUnit'] ?? 'usd',
       outcome: json['outcome'],
       notes: json['notes'],
       screenshotUrl: json['screenshotUrl'],
@@ -103,6 +106,7 @@ class Trades {
       'exitPrice': exitPrice,
       'lotSize': lotSize,
       'resultPnl': resultPnl,
+      'pnlUnit': pnlUnit,
       'outcome': outcome,
       'notes': notes,
       'screenshotUrl': screenshotUrl,

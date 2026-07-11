@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/constants/api_constants.dart';
 import 'package:flutter_task/core/constants/app_constants.dart';
@@ -8,8 +5,6 @@ import 'package:flutter_task/core/exceptions/app_exceptions.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/features/notification/data/models/notification_model.dart';
-import 'package:flutter_task/features/profile/data/models/user_response_model.dart';
-import 'package:image_picker/image_picker.dart';
 
 class NotificationRepository {
   final ApiService _apiService;
@@ -28,14 +23,18 @@ class NotificationRepository {
       final response = await _apiService.get(ApiConstants.notifications(page, limit));
       final list = response.data['data'] as List? ?? [];
       final model = list.map((e) => NotificationModel.fromJson(e)).toList();
-      await _cacheService.put(
-        AppConstants.cacheNotifications,
-        model.map((e) => e.toJson()).toList(),
-      );
+      if (page == 1) {
+        await _cacheService.put(
+          AppConstants.cacheNotifications,
+          model.map((e) => e.toJson()).toList(),
+        );
+      }
       return model;
     } on AppException {
-      final cached = getCachedNotification();
-      if (cached != null) return cached;
+      if (page == 1) {
+        final cached = getCachedNotification();
+        if (cached != null) return cached;
+      }
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
@@ -56,6 +55,20 @@ class NotificationRepository {
       );
     }
     return newData;
+  }
+
+  Future<void> markNotificationRead(String id) async {
+    try {
+      await _apiService.patch(ApiConstants.markNotificationRead(id));
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<int> refreshUnreadCount() async {
+    return getNotificationCount();
   }
 
   List<NotificationModel>? getCachedNotification() {

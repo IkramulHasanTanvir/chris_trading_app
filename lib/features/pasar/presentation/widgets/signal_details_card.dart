@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/helpers/pnl_format_helper.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
@@ -202,7 +203,10 @@ class SignalDetailsCard extends StatelessWidget {
 
         // PnL
         CustomText(
-          text: item.resultPnl != null ? '+\$${item.resultPnl}' : '--',
+          text: PnlFormatHelper.format(
+            item.resultPnl,
+            unit: item.pnlUnit,
+          ),
           fontSize: 13.sp,
           fontWeight: FontWeight.w700,
           color: Colors.greenAccent,

@@ -8,18 +8,7 @@ class LogTradingSignalModel {
   final String notes;
   final String screenshotUrl;
   final String externalPlatform;
-
-  // {
-  // "signalId": "string",
-  // "entryPrice": 1.085,
-  // "exitPrice": 1.092,
-  // "lotSize": 0.5,
-  // "resultPnl": 350,
-  // "outcome": "win",
-  // "notes": "Followed master's TP2 target",
-  // "screenshotUrl": "https://example.com/screenshot.png",
-  // "externalPlatform": "binance"
-
+  final String pnlUnit;
 
   LogTradingSignalModel({
     required this.signalId,
@@ -31,9 +20,9 @@ class LogTradingSignalModel {
     required this.notes,
     required this.screenshotUrl,
     required this.externalPlatform,
+    this.pnlUnit = 'usd',
   });
 
-  /// Convert JSON -> Model
   factory LogTradingSignalModel.fromJson(Map<String, dynamic> json) {
     return LogTradingSignalModel(
       signalId: json['signalId'] ?? '',
@@ -45,21 +34,22 @@ class LogTradingSignalModel {
       notes: json['notes'] ?? '',
       screenshotUrl: json['screenshotUrl'] ?? '',
       externalPlatform: json['externalPlatform'] ?? '',
+      pnlUnit: json['pnlUnit'] ?? 'usd',
     );
   }
 
-  /// Convert Model -> JSON
   Map<String, dynamic> toJson() {
     return {
-      "signalId": signalId,
-      "entryPrice": entryPrice,
-      "exitPrice": exitPrice,
-      "lotSize": lotSize,
-      "resultPnl": resultPnl,
-      "outcome": outcome,
-      "notes": notes,
-      "screenshotUrl": screenshotUrl,
-      "externalPlatform": externalPlatform,
+      'signalId': signalId,
+      'entryPrice': entryPrice,
+      'exitPrice': exitPrice,
+      'lotSize': lotSize,
+      'resultPnl': resultPnl,
+      'outcome': outcome,
+      'notes': notes,
+      'screenshotUrl': screenshotUrl,
+      'externalPlatform': externalPlatform,
+      'pnlUnit': pnlUnit,
     };
   }
 }

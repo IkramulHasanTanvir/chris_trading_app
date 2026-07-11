@@ -33,7 +33,7 @@ class HistoryRepository {
     final cacheKey = _cacheKeyForStatus(status);
     try {
       final response = await _apiService.get(
-        ApiConstants.tradesHistory(page, limit, status),
+        ApiConstants.tradesHistory(page, limit, status, sortBy: 'newest'),
       );
 
       final model = TradeHistoryModel.fromJson(
@@ -62,7 +62,7 @@ class HistoryRepository {
 
     try {
       final response = await _apiService.get(
-        ApiConstants.tradesHistory(page, limit, status),
+        ApiConstants.tradesHistory(page, limit, status, sortBy: 'newest'),
       );
       final newData = TradeHistoryModel.fromJson(
         response.data['data'] as Map<String, dynamic>,

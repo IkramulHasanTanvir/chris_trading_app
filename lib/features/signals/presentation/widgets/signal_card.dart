@@ -74,14 +74,21 @@ class SignalCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: CustomButton(
-                      fontSize: 14.sp,
-                      height: 36.h,
-                      backgroundColor: AppColors.primaryBTN,
-                      onPressed: () {
-                        _showCopyDialog(context, controller);
-                      },
-                      label: 'Copy Trade',
+                    child: Opacity(
+                      opacity: (item.isCopied == true) ? 0.45 : 1,
+                      child: CustomButton(
+                        fontSize: 14.sp,
+                        height: 36.h,
+                        backgroundColor: item.isCopied == true
+                            ? AppColors.textSecondary
+                            : AppColors.primaryBTN,
+                        onPressed: item.isCopied == true
+                            ? () {}
+                            : () {
+                                _showCopyDialog(context, controller);
+                              },
+                        label: item.isCopied == true ? 'Copied' : 'Copy Trade',
+                      ),
                     ),
                   ),
                   SizedBox(width: 10.w),
@@ -146,11 +153,15 @@ class SignalCard extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
+                if (item.isCopied == true) {
+                  Get.back();
+                  return;
+                }
                 controller.copyTradingSignal(signalId: item.sId ?? '');
                 Get.back();
               },
-              child: const CustomText(
-                text: 'Copy Trade',
+              child: CustomText(
+                text: item.isCopied == true ? 'Already Copied' : 'Copy Trade',
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
               ),

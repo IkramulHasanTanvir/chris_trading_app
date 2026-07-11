@@ -75,7 +75,9 @@ class NotificationScreen extends StatelessWidget {
                       delegate: SliverChildBuilderDelegate(
                             (context, index) {
                           final data = controller.notification[index];
-                          return CustomContainer(
+                          return GestureDetector(
+                            onTap: () => controller.onNotificationTap(data),
+                            child: CustomContainer(
                             paddingHorizontal: 16.w,
                             paddingVertical: 10.h,
                             marginBottom: 10.h,
@@ -116,11 +118,7 @@ class NotificationScreen extends StatelessWidget {
                                             left: 6.w,
                                             textAlign: TextAlign.start,
                                             fontSize: 12.sp,
-                                            text: TimeFormatHelper.timeFormat(
-                                              DateTime.parse(
-                                                data.createdAt.toString(),
-                                              ),
-                                            ),
+                                            text: _safeTime(data.createdAt),
                                             color: AppColors.textSecondary,
                                           ),
                                         ],
@@ -129,12 +127,20 @@ class NotificationScreen extends StatelessWidget {
                                         textAlign: TextAlign.start,
                                         text: data.message ?? '',
                                         color: AppColors.textSecondary,
+                                        maxline: 3,
+                                        textOverflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
                                 ),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: AppColors.textSecondary,
+                                  size: 20.r,
+                                ),
                               ],
                             ),
+                          ),
                           );
                         },
                         childCount: controller.notification.length,
@@ -152,4 +158,12 @@ class NotificationScreen extends StatelessWidget {
       ),
     );
   }
+
+  String _safeTime(String? raw) {
+    if (raw == null || raw.isEmpty) return '--';
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return '--';
+    return TimeFormatHelper.timeFormat(parsed);
+  }
 }
+

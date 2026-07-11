@@ -21,7 +21,6 @@ class LogUpdateScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            /// ─── AppBar ─────────────────────────────
             SliverAppBar(
               expandedHeight: 80.h,
               leading: IconButton(
@@ -41,8 +40,6 @@ class LogUpdateScreen extends StatelessWidget {
                 centerTitle: true,
               ),
             ),
-
-            /// ─── Body ─────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(16.w),
@@ -52,8 +49,6 @@ class LogUpdateScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       16.verticalSpace,
-
-                      /// ─── Entry & Exit ───────────────
                       Row(
                         children: [
                           Expanded(
@@ -73,10 +68,7 @@ class LogUpdateScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       16.verticalSpace,
-
-                      /// ─── Lot & PNL ─────────────────
                       Row(
                         children: [
                           Expanded(
@@ -96,71 +88,111 @@ class LogUpdateScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      /// ─── Outcome Selector ───────────
+                      12.verticalSpace,
+                      CustomText(
+                        text: 'PnL Unit',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      8.verticalSpace,
+                      Obx(() {
+                        return Row(
+                          children: [
+                            _UnitChip(
+                              label: 'USD (\$)',
+                              selected: controller.pnlUnit == 'usd',
+                              onTap: () => controller.onPnlUnitChanged('usd'),
+                            ),
+                            SizedBox(width: 8.w),
+                            _UnitChip(
+                              label: 'Percent (%)',
+                              selected: controller.pnlUnit == 'percent',
+                              onTap: () =>
+                                  controller.onPnlUnitChanged('percent'),
+                            ),
+                          ],
+                        );
+                      }),
                       OutcomeButton(),
-
-                      /// ─── Platform Dropdown ─────────
-                      CustomText(text: "Platform", fontWeight: FontWeight.w600),
+                      CustomText(
+                        text: 'Platform',
+                        fontWeight: FontWeight.w600,
+                      ),
                       10.verticalSpace,
-
-                      Obx(
-                        () => Container(
+                      Obx(() {
+                        final platforms = controller.platforms;
+                        final values = platforms.map((e) => e.value).toList();
+                        final current = values.contains(controller.platform)
+                            ? controller.platform
+                            : (values.isNotEmpty ? values.first : null);
+                        return Container(
                           padding: EdgeInsets.symmetric(horizontal: 12.w),
                           decoration: BoxDecoration(
                             color: AppColors.fillColor,
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: DropdownButton<String>(
-                            value: controller.platform,
+                            value: current,
+                            hint: const CustomText(text: 'Select platform'),
                             dropdownColor: AppColors.fillColor,
                             isExpanded: true,
                             underline: const SizedBox(),
-                            items: const [
-                              DropdownMenuItem(
-                                value: "binance",
-                                child: CustomText(text: "Binance"),
-                              ),
-                              DropdownMenuItem(
-                                value: "mt4",
-                                child: CustomText(text: "MT4"),
-                              ),
-                              DropdownMenuItem(
-                                value: "mt5",
-                                child: CustomText(text: "MT5"),
-                              ),
-                            ],
+                            items: platforms
+                                .map(
+                                  (p) => DropdownMenuItem(
+                                    value: p.value,
+                                    child: CustomText(text: p.label),
+                                  ),
+                                )
+                                .toList(),
                             onChanged: controller.onPlatformChanged,
                           ),
-                        ),
-                      ),
-
+                        );
+                      }),
                       16.verticalSpace,
-
                       ScreenshotImagePicker(),
-
+                      Obx(() {
+                        if (controller.imageState.isLoading) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: 8.h),
+                            child: CustomText(
+                              text: 'Uploading screenshot...',
+                              fontSize: 12.sp,
+                              color: AppColors.textSecondary,
+                            ),
+                          );
+                        }
+                        if (controller.imageUrl.isNotEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: 8.h),
+                            child: CustomText(
+                              text: 'Screenshot uploaded',
+                              fontSize: 12.sp,
+                              color: Colors.greenAccent,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
                       16.verticalSpace,
-
-                      /// ─── Notes ─────────────────────
                       CustomTextField(
                         controller: controller.notesController,
                         hintText: 'Write notes...',
                         minLines: 4,
+                        validator: (_) => null,
                       ),
-
                       24.verticalSpace,
-
-                      /// ─── Submit Button ─────────────
                       Obx(() {
+                        final uploading = controller.imageState.isLoading;
                         return CustomButton(
-                          label: "Submit Log",
+                          label: uploading ? 'Uploading...' : 'Submit Log',
                           isLoading: controller.logState.isLoading,
-                          onPressed: () {
-                            controller.logTradingSignal(signalId);
-                          },
+                          onPressed: uploading
+                              ? () {}
+                              : () {
+                                  controller.logTradingSignal(signalId);
+                                },
                         );
                       }),
-
                       30.verticalSpace,
                     ],
                   ),
@@ -168,6 +200,43 @@ class LogUpdateScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UnitChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _UnitChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : AppColors.navBackground,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : AppColors.textSecondary.withValues(alpha: 0.3),
+          ),
+        ),
+        child: CustomText(
+          text: label,
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+          color: selected ? AppColors.white : AppColors.textSecondary,
         ),
       ),
     );

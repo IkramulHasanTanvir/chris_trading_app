@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/helpers/pnl_format_helper.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
@@ -47,7 +48,10 @@ class SignalDetailsSection extends StatelessWidget {
           if (signal?.resultPnl != null)
             _buildDetailRow(
               label: 'Result PnL',
-              value: '${(signal?.resultPnl ?? 0) >= 0 ? '+' : ''}${signal?.resultPnl}%',
+              value: PnlFormatHelper.format(
+                signal?.resultPnl,
+                unit: signal?.pnlUnit,
+              ),
               isPnl: true,
               pnlPositive: (signal?.resultPnl ?? 0) >= 0,
             ),

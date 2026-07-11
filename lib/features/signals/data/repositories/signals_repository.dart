@@ -9,6 +9,7 @@ import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/features/signals/data/models/comment_model.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
+import 'package:flutter_task/features/signals/data/models/platform_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 
 class SignalsRepository {
@@ -21,20 +22,39 @@ class SignalsRepository {
   }) : _apiService = apiService,
        _cacheService = cacheService;
 
-  // ─── signals Data ───────────────────────────────────────────────
-  Future<List<SignalsModel>> getSignalData(int page, int limit) async {
+  Future<List<SignalsModel>> getSignalData({
+    required int page,
+    required int limit,
+    String? assetType,
+    String? symbol,
+    String? search,
+    String sortBy = 'newest',
+  }) async {
     try {
-      final response = await _apiService.get(ApiConstants.signals(page, limit));
+      final response = await _apiService.get(
+        ApiConstants.signals(
+          page: page,
+          limit: limit,
+          assetType: assetType,
+          symbol: symbol,
+          search: search,
+          sortBy: sortBy,
+        ),
+      );
       final list = response.data['data'] as List? ?? [];
       final model = list.map((e) => SignalsModel.fromJson(e)).toList();
-      await _cacheService.put(
-        AppConstants.cacheSignals,
-        model.map((e) => e.toJson()).toList(),
-      );
+      if (page == 1) {
+        await _cacheService.put(
+          AppConstants.cacheSignals,
+          model.map((e) => e.toJson()).toList(),
+        );
+      }
       return model;
     } on AppException {
-      final cached = getCachedSignalData();
-      if (cached != null) return cached;
+      if (page == 1) {
+        final cached = getCachedSignalData();
+        if (cached != null) return cached;
+      }
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
@@ -44,8 +64,19 @@ class SignalsRepository {
   Future<List<SignalsModel>> fetchMoreSignalData({
     required int page,
     required int limit,
+    String? assetType,
+    String? symbol,
+    String? search,
+    String sortBy = 'newest',
   }) async {
-    final newData = await getSignalData(page, limit);
+    final newData = await getSignalData(
+      page: page,
+      limit: limit,
+      assetType: assetType,
+      symbol: symbol,
+      search: search,
+      sortBy: sortBy,
+    );
     if (newData.isNotEmpty) {
       final current = getCachedSignalData() ?? [];
       final merged = [...current, ...newData];
@@ -68,7 +99,7 @@ class SignalsRepository {
           .map((json) => SignalsModel.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('Error getting cached referral data: $e');
+      debugPrint('Error getting cached signal data: $e');
       return null;
     }
   }
@@ -78,11 +109,9 @@ class SignalsRepository {
       final response = await _apiService.get(
         ApiConstants.signalDetails(signalId),
       );
-      final model = SignalsModel.fromJson(
+      return SignalsModel.fromJson(
         response.data['data'] as Map<String, dynamic>,
       );
-
-      return model;
     } on AppException {
       rethrow;
     } catch (e) {
@@ -117,7 +146,15 @@ class SignalsRepository {
         ApiConstants.imageUpload,
         file: image,
       );
-      return response.data['url'];
+      final data = response.data;
+      if (data is Map) {
+        if (data['url'] != null) return data['url'].toString();
+        final nested = data['data'];
+        if (nested is Map && nested['url'] != null) {
+          return nested['url'].toString();
+        }
+      }
+      throw UnknownException('Upload URL missing in response');
     } on AppException {
       rethrow;
     } catch (e) {
@@ -125,21 +162,44 @@ class SignalsRepository {
     }
   }
 
-  // ─── comments ───────────────────────────────────────────────
-
-  Future<List<CommentModel>> getComments(String signalId, int page, int limit) async {
+  Future<List<PlatformModel>> getPlatforms() async {
     try {
-      final response = await _apiService.get(ApiConstants.comments(signalId, page, limit));
+      final response = await _apiService.get(ApiConstants.platforms);
+      final list = response.data['data'] as List? ?? [];
+      return list
+          .map((e) => PlatformModel.fromJson(e as Map<String, dynamic>))
+          .where((e) => e.value.isNotEmpty)
+          .toList();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<List<CommentModel>> getComments(
+    String signalId,
+    int page,
+    int limit,
+  ) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.comments(signalId, page, limit),
+      );
       final list = response.data['data'] as List? ?? [];
       final model = list.map((e) => CommentModel.fromJson(e)).toList();
-      await _cacheService.put(
-        AppConstants.cacheComments,
-        model.map((e) => e.toJson()).toList(),
-      );
+      if (page == 1) {
+        await _cacheService.put(
+          AppConstants.cacheComments,
+          model.map((e) => e.toJson()).toList(),
+        );
+      }
       return model;
-      } on AppException {
-      final cached = getCachedComments();
-      if (cached != null) return cached;
+    } on AppException {
+      if (page == 1) {
+        final cached = getCachedComments();
+        if (cached != null) return cached;
+      }
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
@@ -151,7 +211,7 @@ class SignalsRepository {
     required int limit,
     required String signalId,
   }) async {
-    final newData = await getComments(signalId,page, limit);
+    final newData = await getComments(signalId, page, limit);
     if (newData.isNotEmpty) {
       final current = getCachedComments() ?? [];
       final merged = [...current, ...newData];
@@ -174,19 +234,19 @@ class SignalsRepository {
           .map((json) => CommentModel.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('Error getting cached referral data: $e');
+      debugPrint('Error getting cached comments: $e');
       return null;
     }
   }
 
-  Future<void> addComment({required String signalId, required String comment}) async {
+  Future<void> addComment({
+    required String signalId,
+    required String comment,
+  }) async {
     try {
       await _apiService.post(
         ApiConstants.addComment,
-        data: {
-          "signalId": signalId,
-          "message": comment,
-        },
+        data: {'signalId': signalId, 'message': comment},
       );
     } on AppException {
       rethrow;

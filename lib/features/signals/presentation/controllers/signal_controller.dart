@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_task/core/constants/api_constants.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_task/features/pasar/presentation/controllers/history_con
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/signals/data/models/comment_model.dart';
 import 'package:flutter_task/features/signals/data/models/log_signal_model.dart';
+import 'package:flutter_task/features/signals/data/models/platform_model.dart';
 import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 import 'package:flutter_task/features/signals/domain/services/signal_service.dart';
 import 'package:get/get.dart';
@@ -22,38 +24,39 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
 
   SignalsController({required SignalsService service}) : _service = service;
 
-  // ─── Expansion ────────────────────────────────────────────────────
   final RxString _expandedId = ''.obs;
-
   bool isExpanded(String id) => _expandedId.value == id;
 
   void toggleExpanded(String id) {
-    if (_expandedId.value == id) {
-      _expandedId.value = '';
-    } else {
-      _expandedId.value = id;
-    }
+    _expandedId.value = _expandedId.value == id ? '' : id;
   }
 
-  // ─── Text Controllers ─────────────────────────────────────────────
   final entryController = TextEditingController();
   final exitController = TextEditingController();
   final lotController = TextEditingController();
   final pnlController = TextEditingController();
   final notesController = TextEditingController();
   final commentController = TextEditingController();
+  final searchController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  // ─── Observables ──────────────────────────────────────────────────
   final RxString _outcome = 'win'.obs;
   final RxString _platform = 'binance'.obs;
+  final RxString _pnlUnit = 'usd'.obs;
   final RxString _imageUrl = ''.obs;
   final Rx<File?> _selectedImage = Rx<File?>(null);
+  final RxString _selectedAssetType = ''.obs;
+  final RxString _symbolQuery = ''.obs;
+
+  final _platforms = <PlatformModel>[].obs;
 
   File? get selectedImage => _selectedImage.value;
   String get outcome => _outcome.value;
   String get platform => _platform.value;
+  String get pnlUnit => _pnlUnit.value;
   String get imageUrl => _imageUrl.value;
+  String get selectedAssetType => _selectedAssetType.value;
+  List<PlatformModel> get platforms => _platforms;
 
   void onOutcomeChanged(String? value) {
     if (value != null) _outcome.value = value;
@@ -63,25 +66,34 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     if (value != null) _platform.value = value;
   }
 
+  void onPnlUnitChanged(String? value) {
+    if (value != null) _pnlUnit.value = value;
+  }
+
+  void onAssetTypeChanged(String? value) {
+    _selectedAssetType.value = value ?? '';
+    applyFilters();
+  }
+
   void onImagePicked(XFile file) {
     if (file.path.isNotEmpty) {
       _selectedImage.value = File(file.path);
+      _imageUrl.value = '';
       uploadImage();
     }
   }
 
   void onImageRemoved() {
     _selectedImage.value = null;
+    _imageUrl.value = '';
   }
 
-  // ─── Loading States ───────────────────────────────────────────────
   final _loadingState = LoadingState.initial.obs;
   final _copyState = LoadingState.initial.obs;
   final _logState = LoadingState.initial.obs;
   final _imageState = LoadingState.initial.obs;
   final _detailsState = LoadingState.initial.obs;
   final _addCommentState = LoadingState.initial.obs;
-
   final _errorMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
@@ -92,20 +104,16 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   LoadingState get addCommentState => _addCommentState.value;
   String get errorMessage => _errorMessage.value;
 
-  // ─── Signals Pagination ───────────────────────────────────────────
   late final PaginatedList<SignalsModel> signalsList;
   late final PaginatedList<CommentModel> commentsList;
-
   String? _activeCommentSignalId;
 
   List<SignalsModel> get signals => signalsList.items;
   SignalsModel? get signalDetail => _signalDetail.value;
   List<CommentModel> get comments => commentsList.items;
-
   final _signalDetail = Rxn<SignalsModel>();
 
   ScrollController? get scrollController => signalsList.scrollController;
-
   bool get isLoadingMoreComments => commentsList.isLoadingMore.value;
   bool get hasMoreComments => commentsList.hasMore.value;
 
@@ -130,20 +138,36 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     );
     signalsList.initScroll();
     loadData();
+    loadPlatforms();
   }
 
   Future<List<SignalsModel>> _fetchSignalsPage(int page, int limit) async {
+    final assetType =
+        selectedAssetType.isEmpty ? null : selectedAssetType;
+    final symbol = _symbolQuery.value.trim().isEmpty
+        ? null
+        : _symbolQuery.value.trim();
+
     if (page == 1) {
-      await _service.fetchAllSignalsData();
+      await _service.fetchAllSignalsData(
+        assetType: assetType,
+        symbol: symbol,
+        sortBy: 'newest',
+      );
       return _service.getCachedData().signals;
     }
-    return _service.fetchMoreSignals(page: page, limit: limit);
+    return _service.fetchMoreSignals(
+      page: page,
+      limit: limit,
+      assetType: assetType,
+      symbol: symbol,
+      sortBy: 'newest',
+    );
   }
 
   Future<List<CommentModel>> _fetchCommentsPage(int page, int limit) async {
     final signalId = _activeCommentSignalId;
     if (signalId == null || signalId.isEmpty) return [];
-
     if (page == 1) {
       await _service.fetchInitialComments(signalId);
       return _service.getCachedData().comments;
@@ -158,16 +182,14 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   Future<void> loadData() async {
     try {
       _errorMessage.value = '';
-
       final hasCache = _service.hasCache();
-      if (hasCache) {
+      if (hasCache && selectedAssetType.isEmpty && _symbolQuery.isEmpty) {
         final cached = _service.getCachedData();
         signalsList.items.assignAll(cached.signals);
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
-
       await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
@@ -178,10 +200,54 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     }
   }
 
+  Future<void> applyFilters() async {
+    _symbolQuery.value = searchController.text.trim();
+    _loadingState.value = LoadingState.loading;
+    try {
+      await signalsList.loadFirst();
+      _loadingState.value = LoadingState.loaded;
+    } catch (e) {
+      _loadingState.value = LoadingState.error;
+      _errorMessage.value = e.errorMessage;
+    }
+  }
+
+  void clearFilters() {
+    searchController.clear();
+    _symbolQuery.value = '';
+    _selectedAssetType.value = '';
+    applyFilters();
+  }
+
+  Future<void> loadPlatforms() async {
+    try {
+      final list = await _service.getPlatforms();
+      if (list.isEmpty) {
+        _platforms.assignAll(const [
+          PlatformModel(value: 'binance', label: 'Binance'),
+          PlatformModel(value: 'mt4', label: 'MT4'),
+          PlatformModel(value: 'mt5', label: 'MT5'),
+          PlatformModel(value: 'bybit', label: 'Bybit'),
+        ]);
+      } else {
+        _platforms.assignAll(list);
+      }
+      if (_platforms.every((e) => e.value != platform)) {
+        _platform.value = _platforms.first.value;
+      }
+    } catch (_) {
+      _platforms.assignAll(const [
+        PlatformModel(value: 'binance', label: 'Binance'),
+        PlatformModel(value: 'mt4', label: 'MT4'),
+        PlatformModel(value: 'mt5', label: 'MT5'),
+        PlatformModel(value: 'bybit', label: 'Bybit'),
+      ]);
+    }
+  }
+
   @override
   Future<void> refresh() => signalsList.refreshWith(loadData);
 
-  // ─── Signal Details ───────────────────────────────────────────────
   Future<void> getSignalDetails(String signalId) async {
     try {
       _signalDetail.value = null;
@@ -197,15 +263,10 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  // ─── Load Comments ────────────────────────────────────────────────
   Future<void> loadComments(String signalId, {bool refresh = false}) async {
     _activeCommentSignalId = signalId;
     try {
-      if (refresh) {
-        await commentsList.loadFirst();
-      } else {
-        await commentsList.loadFirst();
-      }
+      await commentsList.loadFirst();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
     }
@@ -216,7 +277,6 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     await commentsList.loadMore();
   }
 
-  // ─── Submit Comment ───────────────────────────────────────────────
   Future<void> submitComment(String signalId) async {
     final text = commentController.text.trim();
     if (text.isEmpty) return;
@@ -250,13 +310,30 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  // ─── Copy Signal ──────────────────────────────────────────────────
+  void _markSignalCopied(String signalId) {
+    final index = signalsList.items.indexWhere((e) => e.sId == signalId);
+    if (index != -1) {
+      final item = signalsList.items[index];
+      item.isCopied = true;
+      signalsList.items[index] = item;
+      signalsList.items.refresh();
+    }
+    if (_signalDetail.value?.sId == signalId) {
+      _signalDetail.value?.isCopied = true;
+      _signalDetail.refresh();
+    }
+  }
+
   Future<void> copyTradingSignal({required String signalId}) async {
+    if (signalId.isEmpty) return;
     try {
       _copyState.value = LoadingState.loading;
       await _service.copyTradingSignal(signalId: signalId);
+      _markSignalCopied(signalId);
       _copyState.value = LoadingState.loaded;
-      await HistoryController.to.retry();
+      if (Get.isRegistered<HistoryController>()) {
+        await HistoryController.to.retry();
+      }
       ToastMessageHelper.show('Signal copied successfully');
     } catch (e) {
       _copyState.value = LoadingState.error;
@@ -264,9 +341,21 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  // ─── Log Signal ───────────────────────────────────────────────────
   Future<void> logTradingSignal(String signalId) async {
-    if (!formKey.currentState!.validate() || selectedImage == null) return;
+    if (!formKey.currentState!.validate()) return;
+
+    if (selectedImage == null) {
+      ToastMessageHelper.show('Please add a screenshot');
+      return;
+    }
+    if (imageState.isLoading) {
+      ToastMessageHelper.show('Please wait for screenshot upload');
+      return;
+    }
+    if (imageUrl.isEmpty) {
+      ToastMessageHelper.show('Screenshot upload failed. Please try again');
+      return;
+    }
 
     try {
       _logState.value = LoadingState.loading;
@@ -281,16 +370,21 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
           resultPnl: double.tryParse(pnlController.text) ?? 0,
           screenshotUrl: imageUrl,
           externalPlatform: platform,
+          pnlUnit: pnlUnit,
         ),
       );
       _logState.value = LoadingState.loaded;
-      await HistoryController.to.retry();
+      if (Get.isRegistered<HistoryController>()) {
+        await HistoryController.to.retry();
+      }
       entryController.clear();
       exitController.clear();
       lotController.clear();
       pnlController.clear();
       notesController.clear();
       _selectedImage.value = null;
+      _imageUrl.value = '';
+      _pnlUnit.value = 'usd';
       Get.back(canPop: true);
       ToastMessageHelper.show('Signal logged successfully');
     } catch (e) {
@@ -299,10 +393,8 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  // ─── Upload Image ─────────────────────────────────────────────────
   Future<void> uploadImage() async {
     if (selectedImage == null) return;
-
     try {
       _imageState.value = LoadingState.loading;
       final url = await _service.uploadImage(selectedImage!);
@@ -310,11 +402,14 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       _imageUrl.value = url;
     } catch (e) {
       _imageState.value = LoadingState.error;
+      _imageUrl.value = '';
       ToastMessageHelper.show(e.errorMessage);
     }
   }
 
   Future<void> retry() async => await loadData();
+
+  List<String> get assetTypeOptions => ApiConstants.assetTypes;
 
   @override
   void onClose() {
@@ -326,6 +421,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     pnlController.dispose();
     notesController.dispose();
     commentController.dispose();
+    searchController.dispose();
     super.onClose();
   }
 }

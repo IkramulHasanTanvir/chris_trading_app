@@ -22,8 +22,10 @@ class SignalsModel {
 
   bool? isFeatured;
   bool? isPremium;
+  bool? isCopied;
 
   double? resultPnl;
+  String? pnlUnit;
   dynamic closedAt;
   String? closeNotes;
 
@@ -80,8 +82,10 @@ class SignalsModel {
 
     isFeatured = json['isFeatured'] ?? false;
     isPremium = json['isPremium'] ?? false;
+    isCopied = json['isCopied'] ?? false;
 
     resultPnl = (json['resultPnl'] as num?)?.toDouble();
+    pnlUnit = json['pnlUnit'] ?? 'usd';
 
     closedAt = json['closedAt'];
     closeNotes = json['closeNotes'];
@@ -130,7 +134,9 @@ class SignalsModel {
       'publishedAt': publishedAt,
       'isFeatured': isFeatured,
       'isPremium': isPremium,
+      'isCopied': isCopied,
       'resultPnl': resultPnl,
+      'pnlUnit': pnlUnit,
       'closedAt': closedAt,
       'closeNotes': closeNotes,
       'viewCount': viewCount,

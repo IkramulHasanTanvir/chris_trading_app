@@ -29,13 +29,49 @@ class ApiConstants {
   static  String contributions(int page,int limit) => '/api/v1/contributions/top-contributors?timeframe=all&page=$page&limit=$limit';
 
   // signal
-  static  String signals(int page,int limit) => '/api/v1/signals?page=$page&limit=$limit';
-  static  String follows(int page,int limit) => '/api/v1/follow/following?page=$page&limit=$limit';
-  static  String tradesHistory(int page,int limit,String status) => '/api/v1/copied-trades?page=$page&limit=$limit&status=$status';
-  static  String copySignals(String signalId) => '/api/v1/copied-trades/signals/$signalId/copy';
-  static  String followTrader(String traderId) => '/api/v1/follow/toggle/$traderId';
-  static  String signalDetails(String signalId) => '/api/v1/signals/$signalId';
-  static const  String logSignals = '/api/v1/copied-trades/log';
+  static String signals({
+    required int page,
+    required int limit,
+    String? assetType,
+    String? symbol,
+    String? search,
+    String sortBy = 'newest',
+  }) {
+    final params = <String, String>{
+      'page': '$page',
+      'limit': '$limit',
+      'sortBy': sortBy,
+    };
+    if (assetType != null && assetType.isNotEmpty) {
+      params['assetType'] = assetType;
+    }
+    if (symbol != null && symbol.trim().isNotEmpty) {
+      params['symbol'] = symbol.trim();
+    }
+    if (search != null && search.trim().isNotEmpty) {
+      params['search'] = search.trim();
+    }
+    final query = params.entries.map((e) => '${e.key}=${e.value}').join('&');
+    return '/api/v1/signals?$query';
+  }
+
+  static String follows(int page, int limit) =>
+      '/api/v1/follow/following?page=$page&limit=$limit';
+
+  static String tradesHistory(
+    int page,
+    int limit,
+    String status, {
+    String sortBy = 'newest',
+  }) =>
+      '/api/v1/copied-trades?page=$page&limit=$limit&status=$status&sortBy=$sortBy';
+
+  static String copySignals(String signalId) =>
+      '/api/v1/copied-trades/signals/$signalId/copy';
+  static String followTrader(String traderId) =>
+      '/api/v1/follow/toggle/$traderId';
+  static String signalDetails(String signalId) => '/api/v1/signals/$signalId';
+  static const String logSignals = '/api/v1/copied-trades/log';
 
 
   // profile
@@ -48,10 +84,28 @@ class ApiConstants {
 
 
   // Notification
-  static  String notifications(int page,int limit) => '/api/v1/notifications?page=$page&limit=$limit';
+  static String notifications(int page, int limit) =>
+      '/api/v1/notifications?page=$page&limit=$limit';
   static const String notificationCount = '/api/v1/notifications/unread-count';
+  static String markNotificationRead(String id) =>
+      '/api/v1/notifications/$id/read';
+  static const String markAllNotificationsRead =
+      '/api/v1/notifications/read-all';
 
+  /// Config
+  static const String platforms = '/api/v1/config/platforms';
 
+  /// Asset types supported by backend
+  static const List<String> assetTypes = [
+    'forex',
+    'crypto',
+    'stocks',
+    'indices',
+    'commodities',
+    'futures',
+    'options',
+    'etfs',
+  ];
 
   /// REFERRAL ──────────────────────────────────────────
 

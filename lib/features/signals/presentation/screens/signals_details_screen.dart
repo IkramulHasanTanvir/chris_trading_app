@@ -266,36 +266,46 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding:  EdgeInsets.all(16.r),
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  fontSize: 14.sp,
-                  height: 36.h,
-                  backgroundColor: AppColors.primaryBTN,
-                  onPressed: () {
-                    _showCopyDialog(context, controller);
-                  },
-                  label: 'Copy Trade',
+          padding: EdgeInsets.all(16.r),
+          child: Obx(() {
+            final isCopied = controller.signalDetail?.isCopied == true;
+            return Row(
+              children: [
+                Expanded(
+                  child: Opacity(
+                    opacity: isCopied ? 0.45 : 1,
+                    child: CustomButton(
+                      fontSize: 14.sp,
+                      height: 36.h,
+                      backgroundColor: isCopied
+                          ? AppColors.textSecondary
+                          : AppColors.primaryBTN,
+                      onPressed: isCopied
+                          ? () {}
+                          : () {
+                              _showCopyDialog(context, controller);
+                            },
+                      label: isCopied ? 'Copied' : 'Copy Trade',
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: CustomButton(
-                  fontSize: 14.sp,
-                  height: 36.h,
-                  onPressed: () {
-                    Get.toNamed(
-                      AppRoutes.logUpdateScreen,
-                      arguments: controller.signalDetail?.sId,
-                    );
-                  },
-                  label: 'Log Trade',
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: CustomButton(
+                    fontSize: 14.sp,
+                    height: 36.h,
+                    onPressed: () {
+                      Get.toNamed(
+                        AppRoutes.logUpdateScreen,
+                        arguments: controller.signalDetail?.sId,
+                      );
+                    },
+                    label: 'Log Trade',
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
       ),
     );
