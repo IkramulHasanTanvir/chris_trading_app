@@ -83,8 +83,6 @@ class ReferralContent extends StatelessWidget {
             ],
           );
         }),
-
-        SizedBox(height: 100.h),
       ],
     );
   }

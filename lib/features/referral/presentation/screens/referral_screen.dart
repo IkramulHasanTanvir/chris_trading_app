@@ -75,6 +75,7 @@ class ReferralScreen extends StatelessWidget {
             ),
           ),
           PaginationLoaderSliver(controller: controller),
+          SliverToBoxAdapter(child: SizedBox(height: 100.h)),
         ],
       ),
     );

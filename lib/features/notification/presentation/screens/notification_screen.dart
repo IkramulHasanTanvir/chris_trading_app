@@ -146,6 +146,7 @@ class NotificationScreen extends StatelessWidget {
 
             // ─── Load More Indicator ─────────────────────────────────
             PaginationLoaderSliver(controller: controller),
+            SliverToBoxAdapter(child: SizedBox(height: 100.h)),
           ],
         ),
       ),

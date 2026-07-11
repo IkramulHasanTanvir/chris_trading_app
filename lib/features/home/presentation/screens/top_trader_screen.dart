@@ -104,13 +104,16 @@ class TopTraderScreen extends StatelessWidget {
         parent: BouncingScrollPhysics(),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-      itemCount: data.length + (isLoadingMore ? 1 : 0),
+      itemCount: data.length + (isLoadingMore ? 1 : 0) + 1,
       separatorBuilder: (_, __) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
-        if (index == data.length) {
+        if (index < data.length) {
+          return TraderCard(trader: data[index]);
+        }
+        if (isLoadingMore && index == data.length) {
           return const PaginationLoader(show: true);
         }
-        return TraderCard(trader: data[index]);
+        return SizedBox(height: 100.h);
       },
     );
   }

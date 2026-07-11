@@ -108,17 +108,17 @@ class PasarScreen extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-          top: 24.h,
-          bottom: 100.h,
-        ),
-        itemCount: trades.length + (isLoadingMore ? 1 : 0),
+        padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(top: 24.h),
+        itemCount: trades.length + (isLoadingMore ? 1 : 0) + 1,
         separatorBuilder: (_, __) => SizedBox(height: 12.h),
         itemBuilder: (context, index) {
-          if (index == trades.length) {
+          if (index < trades.length) {
+            return SignalDetailsCard(item: trades[index]);
+          }
+          if (isLoadingMore && index == trades.length) {
             return const PaginationLoader(show: true);
           }
-          return SignalDetailsCard(item: trades[index]);
+          return SizedBox(height: 100.h);
         },
       ),
     );

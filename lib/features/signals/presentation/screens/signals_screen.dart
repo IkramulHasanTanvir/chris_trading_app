@@ -86,13 +86,13 @@ class SignalsScreen extends StatelessWidget {
                             return SignalCard(item: item);
                           },
                         ),
-                        SizedBox(height: 100.h),
                       ],
                     );
                   }}
                 ),
               ),
               PaginationLoaderSliver(controller: controller),
+              SliverToBoxAdapter(child: SizedBox(height: 100.h)),
             ],
           ),
         ),
