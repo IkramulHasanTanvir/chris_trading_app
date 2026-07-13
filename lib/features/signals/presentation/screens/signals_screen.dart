@@ -2,15 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
+import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
+import 'package:flutter_task/features/search/model/search_model.dart';
+import 'package:flutter_task/features/search/search_screen.dart';
+import 'package:flutter_task/features/signals/data/models/signal_model.dart';
 import 'package:flutter_task/features/signals/presentation/controllers/signal_controller.dart';
 import 'package:flutter_task/features/signals/presentation/widgets/signal_card.dart';
 import 'package:get/get.dart';
 
 class SignalsScreen extends StatelessWidget {
   const SignalsScreen({super.key});
+
+  void _openSearch(BuildContext context, SignalsController controller) {
+    showSearch(
+      context: context,
+      delegate: SearchScreen(
+        hintText: 'Search by symbol...',
+        onSearch: (query) async {
+          await controller.search.search(query);
+          return controller.search.results
+              .map(
+                (signal) => SearchModel(
+                  model: signal,
+                  title: signal.symbol?.isNotEmpty == true
+                      ? signal.symbol
+                      : signal.title,
+                  subtitle: [
+                    if (signal.signalType != null &&
+                        signal.signalType!.isNotEmpty)
+                      signal.signalType!.toUpperCase(),
+                    if (signal.assetType != null &&
+                        signal.assetType!.isNotEmpty)
+                      signal.assetType,
+                    if (signal.authorId?.name != null &&
+                        signal.authorId!.name!.isNotEmpty)
+                      signal.authorId!.name,
+                  ].join(' · '),
+                  image: signal.authorId?.userProfileUrl,
+                ),
+              )
+              .toList();
+        },
+        onResultTap: (result) {
+          controller.search.clear();
+          final signal = result.model as SignalsModel?;
+          final signalId = signal?.sId;
+          Get.back();
+          if (signalId == null || signalId.isEmpty) return;
+          Get.toNamed(
+            AppRoutes.signalsDetailsScreen,
+            arguments: signalId,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +71,7 @@ class SignalsScreen extends StatelessWidget {
           onRefresh: () async {
             await controller.refresh();
           },
-          edgeOffset: 60.h,
+          edgeOffset: 156.h,
           color: AppColors.primary,
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
@@ -31,48 +80,39 @@ class SignalsScreen extends StatelessWidget {
             controller: controller.scrollController,
             slivers: [
               SliverAppBar(
-                expandedHeight: 70.h,
+                pinned: true,
                 floating: false,
+                elevation: 0,
                 scrolledUnderElevation: 0,
                 backgroundColor: AppColors.background,
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  expandedTitleScale: 2.0,
-                  title: CustomText(
-                    text: 'Signals',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  centerTitle: true,
+                expandedHeight: 150.h,
+                title: CustomText(
+                  text: 'Signals',
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w700,
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    children: [
-                      CustomTextField(
-                        controller: controller.searchController,
+                centerTitle: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 52.h),
+                      child: CustomSearchField(
+                        readOnly: true,
+                        onTap: () => _openSearch(context, controller),
+                        searchController: controller.searchController,
                         hintText: 'Search by symbol...',
-                        validator: (_) => null,
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: AppColors.textSecondary,
-                          size: 20.r,
-                        ),
-                        textInputAction: TextInputAction.search,
-                        onFieldSubmitted: (_) => controller.applyFilters(),
-                        suffixIcon: IconButton(
-                          onPressed: controller.applyFilters,
-                          icon: Icon(
-                            Icons.arrow_forward_rounded,
-                            color: AppColors.primary,
-                            size: 20.r,
-                          ),
-                        ),
                       ),
-                      SizedBox(height: 10.h),
-                      Obx(() {
+                    ),
+                  ),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(44.h),
+                  child: ColoredBox(
+                    color: AppColors.background,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+                      child: Obx(() {
                         return SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -95,8 +135,7 @@ class SignalsScreen extends StatelessWidget {
                           ),
                         );
                       }),
-                      SizedBox(height: 8.h),
-                    ],
+                    ),
                   ),
                 ),
               ),

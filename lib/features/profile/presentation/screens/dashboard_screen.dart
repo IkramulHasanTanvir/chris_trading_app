@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
+import 'package:flutter_task/core/helpers/pnl_format_helper.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
+import 'package:flutter_task/features/profile/data/models/dashboard_model.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/profile/presentation/screens/dashboard_chart.dart';
 import 'package:flutter_task/features/referral/presentation/widgets/referral_shimmer_widgets.dart';
@@ -85,11 +87,21 @@ class DashboardScreen extends StatelessWidget {
                                 '${dashboard?.summary?.totalTrades ?? 0}',
                               ),
                               _buildStatusCard(
-                                'Profit/Loss',
-                                '${dashboard?.summary?.profitLossFormatted ?? 0}',
+                                'P/L (USD)',
+                                PnlFormatHelper.format(
+                                  dashboard?.summary?.profitLossUsd,
+                                  unit: 'usd',
+                                ),
                               ),
                               _buildStatusCard(
-                                'Top Tradede Asset',
+                                'P/L (%)',
+                                PnlFormatHelper.format(
+                                  dashboard?.summary?.profitLossPercent,
+                                  unit: 'percent',
+                                ),
+                              ),
+                              _buildStatusCard(
+                                'Top Traded Asset',
                                 dashboard?.summary?.topTradedAsset?.assetType ??
                                     'N/A',
                               ),
@@ -117,6 +129,15 @@ class DashboardScreen extends StatelessWidget {
                               tradesByAsset: dashboard?.tradesByAsset ?? [],
                             ),
                           ),
+                          SizedBox(height: 16.h),
+                          if ((dashboard?.tradeBars ?? []).isNotEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: _TradeBarsSection(
+                                tradeBars: dashboard!.tradeBars!,
+                              ),
+                            ),
+                          SizedBox(height: 100.h),
                         ],
                       );
                   }
@@ -142,15 +163,78 @@ class DashboardScreen extends StatelessWidget {
           CustomText(
             color: color ?? AppColors.white,
             text: label,
-            fontSize: 20.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w500,
           ),
+          SizedBox(height: 6.h),
           CustomText(
             color: color ?? AppColors.white,
             text: value.toString(),
             fontSize: 16.sp,
             fontWeight: FontWeight.w500,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TradeBarsSection extends StatelessWidget {
+  final List<TradeBars> tradeBars;
+
+  const _TradeBarsSection({required this.tradeBars});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomContainer(
+      radiusAll: 14.r,
+      color: AppColors.navBackground,
+      paddingAll: 16.r,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: 'Recent Trade Results',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+          ),
+          SizedBox(height: 12.h),
+          ...tradeBars.take(8).map((bar) {
+            final positive = (bar.profitLoss ?? 0) >= 0;
+            return Padding(
+              padding: EdgeInsets.only(bottom: 10.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text: bar.symbol ?? '--',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.sp,
+                        ),
+                        CustomText(
+                          text: (bar.outcome ?? '').toUpperCase(),
+                          fontSize: 11.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                  CustomText(
+                    text: PnlFormatHelper.format(
+                      bar.profitLoss,
+                      unit: bar.pnlUnit,
+                    ),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: positive ? Colors.greenAccent : Colors.redAccent,
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

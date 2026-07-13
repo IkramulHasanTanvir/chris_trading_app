@@ -9,6 +9,7 @@ export 'custom_pin_code_text_field.dart';
 export 'custom_popup.dart';
 export 'custom_scaffold.dart';
 export 'custom_text.dart';
+export 'custom_search_field.dart';
 export 'custom_text_field.dart';
 export 'no_inter_net_screen.dart';
 export 'pagination_loader_sliver.dart';

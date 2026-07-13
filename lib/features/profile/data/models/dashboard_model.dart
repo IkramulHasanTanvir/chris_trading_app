@@ -38,12 +38,8 @@ class DashboardModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['timeframe'] = timeframe;
-    if (summary != null) {
-      data['summary'] = summary!.toJson();
-    }
-    if (winsLosses != null) {
-      data['winsLosses'] = winsLosses!.toJson();
-    }
+    if (summary != null) data['summary'] = summary!.toJson();
+    if (winsLosses != null) data['winsLosses'] = winsLosses!.toJson();
     if (tradesByAsset != null) {
       data['tradesByAsset'] = tradesByAsset!.map((v) => v.toJson()).toList();
     }
@@ -57,25 +53,25 @@ class DashboardModel {
 class Summary {
   int? winRate;
   int? totalTrades;
-  int? profitLoss;
-  String? profitLossFormatted;
+  num? profitLossUsd;
+  num? profitLossPercent;
   String? currency;
   TopTradedAsset? topTradedAsset;
 
   Summary({
     this.winRate,
     this.totalTrades,
-    this.profitLoss,
-    this.profitLossFormatted,
+    this.profitLossUsd,
+    this.profitLossPercent,
     this.currency,
     this.topTradedAsset,
   });
 
   Summary.fromJson(Map<String, dynamic> json) {
-    winRate = json['winRate'];
-    totalTrades = json['totalTrades'];
-    profitLoss = json['profitLoss'];
-    profitLossFormatted = json['profitLossFormatted'];
+    winRate = (json['winRate'] as num?)?.toInt();
+    totalTrades = (json['totalTrades'] as num?)?.toInt();
+    profitLossUsd = json['profitLossUsd'] as num? ?? json['profitLoss'] as num?;
+    profitLossPercent = json['profitLossPercent'] as num?;
     currency = json['currency'];
     topTradedAsset = json['topTradedAsset'] != null
         ? TopTradedAsset.fromJson(json['topTradedAsset'])
@@ -83,16 +79,14 @@ class Summary {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['winRate'] = winRate;
-    data['totalTrades'] = totalTrades;
-    data['profitLoss'] = profitLoss;
-    data['profitLossFormatted'] = profitLossFormatted;
-    data['currency'] = currency;
-    if (topTradedAsset != null) {
-      data['topTradedAsset'] = topTradedAsset!.toJson();
-    }
-    return data;
+    return {
+      'winRate': winRate,
+      'totalTrades': totalTrades,
+      'profitLossUsd': profitLossUsd,
+      'profitLossPercent': profitLossPercent,
+      'currency': currency,
+      'topTradedAsset': topTradedAsset?.toJson(),
+    };
   }
 }
 
@@ -106,15 +100,15 @@ class TopTradedAsset {
   TopTradedAsset.fromJson(Map<String, dynamic> json) {
     symbol = json['symbol'];
     assetType = json['assetType'];
-    tradeCount = json['tradeCount'];
+    tradeCount = (json['tradeCount'] as num?)?.toInt();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['symbol'] = symbol;
-    data['assetType'] = assetType;
-    data['tradeCount'] = tradeCount;
-    return data;
+    return {
+      'symbol': symbol,
+      'assetType': assetType,
+      'tradeCount': tradeCount,
+    };
   }
 }
 
@@ -134,17 +128,11 @@ class WinsLosses {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (wins != null) {
-      data['wins'] = wins!.toJson();
-    }
-    if (losses != null) {
-      data['losses'] = losses!.toJson();
-    }
-    if (breakevens != null) {
-      data['breakevens'] = breakevens!.toJson();
-    }
-    return data;
+    return {
+      'wins': wins?.toJson(),
+      'losses': losses?.toJson(),
+      'breakevens': breakevens?.toJson(),
+    };
   }
 }
 
@@ -155,15 +143,12 @@ class Wins {
   Wins({this.count, this.percentage});
 
   Wins.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
-    percentage = json['percentage'];
+    count = (json['count'] as num?)?.toInt();
+    percentage = (json['percentage'] as num?)?.toInt();
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['count'] = count;
-    data['percentage'] = percentage;
-    return data;
+    return {'count': count, 'percentage': percentage};
   }
 }
 
@@ -173,14 +158,10 @@ class Breakevens {
   Breakevens({this.count});
 
   Breakevens.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
+    count = (json['count'] as num?)?.toInt();
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['count'] = count;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {'count': count};
 }
 
 class TradesByAsset {
@@ -189,7 +170,8 @@ class TradesByAsset {
   int? total;
   int? wins;
   int? losses;
-  int? profitLoss;
+  num? profitLossUsd;
+  num? profitLossPercent;
   String? barColor;
 
   TradesByAsset({
@@ -198,30 +180,34 @@ class TradesByAsset {
     this.total,
     this.wins,
     this.losses,
-    this.profitLoss,
+    this.profitLossUsd,
+    this.profitLossPercent,
     this.barColor,
   });
 
   TradesByAsset.fromJson(Map<String, dynamic> json) {
     symbol = json['symbol'];
     assetType = json['assetType'];
-    total = json['total'];
-    wins = json['wins'];
-    losses = json['losses'];
-    profitLoss = json['profitLoss'];
+    total = (json['total'] as num?)?.toInt();
+    wins = (json['wins'] as num?)?.toInt();
+    losses = (json['losses'] as num?)?.toInt();
+    profitLossUsd =
+        json['profitLossUsd'] as num? ?? json['profitLoss'] as num?;
+    profitLossPercent = json['profitLossPercent'] as num?;
     barColor = json['barColor'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['symbol'] = symbol;
-    data['assetType'] = assetType;
-    data['total'] = total;
-    data['wins'] = wins;
-    data['losses'] = losses;
-    data['profitLoss'] = profitLoss;
-    data['barColor'] = barColor;
-    return data;
+    return {
+      'symbol': symbol,
+      'assetType': assetType,
+      'total': total,
+      'wins': wins,
+      'losses': losses,
+      'profitLossUsd': profitLossUsd,
+      'profitLossPercent': profitLossPercent,
+      'barColor': barColor,
+    };
   }
 }
 
@@ -229,7 +215,8 @@ class TradeBars {
   String? symbol;
   String? assetType;
   String? outcome;
-  int? profitLoss;
+  num? profitLoss;
+  String? pnlUnit;
   String? barColor;
   String? loggedAt;
 
@@ -238,6 +225,7 @@ class TradeBars {
     this.assetType,
     this.outcome,
     this.profitLoss,
+    this.pnlUnit,
     this.barColor,
     this.loggedAt,
   });
@@ -246,19 +234,21 @@ class TradeBars {
     symbol = json['symbol'];
     assetType = json['assetType'];
     outcome = json['outcome'];
-    profitLoss = json['profitLoss'];
+    profitLoss = json['profitLoss'] as num?;
+    pnlUnit = json['pnlUnit'] ?? 'usd';
     barColor = json['barColor'];
     loggedAt = json['loggedAt'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['symbol'] = symbol;
-    data['assetType'] = assetType;
-    data['outcome'] = outcome;
-    data['profitLoss'] = profitLoss;
-    data['barColor'] = barColor;
-    data['loggedAt'] = loggedAt;
-    return data;
+    return {
+      'symbol': symbol,
+      'assetType': assetType,
+      'outcome': outcome,
+      'profitLoss': profitLoss,
+      'pnlUnit': pnlUnit,
+      'barColor': barColor,
+      'loggedAt': loggedAt,
+    };
   }
 }

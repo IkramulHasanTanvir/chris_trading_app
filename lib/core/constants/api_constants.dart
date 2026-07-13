@@ -90,7 +90,7 @@ class ApiConstants {
   static String markNotificationRead(String id) =>
       '/api/v1/notifications/$id/read';
   static const String markAllNotificationsRead =
-      '/api/v1/notifications/read-all';
+      '/api/v1/notifications/read-all'; // PATCH
 
   /// Config
   static const String platforms = '/api/v1/config/platforms';

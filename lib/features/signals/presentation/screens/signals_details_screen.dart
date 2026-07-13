@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
+import 'package:flutter_task/core/helpers/image_url_helper.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
@@ -104,9 +105,54 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
 
                               SizedBox(height: 16.h),
 
-                              // ── Chart Image ──────────────────────
-                              if ((signal?.externalChartUrl ?? '').isNotEmpty)
-                                ChartSection(signal: signal),
+                              // ── Chart / Video ─────────────────────
+                              if ((signal?.videoUrl ?? '').trim().isNotEmpty)
+                                ChartSection(signal: signal)
+                              else if (ImageUrlHelper.isLoadableImageUrl(
+                                signal?.externalChartUrl,
+                              ))
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  child: CustomNetworkImage(
+                                    width: double.infinity,
+                                    height: 220.h,
+                                    fit: BoxFit.cover,
+                                    imageUrl: signal?.externalChartUrl,
+                                    fallbackAsset: Icon(
+                                      Icons.show_chart_rounded,
+                                      size: 48.r,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                )
+                              else if ((signal?.externalChartUrl ?? '')
+                                  .trim()
+                                  .isNotEmpty)
+                                Container(
+                                  width: double.infinity,
+                                  height: 120.h,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.navBackground,
+                                    borderRadius: BorderRadius.circular(16.r),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.show_chart_rounded,
+                                        size: 36.r,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      CustomText(
+                                        text: 'Chart preview unavailable',
+                                        fontSize: 12.sp,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
                               SizedBox(height: 16.h),
 

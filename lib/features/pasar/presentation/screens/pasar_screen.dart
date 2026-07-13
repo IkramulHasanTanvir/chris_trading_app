@@ -28,7 +28,7 @@ class PasarScreen extends StatelessWidget {
                   backgroundColor: AppColors.background,
                   title: CustomText(
                     text: 'Trade History',
-                    fontSize: 28.sp,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
                   ),
                   centerTitle: true,

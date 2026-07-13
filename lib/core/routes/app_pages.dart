@@ -1,6 +1,7 @@
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
+import 'package:flutter_task/core/services/connectivity_service.dart';
 import 'package:flutter_task/features/auth/presentation/pages/forget/forget_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/otp/otp_screen.dart';
@@ -212,7 +213,10 @@ class BottomNavBinding extends Bindings {
     );
 
     Get.lazyPut<SignalsController>(
-      () => SignalsController(service: Get.find<SignalsService>()),
+      () => SignalsController(
+        service: Get.find<SignalsService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
       fenix: true,
     );
     Get.lazyPut<HistoryRepository>(

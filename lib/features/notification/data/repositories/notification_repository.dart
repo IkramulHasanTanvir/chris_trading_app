@@ -67,6 +67,17 @@ class NotificationRepository {
     }
   }
 
+  Future<void> markAllNotificationsRead() async {
+    try {
+      // Backend registers PATCH /api/v1/notifications/read-all
+      await _apiService.patch(ApiConstants.markAllNotificationsRead);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<int> refreshUnreadCount() async {
     return getNotificationCount();
   }

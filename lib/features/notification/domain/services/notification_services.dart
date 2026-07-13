@@ -49,6 +49,17 @@ class NotificationServices {
     }
   }
 
+  Future<void> markAllNotificationsRead() async {
+    try {
+      await _repository.markAllNotificationsRead();
+      await _repository.refreshUnreadCount();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<int> getUnreadCount() async {
     try {
       return await _repository.getNotificationCount();

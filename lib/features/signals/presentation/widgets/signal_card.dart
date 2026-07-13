@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/helpers/image_url_helper.dart';
 import 'package:flutter_task/core/helpers/time_format.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
@@ -243,6 +244,9 @@ class SignalCard extends StatelessWidget {
 
   /// 🔹 Chart Image
   Widget _chartImage(SignalsModel item) {
+    final chartUrl = item.externalChartUrl;
+    final canShowImage = ImageUrlHelper.isLoadableImageUrl(chartUrl);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -254,13 +258,40 @@ class SignalCard extends StatelessWidget {
         SizedBox(height: 12.h),
         ClipRRect(
           borderRadius: BorderRadius.circular(4.r),
-          child: CustomNetworkImage(
-            width: double.infinity,
-            height: 140.h,
-            fit: BoxFit.cover,
-            imageUrl: item.externalChartUrl,
-            fallbackAsset: Icon(Icons.image_not_supported, size: 140.sp, color: AppColors.textSecondary),
-          ),
+          child: canShowImage
+              ? CustomNetworkImage(
+                  width: double.infinity,
+                  height: 140.h,
+                  fit: BoxFit.cover,
+                  imageUrl: chartUrl,
+                  fallbackAsset: Icon(
+                    Icons.show_chart_rounded,
+                    size: 48.r,
+                    color: AppColors.textSecondary,
+                  ),
+                )
+              : Container(
+                  width: double.infinity,
+                  height: 140.h,
+                  color: AppColors.navBackground,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.show_chart_rounded,
+                        size: 40.r,
+                        color: AppColors.textSecondary,
+                      ),
+                      SizedBox(height: 8.h),
+                      CustomText(
+                        text: 'Chart preview unavailable',
+                        fontSize: 12.sp,
+                        color: AppColors.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ],
     );

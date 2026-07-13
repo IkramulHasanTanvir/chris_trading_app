@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_task/core/helpers/image_url_helper.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CustomNetworkImage extends StatelessWidget {
@@ -48,32 +50,30 @@ class CustomNetworkImage extends StatelessWidget {
       return _buildFallback();
     }
 
-    /// ✅ 2. Network Image — empty string হলে সরাসরি fallback
+    /// ✅ 2. Network Image — empty / non-image URL হলে সরাসরি fallback
     if ((imageUrl ?? '').trim().isNotEmpty) {
       final trimmedUrl = imageUrl!.trim();
-      final uri = Uri.tryParse(trimmedUrl);
-      final isValidNetworkUrl =
-          uri != null &&
-              uri.hasScheme &&
-              (uri.scheme == 'http' || uri.scheme == 'https') &&
-              uri.host.isNotEmpty;
 
-      if (isValidNetworkUrl) {
-        return CachedNetworkImage(
-          imageUrl: trimmedUrl,
-          imageBuilder: (context, imageProvider) =>
-              _buildContainer(imageProvider),
-          placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: Colors.grey.shade200,
-            highlightColor: Colors.grey.shade50,
-            child: _buildContainer(null, shimmer: true),
-          ),
-          errorWidget: (context, url, error) => _buildFallback(),
-        );
+      if (!ImageUrlHelper.isLoadableImageUrl(trimmedUrl)) {
+        return _buildFallback();
       }
 
-      /// file:/// বা invalid URL — fallback
-      return _buildFallback();
+      return CachedNetworkImage(
+        imageUrl: trimmedUrl,
+        imageBuilder: (context, imageProvider) =>
+            _buildContainer(imageProvider),
+        placeholder: (context, url) => Shimmer.fromColors(
+          baseColor: Colors.grey.shade200,
+          highlightColor: Colors.grey.shade50,
+          child: _buildContainer(null, shimmer: true),
+        ),
+        errorWidget: (context, url, error) => _buildFallback(),
+        errorListener: (error) {
+          if (kDebugMode) {
+            debugPrint('CustomNetworkImage load failed: $error');
+          }
+        },
+      );
     }
 
     /// ✅ 3. null বা empty string — fallback
@@ -101,28 +101,28 @@ class CustomNetworkImage extends StatelessWidget {
   }) {
     return BoxDecoration(
       color: shimmer
-          ? Colors.grey.withOpacity(0.4)
+          ? Colors.grey.withValues(alpha: 0.4)
           : (backgroundColor ?? Colors.grey.shade300),
       boxShadow: boxShadow ??
           (elevation
               ? [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 20,
-              spreadRadius: 6,
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    spreadRadius: 6,
+                  ),
+                ]
               : null),
       border: border,
       borderRadius:
-      borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
+          borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
       shape: boxShape,
       image: imageProvider != null
           ? DecorationImage(
-        image: imageProvider,
-        fit: fit ?? BoxFit.cover,
-        colorFilter: colorFilter,
-      )
+              image: imageProvider,
+              fit: fit ?? BoxFit.cover,
+              colorFilter: colorFilter,
+            )
           : null,
     );
   }
@@ -132,6 +132,7 @@ class CustomNetworkImage extends StatelessWidget {
     return Container(
       height: height,
       width: width,
+      alignment: Alignment.center,
       decoration: _buildDecoration(
         imageProvider: null,
         shimmer: false,
@@ -140,7 +141,9 @@ class CustomNetworkImage extends StatelessWidget {
           Icon(
             Icons.person,
             color: Colors.grey.shade500,
-            size: height,
+            size: (height != null && height! > 0)
+                ? (height! * 0.45).clamp(16.0, 48.0)
+                : 24,
           ),
     );
   }

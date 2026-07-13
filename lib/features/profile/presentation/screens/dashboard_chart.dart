@@ -234,8 +234,16 @@ class _TradesByAssetBarChartState extends State<TradesByAssetBarChart> {
                       final val = rodIndex == 0
                           ? asset.wins ?? 0
                           : asset.losses ?? 0;
+                      final usd = asset.profitLossUsd;
+                      final percent = asset.profitLossPercent;
+                      final pnlLine = [
+                        if (usd != null) 'USD: ${usd >= 0 ? '+' : ''}\$$usd',
+                        if (percent != null)
+                          '%: ${percent >= 0 ? '+' : ''}$percent%',
+                      ].join('  ');
                       return BarTooltipItem(
-                        '${asset.symbol}\n$label: $val',
+                        '${asset.symbol}\n$label: $val'
+                        '${pnlLine.isEmpty ? '' : '\n$pnlLine'}',
                         TextStyle(
                           color: AppColors.white,
                           fontSize: 11.sp,

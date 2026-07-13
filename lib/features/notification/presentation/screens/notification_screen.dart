@@ -44,6 +44,22 @@ class NotificationScreen extends StatelessWidget {
                   color: AppColors.white,
                 ),
               ),
+              actions: [
+                Obx(() {
+                  final hasUnread = controller.notificationCount > 0 ||
+                      controller.notification.any((e) => e.isRead != true);
+                  if (!hasUnread) return const SizedBox.shrink();
+                  return TextButton(
+                    onPressed: controller.markAllAsRead,
+                    child: CustomText(
+                      text: 'Mark all',
+                      fontSize: 12.sp,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  );
+                }),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 2.0,
                 title: CustomText(

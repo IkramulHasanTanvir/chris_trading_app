@@ -54,12 +54,19 @@ class VideosController extends GetxController {
   // ─── Init video ──────────────────────────────────────────────────────────────
   Future<void> initializeVideo(SignalsModel? signal) async {
     try {
-      final url = signal?.videoUrl;
+      final url = signal?.videoUrl?.trim();
 
       if (url == null || url.isEmpty) {
         _isLoading.value = false;
+        _isInitialized.value = false;
+        _isPlaying.value = false;
+        _isBuffering.value = false;
+        _isEnded.value = false;
         return;
       }
+
+      _isLoading.value = true;
+      _isInitialized.value = false;
 
       // Cache video file
       final file = await DefaultCacheManager().getSingleFile(url);
@@ -71,6 +78,7 @@ class VideosController extends GetxController {
       _isEnded.value = false;
     } catch (e) {
       _isLoading.value = false;
+      _isInitialized.value = false;
     }
   }
 

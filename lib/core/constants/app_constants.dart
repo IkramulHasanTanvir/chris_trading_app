@@ -19,6 +19,7 @@ class AppConstants{
   static const String cacheNotificationCount = 'cacheNotificationCount';
   static const String cacheBadge = 'cacheBadge';
   static const String cacheDashboard = 'cacheDashboard';
+  static const String searchHistoryKey = 'searchHistoryKey';
 
 
 

@@ -130,6 +130,30 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
     );
   }
 
+  Future<void> markAllAsRead() async {
+    final hasUnread = notificationList.items.any((e) => e.isRead != true);
+    if (!hasUnread) {
+      ToastMessageHelper.show('No unread notifications');
+      return;
+    }
+
+    for (final item in notificationList.items) {
+      item.isRead = true;
+    }
+    notificationList.items.refresh();
+    _notificationCount.value = 0;
+
+    try {
+      await _service.markAllNotificationsRead();
+      final count = await _service.getUnreadCount();
+      _notificationCount.value = count;
+      ToastMessageHelper.show('All notifications marked as read');
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      await loadData();
+    }
+  }
+
   Future<void> retry() async => await loadData();
 
   @override

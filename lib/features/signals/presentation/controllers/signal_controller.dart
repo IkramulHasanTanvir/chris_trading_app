@@ -5,8 +5,10 @@ import 'package:flutter_task/core/constants/api_constants.dart';
 import 'package:flutter_task/core/enums/loading_state.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/helpers/toast_message_helper.dart';
+import 'package:flutter_task/core/services/connectivity_service.dart';
 import 'package:flutter_task/core/services/paginated_list.dart';
 import 'package:flutter_task/core/services/paginated_loader_ui.dart';
+import 'package:flutter_task/core/services/search_service.dart';
 import 'package:flutter_task/features/pasar/presentation/controllers/history_controller.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_task/features/signals/data/models/comment_model.dart';
@@ -19,10 +21,15 @@ import 'package:image_picker/image_picker.dart';
 
 class SignalsController extends GetxController with PaginatedLoaderUi {
   final SignalsService _service;
+  final ConnectivityService _connectivityService;
 
   static SignalsController get to => Get.find();
 
-  SignalsController({required SignalsService service}) : _service = service;
+  SignalsController({
+    required SignalsService service,
+    required ConnectivityService connectivityService,
+  })  : _service = service,
+        _connectivityService = connectivityService;
 
   final RxString _expandedId = ''.obs;
   bool isExpanded(String id) => _expandedId.value == id;
@@ -106,6 +113,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
 
   late final PaginatedList<SignalsModel> signalsList;
   late final PaginatedList<CommentModel> commentsList;
+  late final SearchService<SignalsModel> search;
   String? _activeCommentSignalId;
 
   List<SignalsModel> get signals => signalsList.items;
@@ -136,9 +144,39 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       fetchPage: _fetchCommentsPage,
       onError: (e) => ToastMessageHelper.show(e.errorMessage),
     );
+    search = SearchService(fetcher: _fetchSearch);
     signalsList.initScroll();
     loadData();
     loadPlatforms();
+  }
+
+  Future<List<SignalsModel>> _fetchSearch(String query) async {
+    final q = query.toLowerCase();
+    final fromCache = _service
+        .getCachedData()
+        .signals
+        .where((s) {
+          final symbol = (s.symbol ?? '').toLowerCase();
+          final title = (s.title ?? '').toLowerCase();
+          return symbol.contains(q) || title.contains(q);
+        })
+        .toList();
+    if (fromCache.isNotEmpty) return fromCache;
+
+    final isOnline = await _connectivityService.checkConnectivity();
+    if (!isOnline) return [];
+
+    await _service.fetchAllSignalsData(
+      search: query,
+      assetType: selectedAssetType.isEmpty ? null : selectedAssetType,
+      sortBy: 'newest',
+    );
+    return _service.getCachedData().signals;
+  }
+
+  void applySearchQuery(String query) {
+    searchController.text = query;
+    applyFilters();
   }
 
   Future<List<SignalsModel>> _fetchSignalsPage(int page, int limit) async {

@@ -5,6 +5,7 @@ import 'package:flutter_task/features/auth/presentation/controller/auth_controll
 import 'package:flutter_task/features/profile/data/repositories/profile_repository.dart';
 import 'package:flutter_task/features/profile/domain/services/profile_services.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:flutter_task/features/search/controller/search_history_controller.dart';
 import 'package:flutter_task/features/signals/presentation/controllers/video_controller.dart';
 import 'package:get/get.dart';
 import '../services/api_service.dart';
@@ -86,6 +87,13 @@ class DependencyInjection {
 
     Get.lazyPut<VideosController>(
           () => VideosController(),
+      fenix: true,
+    );
+
+    Get.lazyPut<SearchHistoryController>(
+      () => SearchHistoryController(
+        cacheService: Get.find<CacheService>(),
+      ),
       fenix: true,
     );
   }

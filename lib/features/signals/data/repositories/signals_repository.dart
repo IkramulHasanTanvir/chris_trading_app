@@ -164,7 +164,10 @@ class SignalsRepository {
 
   Future<List<PlatformModel>> getPlatforms() async {
     try {
-      final response = await _apiService.get(ApiConstants.platforms);
+      final response = await _apiService.get(
+        ApiConstants.platforms,
+        options: ApiService.withoutAuth,
+      );
       final list = response.data['data'] as List? ?? [];
       return list
           .map((e) => PlatformModel.fromJson(e as Map<String, dynamic>))
