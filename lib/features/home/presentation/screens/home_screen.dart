@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                   //expandedTitleScale: 2.0,
                   title: GestureDetector(
                     onTap: () {
-                      BottomNavBarController.to.onChange(4);
+                      BottomNavBarController.to.onChange(3);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Row(
