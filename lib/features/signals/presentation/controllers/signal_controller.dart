@@ -54,6 +54,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   final Rx<File?> _selectedImage = Rx<File?>(null);
   final RxString _selectedAssetType = ''.obs;
   final RxString _symbolQuery = ''.obs;
+  final Map<String, List<SignalsModel>> _categoryCache = {};
 
   final _platforms = <PlatformModel>[].obs;
 
@@ -225,11 +226,15 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
         final cached = _service.getCachedData();
         signalsList.items.assignAll(cached.signals);
         _loadingState.value = LoadingState.loaded;
+        _categoryCache[''] = List.from(cached.signals);
       } else {
         _loadingState.value = LoadingState.loading;
       }
       await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
+      if (_symbolQuery.isEmpty) {
+        _categoryCache[_selectedAssetType.value] = List.from(signalsList.items);
+      }
     } catch (e) {
       if (!_service.hasCache()) {
         _loadingState.value = LoadingState.error;
@@ -239,11 +244,31 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   }
 
   Future<void> applyFilters() async {
-    _symbolQuery.value = searchController.text.trim();
-    _loadingState.value = LoadingState.loading;
+    final query = searchController.text.trim();
+    _symbolQuery.value = query;
+    
+    final category = _selectedAssetType.value;
+    final isSearchActive = query.isNotEmpty;
+    
+    // Check if we have cached items specifically for this category and no search is active
+    final hasCategoryCache = !isSearchActive && _categoryCache.containsKey(category);
+    
+    if (hasCategoryCache) {
+      signalsList.items.assignAll(_categoryCache[category]!);
+      _loadingState.value = LoadingState.loaded;
+    } else {
+      signalsList.items.clear();
+      _loadingState.value = LoadingState.loading;
+    }
+    
     try {
       await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
+      
+      // Cache the result for this category
+      if (!isSearchActive) {
+        _categoryCache[category] = List.from(signalsList.items);
+      }
     } catch (e) {
       _loadingState.value = LoadingState.error;
       _errorMessage.value = e.errorMessage;
