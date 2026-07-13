@@ -286,16 +286,23 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   @override
   Future<void> refresh() => signalsList.refreshWith(loadData);
 
-  Future<void> getSignalDetails(String signalId) async {
+  Future<void> getSignalDetails(
+    String signalId, {
+    bool showLoader = true,
+  }) async {
     try {
-      _signalDetail.value = null;
       _errorMessage.value = '';
-      _detailsState.value = LoadingState.loading;
+      if (showLoader) {
+        _signalDetail.value = null;
+        _detailsState.value = LoadingState.loading;
+      }
       final data = await _service.getSignalDetails(signalId);
       _signalDetail.value = data;
       _detailsState.value = LoadingState.loaded;
     } catch (e) {
-      _detailsState.value = LoadingState.error;
+      if (showLoader || _signalDetail.value == null) {
+        _detailsState.value = LoadingState.error;
+      }
       _errorMessage.value = e.errorMessage;
       ToastMessageHelper.show(e.errorMessage);
     }

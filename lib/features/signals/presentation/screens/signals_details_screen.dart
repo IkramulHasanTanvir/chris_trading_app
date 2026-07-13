@@ -44,7 +44,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
         child:  RefreshIndicator(
           edgeOffset: 60.h,
             onRefresh: () async {
-              await controller.getSignalDetails(signalId);
+              await controller.getSignalDetails(signalId, showLoader: false);
               await controller.loadComments(signalId, refresh: true);
             },
             color: AppColors.primary,
