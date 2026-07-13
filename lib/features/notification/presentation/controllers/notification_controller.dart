@@ -5,8 +5,6 @@ import 'package:flutter_task/core/helpers/toast_message_helper.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/services/paginated_list.dart';
 import 'package:flutter_task/core/services/paginated_loader_ui.dart';
-import 'package:flutter_task/core/utils/app_colors.dart';
-import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/notification/data/models/notification_model.dart';
 import 'package:flutter_task/features/notification/domain/services/notification_services.dart';
 import 'package:get/get.dart';
@@ -90,44 +88,26 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
       if (_notificationCount.value > 0) {
         _notificationCount.value = _notificationCount.value - 1;
       }
-      try {
-        await _service.markNotificationRead(item.sId!);
-        final count = await _service.getUnreadCount();
-        _notificationCount.value = count;
-      } catch (e) {
-        item.isRead = false;
-        notificationList.items.refresh();
-        ToastMessageHelper.show(e.errorMessage);
-      }
+      _markAsReadInBackground(item);
     }
 
     final signalId = item.data?.signalId;
     if (signalId != null && signalId.isNotEmpty) {
       Get.toNamed(AppRoutes.signalsDetailsScreen, arguments: signalId);
-      return;
     }
+  }
 
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: AppColors.navBackground,
-        title: CustomText(
-          text: item.title ?? 'Notification',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-        content: CustomText(
-          text: item.message ?? '',
-          fontSize: 13,
-          color: AppColors.textSecondary,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const CustomText(text: 'Close', color: AppColors.primary),
-          ),
-        ],
-      ),
-    );
+  Future<void> _markAsReadInBackground(NotificationModel item) async {
+    try {
+      await _service.markNotificationRead(item.sId!);
+      final count = await _service.getUnreadCount();
+      _notificationCount.value = count;
+    } catch (e) {
+      item.isRead = false;
+      notificationList.items.refresh();
+      _notificationCount.value = _notificationCount.value + 1;
+      ToastMessageHelper.show(e.errorMessage);
+    }
   }
 
   Future<void> markAllAsRead() async {
