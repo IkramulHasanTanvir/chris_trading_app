@@ -26,6 +26,10 @@ class _WinsLossesPieChartState extends State<WinsLossesPieChart> {
 
   @override
   Widget build(BuildContext context) {
+    final wins = widget.winsPercent;
+    final losses = widget.lossesPercent;
+    final hasData = wins > 0 || losses > 0;
+
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
@@ -47,7 +51,17 @@ class _WinsLossesPieChartState extends State<WinsLossesPieChart> {
           SizedBox(height: 16.h),
           SizedBox(
             height: 180.h,
-            child: Row(
+            child: !hasData
+                ? Center(
+                    child: Text(
+                      'No trades yet',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13.sp,
+                      ),
+                    ),
+                  )
+                : Row(
               children: [
                 Expanded(
                   child: PieChart(
@@ -71,10 +85,10 @@ class _WinsLossesPieChartState extends State<WinsLossesPieChart> {
                       sectionsSpace: 3,
                       sections: [
                         PieChartSectionData(
-                          value: widget.winsPercent,
+                          value: wins <= 0 ? 0.001 : wins,
                           color: AppColors.winBlue,
                           radius: _touchedIndex == 0 ? 65.r : 56.r,
-                          title: '${widget.winsPercent.toInt()}%',
+                          title: '${wins.toInt()}%',
                           titleStyle: TextStyle(
                             fontSize: _touchedIndex == 0 ? 14.sp : 12.sp,
                             fontWeight: FontWeight.w600,
@@ -82,10 +96,10 @@ class _WinsLossesPieChartState extends State<WinsLossesPieChart> {
                           ),
                         ),
                         PieChartSectionData(
-                          value: widget.lossesPercent,
+                          value: losses <= 0 ? 0.001 : losses,
                           color: AppColors.lossRed,
                           radius: _touchedIndex == 1 ? 65.r : 56.r,
-                          title: '${widget.lossesPercent.toInt()}%',
+                          title: '${losses.toInt()}%',
                           titleStyle: TextStyle(
                             fontSize: _touchedIndex == 1 ? 14.sp : 12.sp,
                             fontWeight: FontWeight.w600,
@@ -104,13 +118,13 @@ class _WinsLossesPieChartState extends State<WinsLossesPieChart> {
                     _buildLegendItem(
                       color: AppColors.winBlue,
                       label: 'Wins',
-                      value: '${widget.winsPercent.toInt()}%',
+                      value: '${wins.toInt()}%',
                     ),
                     SizedBox(height: 12.h),
                     _buildLegendItem(
                       color: AppColors.lossRed,
                       label: 'Losses',
-                      value: '${widget.lossesPercent.toInt()}%',
+                      value: '${losses.toInt()}%',
                     ),
                   ],
                 ),
@@ -175,9 +189,12 @@ class _TradesByAssetBarChartState extends State<TradesByAssetBarChart> {
 
   @override
   Widget build(BuildContext context) {
-    final maxY = widget.tradesByAsset
+    final rawMax = widget.tradesByAsset
         .map((e) => (e.wins ?? 0) + (e.losses ?? 0))
         .fold<double>(0, (a, b) => a > b ? a : b.toDouble());
+    // fl_chart asserts horizontalInterval != 0; empty / zero data must not crash.
+    final maxY = rawMax <= 0 ? 4.0 : rawMax;
+    final interval = maxY / 4;
 
     return Container(
       padding: EdgeInsets.all(16.r),
@@ -207,151 +224,165 @@ class _TradesByAssetBarChartState extends State<TradesByAssetBarChart> {
             ],
           ),
           SizedBox(height: 12.h),
-          SizedBox(
-            height: 200.h,
-            child: BarChart(
-              BarChartData(
-                maxY: maxY * 1.3,
-                minY: -(maxY * 0.6),
-                barTouchData: BarTouchData(
-                  touchCallback: (event, response) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          response == null ||
-                          response.spot == null) {
-                        _touchedGroupIndex = -1;
-                        return;
-                      }
-                      _touchedGroupIndex =
-                          response.spot!.touchedBarGroupIndex;
-                    });
-                  },
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => const Color(0xFF1E2235),
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      final asset = widget.tradesByAsset[groupIndex];
-                      final label = rodIndex == 0 ? 'Wins' : 'Losses';
-                      final val = rodIndex == 0
-                          ? asset.wins ?? 0
-                          : asset.losses ?? 0;
-                      final usd = asset.profitLossUsd;
-                      final percent = asset.profitLossPercent;
-                      final pnlLine = [
-                        if (usd != null) 'USD: ${usd >= 0 ? '+' : ''}\$$usd',
-                        if (percent != null)
-                          '%: ${percent >= 0 ? '+' : ''}$percent%',
-                      ].join('  ');
-                      return BarTooltipItem(
-                        '${asset.symbol}\n$label: $val'
-                        '${pnlLine.isEmpty ? '' : '\n$pnlLine'}',
-                        TextStyle(
-                          color: AppColors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      );
-                    },
+          if (widget.tradesByAsset.isEmpty)
+            SizedBox(
+              height: 200.h,
+              child: Center(
+                child: Text(
+                  'No trades yet',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13.sp,
                   ),
                 ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: maxY / 4,
-                  getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.navBackground,
-                    strokeWidth: 0.8,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28.w,
-                      interval: maxY / 4,
-                      getTitlesWidget: (value, meta) {
-                        if (value == 0) return const SizedBox();
-                        return Text(
-                          value.abs().toInt().toString(),
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 9.sp,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 22.h,
-                      getTitlesWidget: (value, meta) {
-                        final idx = value.toInt();
-                        if (idx < 0 || idx >= widget.tradesByAsset.length) {
-                          return const SizedBox();
+              ),
+            )
+          else
+            SizedBox(
+              height: 200.h,
+              child: BarChart(
+                BarChartData(
+                  maxY: maxY * 1.3,
+                  minY: -(maxY * 0.6),
+                  barTouchData: BarTouchData(
+                    touchCallback: (event, response) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            response == null ||
+                            response.spot == null) {
+                          _touchedGroupIndex = -1;
+                          return;
                         }
-                        return Padding(
-                          padding: EdgeInsets.only(top: 4.h),
-                          child: Text(
-                            widget.tradesByAsset[idx].symbol ?? '',
-                            style: TextStyle(
-                              color: _touchedGroupIndex == idx
-                                  ? AppColors.white
-                                  : AppColors.textSecondary,
-                              fontSize: 9.sp,
-                              fontWeight: _touchedGroupIndex == idx
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                            ),
+                        _touchedGroupIndex =
+                            response.spot!.touchedBarGroupIndex;
+                      });
+                    },
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => const Color(0xFF1E2235),
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final asset = widget.tradesByAsset[groupIndex];
+                        final label = rodIndex == 0 ? 'Wins' : 'Losses';
+                        final val = rodIndex == 0
+                            ? asset.wins ?? 0
+                            : asset.losses ?? 0;
+                        final usd = asset.profitLossUsd;
+                        final percent = asset.profitLossPercent;
+                        final pnlLine = [
+                          if (usd != null) 'USD: ${usd >= 0 ? '+' : ''}\$$usd',
+                          if (percent != null)
+                            '%: ${percent >= 0 ? '+' : ''}$percent%',
+                        ].join('  ');
+                        return BarTooltipItem(
+                          '${asset.symbol}\n$label: $val'
+                          '${pnlLine.isEmpty ? '' : '\n$pnlLine'}',
+                          TextStyle(
+                            color: AppColors.white,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w500,
                           ),
                         );
                       },
                     ),
                   ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: interval,
+                    getDrawingHorizontalLine: (_) => FlLine(
+                      color: AppColors.navBackground,
+                      strokeWidth: 0.8,
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 28.w,
+                        interval: interval,
+                        getTitlesWidget: (value, meta) {
+                          if (value == 0) return const SizedBox();
+                          return Text(
+                            value.abs().toInt().toString(),
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 9.sp,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 22.h,
+                        getTitlesWidget: (value, meta) {
+                          final idx = value.toInt();
+                          if (idx < 0 || idx >= widget.tradesByAsset.length) {
+                            return const SizedBox();
+                          }
+                          return Padding(
+                            padding: EdgeInsets.only(top: 4.h),
+                            child: Text(
+                              widget.tradesByAsset[idx].symbol ?? '',
+                              style: TextStyle(
+                                color: _touchedGroupIndex == idx
+                                    ? AppColors.white
+                                    : AppColors.textSecondary,
+                                fontSize: 9.sp,
+                                fontWeight: _touchedGroupIndex == idx
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  barGroups: List.generate(widget.tradesByAsset.length, (i) {
+                    final asset = widget.tradesByAsset[i];
+                    final isTouched = _touchedGroupIndex == i;
+                    return BarChartGroupData(
+                      x: i,
+                      groupVertically: false,
+                      barRods: [
+                        // Wins bar (positive)
+                        BarChartRodData(
+                          toY: (asset.wins ?? 0).toDouble(),
+                          fromY: 0,
+                          color: isTouched
+                              ? AppColors.barGreen.withOpacity(1)
+                              : AppColors.barGreen.withOpacity(0.85),
+                          width: 5.w,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(3.r),
+                          ),
+                        ),
+                        // Losses bar (negative, going down)
+                        BarChartRodData(
+                          toY: -((asset.losses ?? 0).toDouble()),
+                          fromY: 0,
+                          color: isTouched
+                              ? AppColors.barRed.withOpacity(1)
+                              : AppColors.barRed.withOpacity(0.85),
+                          width: 5.w,
+                          borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(3.r),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
-                barGroups: List.generate(widget.tradesByAsset.length, (i) {
-                  final asset = widget.tradesByAsset[i];
-                  final isTouched = _touchedGroupIndex == i;
-                  return BarChartGroupData(
-                    x: i,
-                    groupVertically: false,
-                    barRods: [
-                      // Wins bar (positive)
-                      BarChartRodData(
-                        toY: (asset.wins ?? 0).toDouble(),
-                        fromY: 0,
-                        color: isTouched
-                            ? AppColors.barGreen.withOpacity(1)
-                            : AppColors.barGreen.withOpacity(0.85),
-                        width: 5.w,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(3.r),
-                        ),
-                      ),
-                      // Losses bar (negative, going down)
-                      BarChartRodData(
-                        toY: -((asset.losses ?? 0).toDouble()),
-                        fromY: 0,
-                        color: isTouched
-                            ? AppColors.barRed.withOpacity(1)
-                            : AppColors.barRed.withOpacity(0.85),
-                        width: 5.w,
-                        borderRadius: BorderRadius.vertical(
-                          bottom: Radius.circular(3.r),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
               ),
             ),
-          ),
         ],
       ),
     );
