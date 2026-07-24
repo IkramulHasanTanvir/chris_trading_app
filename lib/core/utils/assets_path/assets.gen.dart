@@ -18,6 +18,9 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/academy.svg
+  SvgGenImage get academy => const SvgGenImage('assets/icons/academy.svg');
+
   /// File path: assets/icons/about.svg
   SvgGenImage get about => const SvgGenImage('assets/icons/about.svg');
 
@@ -78,6 +81,7 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<SvgGenImage> get values => [
+    academy,
     about,
     add,
     appLogo,

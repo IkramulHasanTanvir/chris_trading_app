@@ -54,15 +54,15 @@ class LogUpdateScreen extends StatelessWidget {
                           Expanded(
                             child: CustomTextField(
                               controller: controller.entryController,
-                              hintText: 'Entry Price',
+                              hintText: 'Entry',
                               keyboardType: TextInputType.number,
                             ),
                           ),
                           10.horizontalSpace,
                           Expanded(
                             child: CustomTextField(
-                              controller: controller.exitController,
-                              hintText: 'Exit Price',
+                              controller: controller.stopController,
+                              hintText: 'Stop',
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -73,20 +73,26 @@ class LogUpdateScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: CustomTextField(
-                              controller: controller.lotController,
-                              hintText: 'Lot Size',
+                              controller: controller.exitController,
+                              hintText: 'Target',
                               keyboardType: TextInputType.number,
                             ),
                           ),
                           10.horizontalSpace,
                           Expanded(
                             child: CustomTextField(
-                              controller: controller.pnlController,
-                              hintText: 'Result PnL',
+                              controller: controller.lotController,
+                              hintText: 'Lot Size',
                               keyboardType: TextInputType.number,
                             ),
                           ),
                         ],
+                      ),
+                      16.verticalSpace,
+                      CustomTextField(
+                        controller: controller.pnlController,
+                        hintText: 'Result PnL',
+                        keyboardType: TextInputType.number,
                       ),
                       12.verticalSpace,
                       CustomText(

@@ -129,6 +129,33 @@ class SignalsRepository {
     }
   }
 
+  Future<Map<String, dynamic>> toggleLike(String signalId) async {
+    try {
+      final response = await _apiService.post(ApiConstants.likeSignal(signalId));
+      final data = response.data['data'];
+      if (data is Map<String, dynamic>) return data;
+      return <String, dynamic>{};
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> toggleBookmark(String signalId) async {
+    try {
+      final response =
+          await _apiService.post(ApiConstants.bookmarkSignal(signalId));
+      final data = response.data['data'];
+      if (data is Map<String, dynamic>) return data;
+      return <String, dynamic>{};
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> logTradingSignal(LogTradingSignalModel data) async {
     try {
       await _apiService.post(ApiConstants.logSignals, data: data.toJson());

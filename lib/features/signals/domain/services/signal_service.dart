@@ -120,6 +120,26 @@ class SignalsService {
     }
   }
 
+  Future<Map<String, dynamic>> toggleLike(String signalId) async {
+    try {
+      return await _repository.toggleLike(signalId);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> toggleBookmark(String signalId) async {
+    try {
+      return await _repository.toggleBookmark(signalId);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> logTradingSignal(LogTradingSignalModel data) async {
     try {
       await _repository.logTradingSignal(data);

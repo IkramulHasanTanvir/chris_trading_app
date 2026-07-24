@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/helpers/pnl_format_helper.dart';
-import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/pasar/data/models/trade_history_model.dart';
@@ -63,29 +62,22 @@ class SignalDetailsCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// 🔥 TOP / IMAGE SWITCH
-              AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
-                crossFadeState: isExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-
-                /// 👉 Compact UI
-                firstChild: _topContent(),
-
-                /// 👉 Expanded UI (image)
-                secondChild: _expandedImage(),
-              ),
+              /// Trade name always at the top
+              _topContent(),
 
               SizedBox(height: 14.h),
 
-              /// 👇 Only show when NOT expanded
-            //  if (!isExpanded) ...[
-                _priceSection(),
-                SizedBox(height: 12.h),
-                _extraInfo(),
+              /// Optional screenshot when expanded
+              if (isExpanded &&
+                  (item.screenshotUrl ?? '').trim().isNotEmpty) ...[
+                _expandedImage(),
                 SizedBox(height: 14.h),
-             // ],
+              ],
+
+              _priceSection(),
+              SizedBox(height: 12.h),
+              _extraInfo(),
+              SizedBox(height: 14.h),
 
               /// Footer always visible
               _footer(),
@@ -156,14 +148,29 @@ class SignalDetailsCard extends StatelessWidget {
     );
   }
 
-  /// 🔹 PRICE SECTION
+  /// 🔹 PRICE SECTION — always Entry | Stop | Target
   Widget _priceSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _infoColumn("Entry", item.entryPrice?.toString() ?? '--'),
-        _infoColumn("Exit", item.exitPrice?.toString() ?? '--'),
-        _infoColumn("Lot", item.lotSize?.toString() ?? '--'),
+        _infoColumn(
+          "Entry",
+          item.entryPrice?.toString() ??
+              item.signalId?.entryPrice?.toString() ??
+              '--',
+        ),
+        _infoColumn(
+          "Stop",
+          item.stopLoss?.toString() ??
+              item.signalId?.stopLoss?.toString() ??
+              '--',
+        ),
+        _infoColumn(
+          "Target",
+          item.exitPrice?.toString() ??
+              item.signalId?.takeProfit1?.toString() ??
+              '--',
+        ),
       ],
     );
   }
@@ -173,8 +180,7 @@ class SignalDetailsCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _infoColumn(
-            "Signal Entry", item.signalId?.entryPrice?.toString() ?? '--'),
+        _infoColumn("Lot", item.lotSize?.toString() ?? '--'),
         _infoColumn("Asset", item.signalId?.assetType ?? '--'),
         _infoColumn("Platform", item.externalPlatform ?? '--'),
       ],

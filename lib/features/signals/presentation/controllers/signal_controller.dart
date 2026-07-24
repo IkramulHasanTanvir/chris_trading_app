@@ -32,14 +32,36 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
         _connectivityService = connectivityService;
 
   final RxString _expandedId = ''.obs;
+  final _trackedIds = <String>{}.obs;
+
   bool isExpanded(String id) => _expandedId.value == id;
+
+  bool isSignalTracked(String id) {
+    if (id.isEmpty) return false;
+    // Touch RxSet so Obx rebuilds when track state changes
+    final locallyTracked = _trackedIds.contains(id);
+    if (locallyTracked) return true;
+    final match = signalsList.items.firstWhereOrNull((e) => e.sId == id);
+    return match?.isCopied == true;
+  }
 
   void toggleExpanded(String id) {
     _expandedId.value = _expandedId.value == id ? '' : id;
   }
 
+  void _syncTrackedIds([List<SignalsModel>? list]) {
+    final source = list ?? signalsList.items;
+    for (final signal in source) {
+      final id = signal.sId;
+      if (id != null && id.isNotEmpty && signal.isCopied == true) {
+        _trackedIds.add(id);
+      }
+    }
+  }
+
   final entryController = TextEditingController();
-  final exitController = TextEditingController();
+  final stopController = TextEditingController();
+  final exitController = TextEditingController(); // Target in UI
   final lotController = TextEditingController();
   final pnlController = TextEditingController();
   final notesController = TextEditingController();
@@ -225,6 +247,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       if (hasCache && selectedAssetType.isEmpty && _symbolQuery.isEmpty) {
         final cached = _service.getCachedData();
         signalsList.items.assignAll(cached.signals);
+        _syncTrackedIds(cached.signals);
         _loadingState.value = LoadingState.loaded;
         _categoryCache[''] = List.from(cached.signals);
       } else {
@@ -232,6 +255,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       }
       await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
+      _syncTrackedIds();
       if (_symbolQuery.isEmpty) {
         _categoryCache[_selectedAssetType.value] = List.from(signalsList.items);
       }
@@ -255,6 +279,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     
     if (hasCategoryCache) {
       signalsList.items.assignAll(_categoryCache[category]!);
+      _syncTrackedIds();
       _loadingState.value = LoadingState.loaded;
     } else {
       signalsList.items.clear();
@@ -264,6 +289,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     try {
       await signalsList.loadFirst();
       _loadingState.value = LoadingState.loaded;
+      _syncTrackedIds();
       
       // Cache the result for this category
       if (!isSearchActive) {
@@ -323,6 +349,9 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       }
       final data = await _service.getSignalDetails(signalId);
       _signalDetail.value = data;
+      if (data.isCopied == true && (data.sId ?? '').isNotEmpty) {
+        _trackedIds.add(data.sId!);
+      }
       _detailsState.value = LoadingState.loaded;
     } catch (e) {
       if (showLoader || _signalDetail.value == null) {
@@ -381,12 +410,22 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
   }
 
   void _markSignalCopied(String signalId) {
+    if (signalId.isNotEmpty) {
+      _trackedIds.add(signalId);
+    }
     final index = signalsList.items.indexWhere((e) => e.sId == signalId);
     if (index != -1) {
       final item = signalsList.items[index];
       item.isCopied = true;
       signalsList.items[index] = item;
       signalsList.items.refresh();
+    }
+    for (final entry in _categoryCache.entries) {
+      final list = entry.value;
+      final i = list.indexWhere((e) => e.sId == signalId);
+      if (i != -1) {
+        list[i].isCopied = true;
+      }
     }
     if (_signalDetail.value?.sId == signalId) {
       _signalDetail.value?.isCopied = true;
@@ -404,10 +443,90 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       if (Get.isRegistered<HistoryController>()) {
         await HistoryController.to.retry();
       }
-      ToastMessageHelper.show('Signal copied successfully');
+      ToastMessageHelper.show('Signal tracked successfully');
     } catch (e) {
       _copyState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
+  void focusCommentReply({String? username}) {
+    if (username != null && username.trim().isNotEmpty) {
+      final mention = '@${username.trim()} ';
+      if (!commentController.text.startsWith(mention)) {
+        commentController.text = mention;
+        commentController.selection = TextSelection.fromPosition(
+          TextPosition(offset: commentController.text.length),
+        );
+      }
+    }
+  }
+
+  Future<void> toggleLike(String signalId) async {
+    if (signalId.isEmpty || _signalDetail.value == null) return;
+    final detail = _signalDetail.value!;
+    final wasLiked = detail.isLiked ?? false;
+    final prevCount = detail.likeCount ?? 0;
+
+    detail.isLiked = !wasLiked;
+    detail.likeCount = (prevCount + (wasLiked ? -1 : 1)).clamp(0, 1 << 30);
+    _signalDetail.refresh();
+
+    try {
+      final data = await _service.toggleLike(signalId);
+      if (data.containsKey('isLiked')) {
+        detail.isLiked = data['isLiked'] == true;
+      }
+      if (data['likeCount'] is num) {
+        detail.likeCount = (data['likeCount'] as num).toInt();
+      }
+      _signalDetail.refresh();
+    } catch (e) {
+      // Keep optimistic UI if backend endpoint is not ready yet.
+      final msg = e.errorMessage.toLowerCase();
+      final endpointMissing = msg.contains('404') ||
+          msg.contains('not found') ||
+          msg.contains('cannot post');
+      if (!endpointMissing) {
+        detail.isLiked = wasLiked;
+        detail.likeCount = prevCount;
+        _signalDetail.refresh();
+        ToastMessageHelper.show(e.errorMessage);
+      }
+    }
+  }
+
+  Future<void> toggleBookmark(String signalId) async {
+    if (signalId.isEmpty || _signalDetail.value == null) return;
+    final detail = _signalDetail.value!;
+    final wasSaved = detail.isBookmarked ?? false;
+    final prevCount = detail.bookmarkCount ?? 0;
+
+    detail.isBookmarked = !wasSaved;
+    detail.bookmarkCount =
+        (prevCount + (wasSaved ? -1 : 1)).clamp(0, 1 << 30);
+    _signalDetail.refresh();
+
+    try {
+      final data = await _service.toggleBookmark(signalId);
+      if (data.containsKey('isBookmarked')) {
+        detail.isBookmarked = data['isBookmarked'] == true;
+      }
+      if (data['bookmarkCount'] is num) {
+        detail.bookmarkCount = (data['bookmarkCount'] as num).toInt();
+      }
+      _signalDetail.refresh();
+    } catch (e) {
+      final msg = e.errorMessage.toLowerCase();
+      final endpointMissing = msg.contains('404') ||
+          msg.contains('not found') ||
+          msg.contains('cannot post');
+      if (!endpointMissing) {
+        detail.isBookmarked = wasSaved;
+        detail.bookmarkCount = prevCount;
+        _signalDetail.refresh();
+        ToastMessageHelper.show(e.errorMessage);
+      }
     }
   }
 
@@ -432,6 +551,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
       await _service.logTradingSignal(
         LogTradingSignalModel(
           entryPrice: double.tryParse(entryController.text) ?? 0,
+          stopLoss: double.tryParse(stopController.text) ?? 0,
           exitPrice: double.tryParse(exitController.text) ?? 0,
           lotSize: double.tryParse(lotController.text) ?? 0,
           outcome: outcome,
@@ -448,6 +568,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
         await HistoryController.to.retry();
       }
       entryController.clear();
+      stopController.clear();
       exitController.clear();
       lotController.clear();
       pnlController.clear();
@@ -486,6 +607,7 @@ class SignalsController extends GetxController with PaginatedLoaderUi {
     signalsList.dispose();
     commentsList.dispose();
     entryController.dispose();
+    stopController.dispose();
     exitController.dispose();
     lotController.dispose();
     pnlController.dispose();

@@ -11,9 +11,9 @@ class TakeProfitSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tps = [
-      ('TP 1', signal?.takeProfit1),
-      ('TP 2', signal?.takeProfit2),
-      ('TP 3', signal?.takeProfit3),
+      ('Target 1', signal?.takeProfit1),
+      ('Target 2', signal?.takeProfit2),
+      ('Target 3', signal?.takeProfit3),
     ].where((e) => e.$2 != null).toList();
 
     if (tps.isEmpty) return const SizedBox.shrink();
@@ -28,7 +28,7 @@ class TakeProfitSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomText(
-            text: 'Take Profit Levels',
+            text: 'Targets',
             fontSize: 13.sp,
             fontWeight: FontWeight.w700,
             color: AppColors.textSecondary,

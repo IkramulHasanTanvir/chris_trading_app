@@ -31,6 +31,9 @@ class SignalCard extends StatelessWidget {
       },
       child: Obx(() {
         final isExpanded = controller.isExpanded(item.sId ?? '');
+        // isCopied == true => Tracked + disabled
+        final isTracked =
+            item.isCopied == true || controller.isSignalTracked(item.sId ?? '');
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -44,81 +47,98 @@ class SignalCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// 🔥 TOP / IMAGE SWITCH
-              AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
-                sizeCurve: Curves.easeInOut,
-                crossFadeState: isExpanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                firstChild: _topRow(item, isSell),
-                secondChild: _chartImage(item),
+              /// Trade name always stays on top
+              Padding(
+                padding: EdgeInsets.all(isExpanded ? 14.r : 0),
+                child: _topRow(item, isSell),
               ),
 
               SizedBox(height: 12.h),
 
-              /// 🔥 ENTRY / EXIT / SL
+              /// Optional chart image when expanded
+              if (isExpanded) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w),
+                  child: _chartImage(item),
+                ),
+                SizedBox(height: 12.h),
+              ],
+
+              /// ENTRY / STOP / TARGET
               if (!isExpanded)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _infoItem("Entry", item.entryPrice),
-                    _infoItem("Exit", item.takeProfit1),
-                    _infoItem("Stop loss", item.stopLoss),
+                    _infoItem("Stop", item.stopLoss),
+                    _infoItem("Target", item.takeProfit1),
                   ],
                 ),
 
               SizedBox(height: 14.h),
 
-              /// 🔥 BUTTONS
-              Row(
-                children: [
-                  Expanded(
-                    child: Opacity(
-                      opacity: (item.isCopied == true) ? 0.45 : 1,
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isExpanded ? 14.w : 0,
+                ).copyWith(bottom: isExpanded ? 14.h : 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Opacity(
+                        opacity: isTracked ? 0.45 : 1,
+                        child: IgnorePointer(
+                          ignoring: isTracked,
+                          child: CustomButton(
+                            fontSize: 14.sp,
+                            height: 36.h,
+                            backgroundColor: isTracked
+                                ? AppColors.textSecondary
+                                : AppColors.primaryBTN,
+                            onPressed: isTracked
+                                ? null
+                                : () {
+                                    _showCopyDialog(context, controller);
+                                  },
+                            label: isTracked ? 'Tracked' : 'Tracking',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
                       child: CustomButton(
                         fontSize: 14.sp,
                         height: 36.h,
-                        backgroundColor: item.isCopied == true
-                            ? AppColors.textSecondary
-                            : AppColors.primaryBTN,
-                        onPressed: item.isCopied == true
-                            ? () {}
-                            : () {
-                                _showCopyDialog(context, controller);
-                              },
-                        label: item.isCopied == true ? 'Copied' : 'Copy Trade',
+                        onPressed: () {
+                          Get.toNamed(
+                            AppRoutes.logUpdateScreen,
+                            arguments: item.sId,
+                          );
+                        },
+                        label: 'Log Trade',
                       ),
                     ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: CustomButton(
-                      fontSize: 14.sp,
-                      height: 36.h,
-                      onPressed: () {
+                    SizedBox(width: 10.w),
+                    GestureDetector(
+                      onTap: () {
                         Get.toNamed(
-                          AppRoutes.logUpdateScreen,
+                          AppRoutes.signalsDetailsScreen,
                           arguments: item.sId,
                         );
                       },
-                      label: 'Log Trade',
+                      child: CustomContainer(
+                        radiusAll: 4.r,
+                        color: AppColors.primaryBTN,
+                        paddingAll: 8.r,
+                        child: Icon(
+                          Icons.info_outline,
+                          color: AppColors.white,
+                          size: 22.r,
+                        ),
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 10.w),
-
-                  GestureDetector(onTap: (){
-                    Get.toNamed(
-                      AppRoutes.signalsDetailsScreen,
-                      arguments: item.sId,
-                    );
-                  }, child: CustomContainer(
-                    radiusAll: 4.r,
-                    color: AppColors.primaryBTN,
-                    paddingAll: 8.r,
-                      child: Icon(Icons.info_outline,color: AppColors.white,size: 22.r,)))
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -127,7 +147,6 @@ class SignalCard extends StatelessWidget {
     );
   }
 
-  /// 🔹 Dialog
   void _showCopyDialog(BuildContext context, SignalsController controller) {
     showDialog(
       context: context,
@@ -135,12 +154,12 @@ class SignalCard extends StatelessWidget {
         return AlertDialog(
           backgroundColor: AppColors.navBackground,
           title: CustomText(
-            text: 'Copy Trading Signal',
+            text: 'Track Trading Signal',
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
           content: CustomText(
-            text: 'Are you sure you want to copy this signal?',
+            text: 'Are you sure you want to track this signal?',
             fontSize: 12.sp,
             color: AppColors.textSecondary,
           ),
@@ -154,7 +173,7 @@ class SignalCard extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                if (item.isCopied == true) {
+                if (controller.isSignalTracked(item.sId ?? '')) {
                   Get.back();
                   return;
                 }
@@ -162,7 +181,9 @@ class SignalCard extends StatelessWidget {
                 Get.back();
               },
               child: CustomText(
-                text: item.isCopied == true ? 'Already Copied' : 'Copy Trade',
+                text: controller.isSignalTracked(item.sId ?? '')
+                    ? 'Already Tracked'
+                    : 'Tracking',
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
               ),
@@ -173,7 +194,6 @@ class SignalCard extends StatelessWidget {
     );
   }
 
-  /// 🔹 Top Row
   Widget _topRow(SignalsModel item, bool isSell) {
     return Row(
       children: [
@@ -184,13 +204,12 @@ class SignalCard extends StatelessWidget {
           imageUrl: item.authorId?.userProfileUrl ?? '',
         ),
         SizedBox(width: 8.w),
-
         Expanded(
           child: Row(
             children: [
               Flexible(
                 child: CustomText(
-                  text: item.symbol ?? '',
+                  text: item.symbol ?? item.title ?? '',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                   maxline: 1,
@@ -198,7 +217,6 @@ class SignalCard extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 6.w),
-
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 8.w,
@@ -217,9 +235,7 @@ class SignalCard extends StatelessWidget {
             ],
           ),
         ),
-
         SizedBox(width: 6.w),
-
         CustomContainer(
           paddingVertical: 1.h,
           paddingHorizontal: 6.w,
@@ -242,7 +258,6 @@ class SignalCard extends StatelessWidget {
     return TimeFormatHelper.timeFormat(parsed);
   }
 
-  /// 🔹 Chart Image
   Widget _chartImage(SignalsModel item) {
     final chartUrl = item.externalChartUrl;
     final canShowImage = ImageUrlHelper.isLoadableImageUrl(chartUrl);
@@ -255,49 +270,27 @@ class SignalCard extends StatelessWidget {
           exit: item.takeProfit1,
           stopLoss: item.stopLoss,
         ),
-        SizedBox(height: 12.h),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4.r),
-          child: canShowImage
-              ? CustomNetworkImage(
-                  width: double.infinity,
-                  height: 140.h,
-                  fit: BoxFit.cover,
-                  imageUrl: chartUrl,
-                  fallbackAsset: Icon(
-                    Icons.show_chart_rounded,
-                    size: 48.r,
-                    color: AppColors.textSecondary,
-                  ),
-                )
-              : Container(
-                  width: double.infinity,
-                  height: 140.h,
-                  color: AppColors.navBackground,
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.show_chart_rounded,
-                        size: 40.r,
-                        color: AppColors.textSecondary,
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomText(
-                        text: 'Chart preview unavailable',
-                        fontSize: 12.sp,
-                        color: AppColors.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
-        ),
+        if (canShowImage) ...[
+          SizedBox(height: 12.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.r),
+            child: CustomNetworkImage(
+              width: double.infinity,
+              height: 140.h,
+              fit: BoxFit.cover,
+              imageUrl: chartUrl,
+              fallbackAsset: Icon(
+                Icons.show_chart_rounded,
+                size: 48.r,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  /// 🔹 Info Item
   Widget _infoItem(String title, double? value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

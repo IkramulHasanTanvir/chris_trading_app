@@ -27,7 +27,7 @@ class PasarScreen extends StatelessWidget {
                   scrolledUnderElevation: 0,
                   backgroundColor: AppColors.background,
                   title: CustomText(
-                    text: 'Trade History',
+                    text: 'Tracking',
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -44,8 +44,8 @@ class PasarScreen extends StatelessWidget {
                         unselectedLabelColor: AppColors.white,
                         dividerColor: AppColors.textSecondary,
                         tabs: const [
-                          Tab(text: 'Copy Trade'),
-                          Tab(text: 'Log Trade'),
+                          Tab(text: 'Tracking'),
+                          Tab(text: 'Log Trades'),
                         ],
                       ),
                     ),

@@ -23,6 +23,8 @@ class SignalsModel {
   bool? isFeatured;
   bool? isPremium;
   bool? isCopied;
+  bool? isLiked;
+  bool? isBookmarked;
 
   double? resultPnl;
   String? pnlUnit;
@@ -82,7 +84,9 @@ class SignalsModel {
 
     isFeatured = json['isFeatured'] ?? false;
     isPremium = json['isPremium'] ?? false;
-    isCopied = json['isCopied'] ?? false;
+    isCopied = _parseBool(json['isCopied']);
+    isLiked = _parseBool(json['isLiked']);
+    isBookmarked = _parseBool(json['isBookmarked']);
 
     resultPnl = (json['resultPnl'] as num?)?.toDouble();
     pnlUnit = json['pnlUnit'] ?? 'usd';
@@ -135,6 +139,8 @@ class SignalsModel {
       'isFeatured': isFeatured,
       'isPremium': isPremium,
       'isCopied': isCopied,
+      'isLiked': isLiked,
+      'isBookmarked': isBookmarked,
       'resultPnl': resultPnl,
       'pnlUnit': pnlUnit,
       'closedAt': closedAt,
@@ -153,6 +159,16 @@ class SignalsModel {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
+  }
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final v = value.trim().toLowerCase();
+      return v == 'true' || v == '1' || v == 'yes';
+    }
+    return false;
   }
 }
 class AuthorId {

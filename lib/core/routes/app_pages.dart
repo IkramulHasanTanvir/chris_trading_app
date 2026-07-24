@@ -2,6 +2,9 @@ import 'package:flutter_task/core/routes/app_routes.dart';
 import 'package:flutter_task/core/services/api_service.dart';
 import 'package:flutter_task/core/services/cache_service.dart';
 import 'package:flutter_task/core/services/connectivity_service.dart';
+import 'package:flutter_task/features/academy/data/repositories/academy_repository.dart';
+import 'package:flutter_task/features/academy/domain/services/academy_service.dart';
+import 'package:flutter_task/features/academy/presentation/controllers/academy_controller.dart';
 import 'package:flutter_task/features/auth/presentation/pages/forget/forget_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/login/log_in_screen.dart';
 import 'package:flutter_task/features/auth/presentation/pages/otp/otp_screen.dart';
@@ -254,6 +257,18 @@ class BottomNavBinding extends Bindings {
       fenix: true,
     );
 
+    Get.lazyPut<AcademyRepository>(
+      () => AcademyRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<AcademyService>(
+      () => AcademyService(repository: Get.find<AcademyRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<AcademyController>(
+      () => AcademyController(service: Get.find<AcademyService>()),
+      fenix: true,
+    );
   }
 }
 

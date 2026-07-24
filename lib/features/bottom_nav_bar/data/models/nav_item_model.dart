@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_task/core/utils/assets_path/assets.gen.dart';
+import 'package:flutter_task/features/academy/presentation/screens/academy_screen.dart';
 import 'package:flutter_task/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_task/features/pasar/presentation/screens/pasar_screen.dart';
 import 'package:flutter_task/features/profile/presentation/screens/profile_screen.dart';
-import 'package:flutter_task/features/top_up/presentation/screens/top_op_screen.dart';
 import 'package:flutter_task/features/signals/presentation/screens/signals_screen.dart';
 
 class NavItemModel {
@@ -14,14 +14,10 @@ class NavItemModel {
 
   const NavItemModel({
     required this.icon,
-     this.activeIcon,
-     this.label,
+    this.activeIcon,
+    this.label,
     required this.screen,
   });
-
-
-
-
 
   static List<NavItemModel> get userNavItems => [
     NavItemModel(
@@ -29,18 +25,21 @@ class NavItemModel {
       label: 'Home',
       screen: const HomeScreen(),
     ),
-
     NavItemModel(
       icon: Assets.icons.fire.path,
-      label: 'Trending',
+      label: 'Signals',
       screen: const SignalsScreen(),
     ),
     NavItemModel(
       icon: Assets.icons.line.path,
-      label: 'Academy',
+      label: 'Tracking',
       screen: const PasarScreen(),
     ),
-
+    NavItemModel(
+      icon: Assets.icons.academy.path,
+      label: 'Academy',
+      screen: const AcademyScreen(),
+    ),
     NavItemModel(
       icon: Assets.icons.profile.path,
       label: 'Profile',

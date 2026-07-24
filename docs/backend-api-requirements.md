@@ -3,6 +3,10 @@
 **Base URL:** `/api/v1`  
 **Auth:** All authenticated endpoints require Bearer token.
 
+> **Latest handoff (Jul 2026 screenshots changes):**  
+> See **[`BACKEND_TODO.md`](./BACKEND_TODO.md)** for Academy + Like/Save + Tracking nested fields.  
+> That file is what backend should implement next.
+
 These API changes / new endpoints are required for the mobile app based on client feedback.
 
 ---
@@ -371,3 +375,79 @@ or
 | Sort most recent trades | Default newest-first sort |
 | Select symbol type to search | Add `assetType` / `symbol` / `search` filters |
 | PnL dollars or percent | Confirm unit + optional `pnlUnit` |
+
+---
+
+## 8) Signal Like / Bookmark / Reply
+
+### Client need
+Users need clear Like and Saved actions, plus reply on comments.
+
+### 8.1 New endpoints
+
+`POST /api/v1/signals/:id/like` — toggle like for current user  
+`POST /api/v1/signals/:id/bookmark` — toggle bookmark/saved for current user
+
+**Response suggestion:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "isLiked": true,
+    "likeCount": 12,
+    "isBookmarked": false,
+    "bookmarkCount": 3
+  }
+}
+```
+
+### 8.2 Existing — UPDATE signal detail/list
+
+Add for the logged-in user:
+
+```json
+{
+  "isLiked": false,
+  "isBookmarked": false
+}
+```
+
+---
+
+## 9) Academy — YouTube videos by category
+
+### Client need
+Academy tab shows educational YouTube videos by category. Admins load videos in the admin portal.
+
+### 9.1 New endpoints
+
+`GET /api/v1/academy/categories`
+
+```json
+{
+  "success": true,
+  "data": [
+    { "_id": "...", "name": "Forex" }
+  ]
+}
+```
+
+`GET /api/v1/academy/videos?categoryId=`
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "...",
+      "title": "Forex Basics",
+      "description": "...",
+      "youtubeUrl": "https://www.youtube.com/watch?v=...",
+      "thumbnailUrl": null,
+      "categoryId": "...",
+      "categoryName": "Forex"
+    }
+  ]
+}
+```

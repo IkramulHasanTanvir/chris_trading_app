@@ -25,16 +25,16 @@ class UpDownCard extends StatelessWidget {
         "color": Colors.blue,
       },
       {
-        "title": "Exit",
-        "value": exit?.toString() ?? "--",
-        "icon": Icons.logout,
-        "color": Colors.green,
-      },
-      {
         "title": "Stop",
         "value": stopLoss?.toString() ?? "--",
         "icon": Icons.warning_amber_rounded,
         "color": Colors.red,
+      },
+      {
+        "title": "Target",
+        "value": exit?.toString() ?? "--",
+        "icon": Icons.flag_outlined,
+        "color": Colors.green,
       },
     ];
 

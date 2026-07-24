@@ -73,6 +73,20 @@ class ApiConstants {
   static String signalDetails(String signalId) => '/api/v1/signals/$signalId';
   static const String logSignals = '/api/v1/copied-trades/log';
 
+  static String likeSignal(String signalId) =>
+      '/api/v1/signals/$signalId/like';
+  static String bookmarkSignal(String signalId) =>
+      '/api/v1/signals/$signalId/bookmark';
+
+  /// Academy (educational YouTube videos by category)
+  static const String academyCategories = '/api/v1/academy/categories';
+  static String academyVideos({String? categoryId}) {
+    if (categoryId == null || categoryId.isEmpty) {
+      return '/api/v1/academy/videos';
+    }
+    return '/api/v1/academy/videos?categoryId=$categoryId';
+  }
+
 
   // profile
   static const String profile = '/api/v1/auth/me';

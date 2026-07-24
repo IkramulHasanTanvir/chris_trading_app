@@ -25,12 +25,26 @@ class SignalsDetailsScreen extends StatefulWidget {
 }
 
 class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
+  final _commentsKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     final String signalId = Get.arguments;
     SignalsController.to.getSignalDetails(signalId);
     SignalsController.to.loadComments(signalId);
+  }
+
+  void _scrollToComments() {
+    final ctx = _commentsKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+    }
+    SignalsController.to.focusCommentReply();
   }
 
   @override
@@ -161,7 +175,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                                 children: [
                                   Expanded(
                                     child: PriceCard(
-                                      label: 'Entry Price',
+                                      label: 'Entry',
                                       value: signal?.entryPrice,
                                       color: AppColors.primary,
                                     ),
@@ -169,7 +183,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                                   SizedBox(width: 10.w),
                                   Expanded(
                                     child: PriceCard(
-                                      label: 'Stop Loss',
+                                      label: 'Stop',
                                       value: signal?.stopLoss,
                                       color: Colors.red,
                                     ),
@@ -178,7 +192,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                               ),
                               SizedBox(height: 16.h),
 
-                              // ── Take Profit Levels ───────────────
+                              // ── Target Levels ───────────────
                               TakeProfitSection(signal: signal),
 
                               SizedBox(height: 16.h),
@@ -263,7 +277,10 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                               SizedBox(height: 16.h),
 
                               // ── Stats Row ────────────────────────
-                              StatsSection(signal: signal),
+                              StatsSection(
+                                signal: signal,
+                                onReplyTap: _scrollToComments,
+                              ),
 
                               SizedBox(height: 16.h),
 
@@ -299,7 +316,10 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                                 ),
                               SizedBox(height: 24.h),
                               // ── Comments ─────────────────────────────
-                              CommentsSection(signalId: signalId),
+                              KeyedSubtree(
+                                key: _commentsKey,
+                                child: CommentsSection(signalId: signalId),
+                              ),
                               SizedBox(height: 24.h),
                             ],
                           ),
@@ -314,24 +334,29 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: Obx(() {
-            final isCopied = controller.signalDetail?.isCopied == true;
+            final signalId = controller.signalDetail?.sId ?? '';
+            final isCopied = controller.signalDetail?.isCopied == true ||
+                controller.isSignalTracked(signalId);
             return Row(
               children: [
                 Expanded(
                   child: Opacity(
                     opacity: isCopied ? 0.45 : 1,
-                    child: CustomButton(
-                      fontSize: 14.sp,
-                      height: 36.h,
-                      backgroundColor: isCopied
-                          ? AppColors.textSecondary
-                          : AppColors.primaryBTN,
-                      onPressed: isCopied
-                          ? () {}
-                          : () {
-                              _showCopyDialog(context, controller);
-                            },
-                      label: isCopied ? 'Copied' : 'Copy Trade',
+                    child: IgnorePointer(
+                      ignoring: isCopied,
+                      child: CustomButton(
+                        fontSize: 14.sp,
+                        height: 36.h,
+                        backgroundColor: isCopied
+                            ? AppColors.textSecondary
+                            : AppColors.primaryBTN,
+                        onPressed: isCopied
+                            ? null
+                            : () {
+                                _showCopyDialog(context, controller);
+                              },
+                        label: isCopied ? 'Tracked' : 'Tracking',
+                      ),
                     ),
                   ),
                 ),
@@ -364,12 +389,12 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
         return AlertDialog(
           backgroundColor: AppColors.navBackground,
           title: CustomText(
-            text: 'Copy Trading Signal',
+            text: 'Track Trading Signal',
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
           content: CustomText(
-            text: 'Are you sure you want to copy this signal?',
+            text: 'Are you sure you want to track this signal?',
             fontSize: 12.sp,
             color: AppColors.textSecondary,
           ),
@@ -389,7 +414,7 @@ class _SignalsDetailsScreenState extends State<SignalsDetailsScreen> {
                 Get.back();
               },
               child: const CustomText(
-                text: 'Copy Trade',
+                text: 'Tracking',
                 color: AppColors.primary,
                 fontWeight: FontWeight.w700,
               ),

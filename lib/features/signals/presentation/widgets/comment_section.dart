@@ -156,6 +156,20 @@ class _CommentTile extends StatelessWidget {
                     fontSize: 13.sp,
                     color: AppColors.textSecondary,
                   ),
+                  SizedBox(height: 6.h),
+                  GestureDetector(
+                    onTap: () {
+                      SignalsController.to.focusCommentReply(
+                        username: comment.userId?.name,
+                      );
+                    },
+                    child: CustomText(
+                      text: 'Reply',
+                      fontSize: 11.sp,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),

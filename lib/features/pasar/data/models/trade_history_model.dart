@@ -34,6 +34,7 @@ class Trades {
   final MasterId? masterId;
   final String? status;
   final double? entryPrice;
+  final double? stopLoss;
   final double? exitPrice;
   final double? lotSize;
   final int? resultPnl;
@@ -54,6 +55,7 @@ class Trades {
     this.masterId,
     this.status,
     this.entryPrice,
+    this.stopLoss,
     this.exitPrice,
     this.lotSize,
     this.resultPnl,
@@ -80,7 +82,9 @@ class Trades {
           : null,
       status: json['status'],
       entryPrice: (json['entryPrice'] as num?)?.toDouble(),
-      exitPrice: (json['exitPrice'] as num?)?.toDouble(),
+      stopLoss: (json['stopLoss'] as num?)?.toDouble(),
+      exitPrice: (json['exitPrice'] as num?)?.toDouble() ??
+          (json['targetPrice'] as num?)?.toDouble(),
       lotSize: (json['lotSize'] as num?)?.toDouble(),
       resultPnl: (json['resultPnl'] as num?)?.toInt(),
       pnlUnit: json['pnlUnit'] ?? 'usd',
@@ -103,6 +107,7 @@ class Trades {
       'masterId': masterId?.toJson(),
       'status': status,
       'entryPrice': entryPrice,
+      'stopLoss': stopLoss,
       'exitPrice': exitPrice,
       'lotSize': lotSize,
       'resultPnl': resultPnl,
@@ -126,6 +131,8 @@ class SignalId {
   final String? symbol;
   final String? signalType;
   final double? entryPrice;
+  final double? stopLoss;
+  final double? takeProfit1;
   final String? status;
 
   SignalId({
@@ -135,6 +142,8 @@ class SignalId {
     this.symbol,
     this.signalType,
     this.entryPrice,
+    this.stopLoss,
+    this.takeProfit1,
     this.status,
   });
 
@@ -146,6 +155,8 @@ class SignalId {
       symbol: json['symbol'],
       signalType: json['signalType'],
       entryPrice: (json['entryPrice'] as num?)?.toDouble(),
+      stopLoss: (json['stopLoss'] as num?)?.toDouble(),
+      takeProfit1: (json['takeProfit1'] as num?)?.toDouble(),
       status: json['status'],
     );
   }
@@ -158,6 +169,8 @@ class SignalId {
       'symbol': symbol,
       'signalType': signalType,
       'entryPrice': entryPrice,
+      'stopLoss': stopLoss,
+      'takeProfit1': takeProfit1,
       'status': status,
     };
   }

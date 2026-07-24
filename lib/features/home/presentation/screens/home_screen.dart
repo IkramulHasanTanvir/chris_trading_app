@@ -106,12 +106,13 @@ class HomeScreen extends StatelessWidget {
                   }),
                 ],
                 leadingWidth: 0,
+                automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: EdgeInsets.only(left: 16.w, bottom: 12.h),
                   //expandedTitleScale: 2.0,
                   title: GestureDetector(
                     onTap: () {
-                      BottomNavBarController.to.onChange(3);
+                      BottomNavBarController.to.onChange(4);
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Row(
