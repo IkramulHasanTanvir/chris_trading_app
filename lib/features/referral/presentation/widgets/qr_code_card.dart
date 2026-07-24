@@ -63,11 +63,11 @@ class QrCodeCard extends StatelessWidget {
               backgroundColor: AppColors.white,
               eyeStyle: const QrEyeStyle(
                 eyeShape: QrEyeShape.square,
-                color: AppColors.background,
+                color: Color(0xFF0F172A),
               ),
               dataModuleStyle: const QrDataModuleStyle(
                 dataModuleShape: QrDataModuleShape.square,
-                color: AppColors.background,
+                color: Color(0xFF0F172A),
               ),
             ),
           ),

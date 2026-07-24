@@ -32,7 +32,7 @@ class SearchScreen extends SearchDelegate {
     if (query.isEmpty) return [];
     return [
       IconButton(
-        icon: const Icon(Icons.clear, color: AppColors.white),
+        icon: Icon(Icons.clear, color: AppColors.onSurface),
         onPressed: () {
           query = '';
           showSuggestions(context);

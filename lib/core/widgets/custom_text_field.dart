@@ -162,10 +162,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 return null;
               },
 
-          cursorColor: widget.cursorColor ?? Colors.white,
+          cursorColor: widget.cursorColor ?? AppColors.onSurface,
           obscureText: widget.isPassword ? obscureText : false,
           style: TextStyle(
-              color: widget.hintextColor ?? Colors.white,
+              color: widget.hintextColor ?? AppColors.onSurface,
               fontSize: widget.hintextSize ?? 14.h,
               fontWeight: FontWeight.w500,
               fontFamily: widget.fontFamily),
@@ -174,7 +174,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               contentPadding: EdgeInsets.symmetric(
                   horizontal: widget.contentPaddingHorizontal ?? 20.w,
                   vertical: widget.contentPaddingVertical ?? 14.h),
-              fillColor: widget.filColor ?? Color(0xff2B2B36),
+              fillColor: widget.filColor ?? AppColors.fillColor,
               filled: true,
               prefixIcon: widget.prefixIcon != null ? Padding(
                 padding:  EdgeInsets.symmetric(horizontal: 16.w),

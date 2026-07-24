@@ -16,7 +16,7 @@ class CustomSearchTheme {
       scrolledUnderElevation: 0,
       toolbarHeight: 60,
       titleSpacing: 0,
-      iconTheme: const IconThemeData(color: AppColors.white),
+      iconTheme: IconThemeData(color: AppColors.onSurface),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,
         side: BorderSide(color: Color(0xFF2B2B36)),

@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                           onPressed: () {
                             Get.toNamed(AppRoutes.notificationScreen);
                           },
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.notifications_none,
                             color: AppColors.white,
                           ),

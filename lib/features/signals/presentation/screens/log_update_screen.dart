@@ -25,7 +25,7 @@ class LogUpdateScreen extends StatelessWidget {
               expandedHeight: 80.h,
               leading: IconButton(
                 onPressed: () => Get.back(canPop: true),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: Icon(Icons.arrow_back_ios, color: AppColors.onSurface),
               ),
               backgroundColor: AppColors.background,
               elevation: 0,

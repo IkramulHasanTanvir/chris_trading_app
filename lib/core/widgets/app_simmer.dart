@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AppShimmer {
-  // ─── Colors ──────────────────────────────────────────────────────────
-  static const Color _baseColor = Color(0xFF2A2A3A);
-  static const Color _highlightColor = Color(0xFF3E3E52);
-
   // ─── Shimmer wrapper ─────────────────────────────────────────────────
   static Widget wrap({required Widget child}) {
     return Shimmer.fromColors(
-      baseColor: _baseColor,
-      highlightColor: _highlightColor,
+      baseColor: AppColors.shimmerBase,
+      highlightColor: AppColors.shimmerHighlight,
       child: child,
     );
   }

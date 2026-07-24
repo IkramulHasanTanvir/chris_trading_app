@@ -25,7 +25,7 @@ class EditProfileScreen extends StatelessWidget {
             scrolledUnderElevation: 0,
             backgroundColor: AppColors.background,
             elevation: 0,
-            leading: IconButton(onPressed: () => Get.back(canPop: true), icon: const Icon(Icons.arrow_back_ios, color: AppColors.white,)),
+            leading: IconButton(onPressed: () => Get.back(canPop: true), icon: Icon(Icons.arrow_back_ios, color: AppColors.onSurface)),
             flexibleSpace: FlexibleSpaceBar(
               expandedTitleScale: 2.0,
               title: CustomText(

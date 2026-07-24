@@ -55,9 +55,17 @@ class SignalDetailsCard extends StatelessWidget {
           padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14.r),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0B0F2A), Color(0xFF050816)],
-            ),
+            gradient: LinearGradient(colors: AppColors.cardGradient),
+            border: Border.all(color: AppColors.cardBorder),
+            boxShadow: AppColors.isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: AppColors.shadowMedium,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

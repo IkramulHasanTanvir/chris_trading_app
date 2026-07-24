@@ -35,7 +35,7 @@ class BottomNavItem extends StatelessWidget {
               height: 4.h,
               width: isSelected ? 14.w : 0,
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: isSelected ? AppColors.onSurface : AppColors.transparent,
                 borderRadius: BorderRadius.circular(100.r),
               ),
             ),
@@ -47,11 +47,11 @@ class BottomNavItem extends StatelessWidget {
               duration: const Duration(milliseconds: 250),
               child: SvgPicture.asset(
                 navItem.icon,
-                key: ValueKey(isSelected),
+                key: ValueKey('${isSelected}_${AppColors.isDark}'),
                 width: 24.r,
                 height: 24.r,
                 colorFilter: ColorFilter.mode(
-                  isSelected ? AppColors.white : AppColors.textSecondary,
+                  isSelected ? AppColors.onSurface : AppColors.textSecondary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -59,7 +59,7 @@ class BottomNavItem extends StatelessWidget {
             SizedBox(height: 4.h),
             CustomText(text:
               navItem.label ?? '',
-                color: isSelected ? AppColors.white : AppColors.textSecondary,
+                color: isSelected ? AppColors.onSurface : AppColors.textSecondary,
                 fontSize: 10.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
 

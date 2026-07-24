@@ -31,9 +31,9 @@ class LeaderboardScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.white,
+                  color: AppColors.onSurface,
                 ),
               ),
               flexibleSpace: FlexibleSpaceBar(

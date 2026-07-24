@@ -23,15 +23,20 @@ class CustomDialog extends StatelessWidget {
     required this.onTapLeftButton,
     required this.onTapRightButton,
     this.rightButtonBgColor = Colors.transparent,
-    this.rightButtonLabelColor = AppColors.error,
+    this.rightButtonLabelColor,
     this.leftButtonBgColor = Colors.transparent,
-    this.leftButtonLabelColor = AppColors.textSecondary,
+    this.leftButtonLabelColor,
     required this.description,
-    this.titleColor = AppColors.error, this.content,  this.isLoading = false,
+    this.titleColor,
+    this.content,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedTitleColor = titleColor ?? AppColors.error;
+    final resolvedRightLabel = rightButtonLabelColor ?? AppColors.error;
+    final resolvedLeftLabel = leftButtonLabelColor ?? AppColors.textSecondary;
     return Dialog(
       backgroundColor: AppColors.navBackground,
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -44,7 +49,7 @@ class CustomDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Title Text
-                CustomText(text: title, fontSize: 16.sp, color: titleColor),
+                CustomText(text: title, fontSize: 16.sp, color: resolvedTitleColor),
                 SizedBox(height: 20.h),
 
                 Divider(color: AppColors.textSecondary, thickness: 0.5.h),
@@ -73,9 +78,9 @@ class CustomDialog extends StatelessWidget {
                         radius: 100.r,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
-                        bordersColor: leftButtonLabelColor,
+                        bordersColor: resolvedLeftLabel,
                         backgroundColor: leftButtonBgColor,
-                        foregroundColor: leftButtonLabelColor,
+                        foregroundColor: resolvedLeftLabel,
                         onPressed: onTapLeftButton,
                         label: leftButtonLabel!,
                       ),
@@ -87,9 +92,9 @@ class CustomDialog extends StatelessWidget {
                         radius: 100.r,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
-                        bordersColor: rightButtonLabelColor,
+                        bordersColor: resolvedRightLabel,
                         backgroundColor: rightButtonBgColor,
-                        foregroundColor: rightButtonLabelColor,
+                        foregroundColor: resolvedRightLabel,
                         onPressed: onTapRightButton,
                         label: rightButtonLabel!,
                       ),

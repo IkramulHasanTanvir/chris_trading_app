@@ -40,9 +40,9 @@ class NotificationScreen extends StatelessWidget {
               elevation: 0,
               leading: IconButton(
                 onPressed: () => Get.back(canPop: true),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  color: AppColors.white,
+                  color: AppColors.onSurface,
                 ),
               ),
               actions: [

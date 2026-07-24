@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 
@@ -33,15 +32,15 @@ class ProfileListTile extends StatelessWidget {
       color: AppColors.primaryBTN,
       boxShadow: [
         BoxShadow(
-          color: Color(0xffE4E5E7).withOpacity(0.16),
-          blurRadius: 2,
-          offset: Offset(0, 1),
+          color: AppColors.shadowMedium,
+          blurRadius: 8,
+          offset: const Offset(0, 2),
         )
       ],
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null)...[Icon(icon,color: AppColors.white,size: 20.r,),
+          if (icon != null)...[Icon(icon,color: AppColors.pureWhite,size: 20.r,),
             SizedBox(width: 12.w),],
 
           Expanded(
@@ -49,13 +48,13 @@ class ProfileListTile extends StatelessWidget {
               text: title,
               textAlign: TextAlign.start,
               fontWeight: FontWeight.w600,
-              color: textColor ?? AppColors.white,
+              color: textColor ?? AppColors.pureWhite,
             ),
           ),
           if (trailing == null)
             Icon(
               Icons.arrow_forward_ios_outlined,
-              color: AppColors.white,
+              color: AppColors.pureWhite,
               size: 16.r,
             )
           else

@@ -35,10 +35,10 @@ class WithdrawScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: AppColors.white,
-              ),
+              icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.onSurface,
+                ),
             ),
             flexibleSpace: FlexibleSpaceBar(
               expandedTitleScale: 2.0,

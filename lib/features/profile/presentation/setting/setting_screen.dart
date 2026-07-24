@@ -32,9 +32,9 @@ class SettingScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: AppColors.white,
+                color: AppColors.onSurface,
               ),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -65,20 +65,19 @@ class SettingScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 6.h),
                   Obx(() {
-                    final theme = Get.isRegistered<ThemeController>()
-                        ? ThemeController.to
-                        : null;
-                    final isDark = theme?.isDarkMode ?? true;
+                    // Rebuild settings tile when theme flips
+                    final theme = ThemeController.to;
+                    final isDark = theme.isDarkMode;
                     return ProfileListTile(
-                      title: 'Dark Mode',
+                      title: isDark ? 'Dark Mode' : 'Light Mode',
                       trailing: Switch(
                         value: isDark,
                         activeTrackColor: AppColors.primary,
                         onChanged: (value) {
-                          theme?.setDarkMode(value);
+                          theme.setDarkMode(value);
                         },
                       ),
-                      onTap: () => theme?.toggle(),
+                      onTap: () => theme.toggle(),
                     );
                   }),
 

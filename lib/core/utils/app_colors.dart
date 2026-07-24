@@ -1,97 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_task/core/services/theme_controller.dart';
+import 'package:get/get.dart';
 
-/// Application color palette for consistent theming.
+/// Application color palette — theme-aware for dark & light modes.
 ///
-/// This class centralizes all color values used throughout the app, ensuring:
-/// - **Consistency:** All UI elements use the same color values
-/// - **Maintainability:** Change colors app-wide from a single location
-/// - **Design system:** Enforces the app's visual identity
-/// - **Accessibility:** Easy to update colors for contrast/accessibility
-///
-/// **Color Categories:**
-/// - Primary colors: Brand colors and main theme
-/// - Text colors: Typography colors for different contexts
-/// - Background colors: Surface and container colors
-/// - Utility colors: Shadows, overlays, and special effects
-///
-/// **Usage:**
-/// ```dart
-/// Container(
-///   color: AppColors.primary,
-///   child: Text(
-///     'Hello',
-///     style: TextStyle(color: AppColors.textDark),
-///   ),
-/// )
-/// ```
-///
-/// **Naming Convention:**
-/// - Use semantic names (e.g., `textDark`) not hex values
-/// - Group related colors with comments
-/// - Use `const` for static colors
-/// - Use non-const for colors with dynamic alpha values
+/// Brand green stays constant. Surfaces / text adapt to theme.
 class AppColors {
-  // Private constructor to prevent instantiation
   AppColors._();
 
-  // Primary colors
+  static bool get isDark {
+    if (Get.isRegistered<ThemeController>()) {
+      return ThemeController.to.isDarkMode;
+    }
+    return true;
+  }
+
+  // ─── Brand (same in both themes) ─────────────────────────────────
   static const Color primary = Color(0xFF279646);
-  static const Color primaryBTN = Color(0xFF2B2B34);
-  static const Color primaryDark = Color(0xFF388E3C);
+  static const Color primaryDark = Color(0xFF1B7A38);
   static const Color primaryLight = Color(0xFF81C784);
-  static const Color fillColor = Color(0xff2B2B36);
-
-  // Green accents (from design)
-  static const Color greenAccent = Color(0xFF00E676);
+  static const Color greenAccent = Color(0xFF00C853);
   static const Color greenAccentLight = Color(0xFF69F0AE);
-  // Background colors
-  static const Color background = Color(0xFF191932);
-  static const Color backgroundDark = Color(0xFF0D1016);
-  static const Color navBackground = Color(0xFF191826);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color white = Colors.white;
-  static const winBlue = Color(0xFF4A90D9);
-  static const lossRed = Color(0xFFE05A5A);
-  static const barGreen = Color(0xFF4CAF50);
-  static const barRed = Color(0xFFE05A5A);
 
-  // Text colors
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF787878);
-  static const Color textHint = Color(0xFFBDBDBD);
-
-  // Custom text colors from design
-  static const Color textDark = Color(0xFF000743); // Dark navy text
-  static const Color textGray = Color(0xFF868686); // Gray text
-  static const Color textLightGray = Color(0xFF9f9f9f); // Light gray
-  static const Color textMediumGray = Color(0xFF9b9b9b); // Medium gray
-  static const Color textDarkGray = Color(0xFFb4b4b4); // Dark gray
-
-  // Shadow and overlay colors
-  static Color shadowLight = Colors.black.withValues(alpha: 0.05);
-  static Color shadowMedium = Colors.black.withValues(alpha: 0.08);
-  static Color shadowDark = Colors.black.withValues(alpha: 0.25);
-  static const Color textBlack87 = Colors.black87;
-
-  // Shimmer colors
-  static Color shimmerBase = Colors.grey[300]!;
-  static Color shimmerHighlight = Colors.grey[100]!;
-  static Color? shimmerContainer = Colors.grey[200];
-
-  // Banner background colors
-  static const Color bannerPeach = Color(0xFFF8CCAD);
-
-  // Rating and accent colors
+  static const Color winBlue = Color(0xFF4A90D9);
+  static const Color lossRed = Color(0xFFE05A5A);
+  static const Color barGreen = Color(0xFF4CAF50);
+  static const Color barRed = Color(0xFFE05A5A);
+  static const Color error = Color(0xFFD32F2F);
+  static const Color red = Colors.red;
   static const Color rating = Colors.amber;
   static const Color ratingInactive = Color(0xFFE0E0E0);
-
-  // Other colors
-  static const Color error = Color(0xFFD32F2F);
-  static const Color divider = Color(0xFFE0E0E0);
+  static const Color bannerPeach = Color(0xFFF8CCAD);
   static const Color transparent = Colors.transparent;
-  static const Color red = Colors.red;
+  static const Color divider = Color(0xFFE0E0E0);
 
-  // Utility colors
-  static Color grey600 = Color(0xff6C7278);
-  static Color grey700 = Colors.grey[700]!;
+  /// Dark: white · Light: grey[800] — button / tile foreground.
+  static Color get pureWhite =>
+      isDark ? Colors.white : Colors.grey[800]!;
+
+  // ─── Theme-aware surfaces ────────────────────────────────────────
+  /// Soft cool gray in light (not cream), deep navy in dark.
+  static Color get background =>
+      isDark ? const Color(0xFF191932) : const Color(0xFFEEF2F6);
+
+  static Color get backgroundDark =>
+      isDark ? const Color(0xFF0D1016) : const Color(0xFFE2E8F0);
+
+  /// Cards / nav / elevated surfaces
+  static Color get navBackground =>
+      isDark ? const Color(0xFF191826) : const Color(0xFFFFFFFF);
+
+  static Color get surface =>
+      isDark ? const Color(0xFF191826) : const Color(0xFFFFFFFF);
+
+  static Color get fillColor =>
+      isDark ? const Color(0xFF2B2B36) : const Color(0xFFE8EDF2);
+
+  /// Secondary button / tile background
+  static Color get primaryBTN =>
+      isDark ? const Color(0xFF2B2B34) : const Color(0xFFD0D7E0);
+
+  /// Soft card border for light mode
+  static Color get cardBorder =>
+      isDark ? Colors.transparent : const Color(0xFFD8DEE6);
+
+  /// Page / list card gradient
+  static List<Color> get cardGradient => isDark
+      ? const [Color(0xFF0B0F2A), Color(0xFF050816)]
+      : const [Color(0xFFFFFFFF), Color(0xFFF7F9FC)];
+
+  // ─── Theme-aware text ────────────────────────────────────────────
+  /// Primary content text (replaces most old `Colors.white` defaults)
+  static Color get onSurface =>
+      isDark ? Colors.white : const Color(0xFF0F172A);
+
+  /// Legacy name used across the app for foreground on surfaces.
+  /// In light mode this is dark slate so text stays readable.
+  static Color get white => onSurface;
+
+  static Color get textPrimary =>
+      isDark ? const Color(0xFFEEF2F6) : const Color(0xFF0F172A);
+
+  static Color get textSecondary =>
+      isDark ? const Color(0xFF9CA3AF) : const Color(0xFF64748B);
+
+  static Color get textHint =>
+      isDark ? const Color(0xFF6B7280) : const Color(0xFF94A3B8);
+
+  static Color get textDark =>
+      isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
+
+  static Color get textGray => textSecondary;
+  static Color get textLightGray => textHint;
+  static Color get textMediumGray => textSecondary;
+  static Color get textDarkGray =>
+      isDark ? const Color(0xFFB4B4B4) : const Color(0xFF475569);
+
+  static Color get textBlack87 =>
+      isDark ? Colors.white70 : Colors.black87;
+
+  static Color get grey600 =>
+      isDark ? const Color(0xFF6C7278) : const Color(0xFF64748B);
+
+  static Color get grey700 =>
+      isDark ? Colors.grey[700]! : const Color(0xFF334155);
+
+  // ─── Shadows ─────────────────────────────────────────────────────
+  static Color get shadowLight =>
+      Colors.black.withValues(alpha: isDark ? 0.05 : 0.04);
+  static Color get shadowMedium =>
+      Colors.black.withValues(alpha: isDark ? 0.08 : 0.06);
+  static Color get shadowDark =>
+      Colors.black.withValues(alpha: isDark ? 0.25 : 0.10);
+
+  // ─── Shimmer ─────────────────────────────────────────────────────
+  static Color get shimmerBase =>
+      isDark ? const Color(0xFF2A2A3C) : const Color(0xFFE2E8F0);
+  static Color get shimmerHighlight =>
+      isDark ? const Color(0xFF3A3A50) : const Color(0xFFF8FAFC);
+  static Color get shimmerContainer =>
+      isDark ? const Color(0xFF222233) : const Color(0xFFF1F5F9);
 }

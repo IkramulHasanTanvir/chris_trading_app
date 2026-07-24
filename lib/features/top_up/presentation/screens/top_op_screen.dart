@@ -27,7 +27,7 @@ class TopUpScreen extends StatelessWidget {
               onPressed: () {
                 Get.back(canPop: true);
               },
-              icon: const Icon(Icons.arrow_back_ios, color: AppColors.white),
+              icon: Icon(Icons.arrow_back_ios, color: AppColors.onSurface),
             ),
             flexibleSpace: FlexibleSpaceBar(
               expandedTitleScale: 2.0,

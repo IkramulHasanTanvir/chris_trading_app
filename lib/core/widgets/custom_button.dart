@@ -88,7 +88,7 @@ class CustomButton extends StatelessWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(
                   loadingIndicatorColor ??
                       foregroundColor ??
-                      Colors.white,
+                      AppColors.pureWhite,
                 ),
               ),
             )
@@ -102,7 +102,7 @@ class CustomButton extends StatelessWidget {
                   Icon(
                     size: 18.r,
                     prefixIcon ?? Icons.arrow_back,
-                    color: foregroundColor ?? AppColors.white,
+                    color: foregroundColor ?? AppColors.pureWhite,
                   ),
                   SizedBox(width: 8.w),
                 ],
@@ -114,7 +114,7 @@ class CustomButton extends StatelessWidget {
                   Flexible(
                     child: CustomText(
                       text: label ?? '',
-                      color: foregroundColor ?? Colors.white,
+                      color: foregroundColor ?? AppColors.pureWhite,
                       fontName: fontName ?? FontFamily.poppins,
                       fontWeight: fontWeight ?? FontWeight.w600,
                       fontSize: fontSize ?? 15.sp,

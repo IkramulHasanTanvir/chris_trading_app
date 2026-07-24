@@ -166,7 +166,7 @@ class SignalCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Get.back(),
-              child: const CustomText(
+              child: CustomText(
                 text: 'Cancel',
                 color: AppColors.textSecondary,
               ),
