@@ -36,7 +36,7 @@ class AppColors {
 
   /// Dark: white · Light: grey[800] — button / tile foreground.
   static Color get pureWhite =>
-      isDark ? Colors.white : Colors.grey[800]!;
+      isDark ? Colors.white : Colors.black;
 
   // ─── Theme-aware surfaces ────────────────────────────────────────
   /// Soft cool gray in light (not cream), deep navy in dark.

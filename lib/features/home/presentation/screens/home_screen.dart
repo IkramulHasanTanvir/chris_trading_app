@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
             slivers: [
               // ─── Sliver AppBar ───────────────────────────────────────────
               SliverAppBar(
-                expandedHeight: 74.h,
+                expandedHeight: 60.h,
                 pinned: false,
                 floating: false,
                 backgroundColor: AppColors.background,
@@ -108,8 +108,9 @@ class HomeScreen extends StatelessWidget {
                 leadingWidth: 0,
                 automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: false,
                   titlePadding: EdgeInsets.only(left: 16.w, bottom: 12.h),
-                  //expandedTitleScale: 2.0,
+                  expandedTitleScale: 1.2,
                   title: GestureDetector(
                     onTap: () {
                       BottomNavBarController.to.onChange(4);
@@ -136,6 +137,7 @@ class HomeScreen extends StatelessWidget {
                                 'Hello, ${ProfileController.to.userData?.name ?? ''}',
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w700,
+                            textAlign: TextAlign.left,
                           );
                         }),
                       ],
