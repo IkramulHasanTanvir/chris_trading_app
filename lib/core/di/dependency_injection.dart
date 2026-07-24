@@ -1,3 +1,4 @@
+import 'package:flutter_task/core/services/theme_controller.dart';
 import 'package:flutter_task/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter_task/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_task/features/auth/domain/services/auth_services.dart';
@@ -46,6 +47,8 @@ class DependencyInjection {
       await storage.init();
       return storage;
     });
+
+    Get.put<ThemeController>(ThemeController(), permanent: true);
 
     // ✅ Auth — permanent
     Get.put<AuthRepository>(

@@ -9,7 +9,8 @@ import 'package:flutter_task/features/notification/data/models/notification_mode
 import 'package:flutter_task/features/notification/domain/services/notification_services.dart';
 import 'package:get/get.dart';
 
-class NotificationController extends GetxController with PaginatedLoaderUi {
+class NotificationController extends GetxController
+    with PaginatedLoaderUi, WidgetsBindingObserver {
   final NotificationServices _service;
 
   static NotificationController get to => Get.find();
@@ -40,6 +41,7 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     notificationList = PaginatedList<NotificationModel>(
       limit: 10,
       fetchPage: _fetchPage,
@@ -47,6 +49,21 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
     );
     notificationList.initScroll();
     loadData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Pull unread count when app returns to foreground (helps reduce stale delays).
+      _refreshUnreadCountQuietly();
+    }
+  }
+
+  Future<void> _refreshUnreadCountQuietly() async {
+    try {
+      final count = await _service.getUnreadCount();
+      _notificationCount.value = count;
+    } catch (_) {}
   }
 
   Future<List<NotificationModel>> _fetchPage(int page, int limit) async {
@@ -141,6 +158,7 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     notificationList.dispose();
     super.onClose();
   }

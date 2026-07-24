@@ -5,12 +5,26 @@ import 'package:flutter_task/core/di/dependency_injection.dart';
 import 'package:media_kit/media_kit.dart';
 import 'app.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MediaKit.ensureInitialized();
 
-  await CacheService().init();
-  await DependencyInjection.init();
+  try {
+    MediaKit.ensureInitialized();
+  } catch (_) {
+    // Media kit failure should not block app launch.
+  }
+
+  try {
+    await CacheService().init();
+  } catch (_) {
+    // Cache init failure must not crash cold start (esp. offline).
+  }
+
+  try {
+    await DependencyInjection.init();
+  } catch (e, st) {
+    debugPrint('DependencyInjection failed: $e\n$st');
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -20,7 +34,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
     ),
   );
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_task/core/extensions/app_extension.dart';
 import 'package:flutter_task/core/routes/app_routes.dart';
+import 'package:flutter_task/core/services/theme_controller.dart';
 import 'package:flutter_task/core/utils/app_colors.dart';
 import 'package:flutter_task/core/widgets/widgets.dart';
 import 'package:flutter_task/features/profile/presentation/controllers/profile_controller.dart';
@@ -17,7 +18,7 @@ class SettingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           // ─── Sliver AppBar ───────────────────────────────────────────
           SliverAppBar(
@@ -54,6 +55,33 @@ class SettingScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 16.h),
+
+                  CustomText(
+                    text: 'Appearance'.toUpperCase(),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.white,
+                  ),
+                  SizedBox(height: 6.h),
+                  Obx(() {
+                    final theme = Get.isRegistered<ThemeController>()
+                        ? ThemeController.to
+                        : null;
+                    final isDark = theme?.isDarkMode ?? true;
+                    return ProfileListTile(
+                      title: 'Dark Mode',
+                      trailing: Switch(
+                        value: isDark,
+                        activeTrackColor: AppColors.primary,
+                        onChanged: (value) {
+                          theme?.setDarkMode(value);
+                        },
+                      ),
+                      onTap: () => theme?.toggle(),
+                    );
+                  }),
+
                   SizedBox(height: 16.h),
 
                   CustomText(

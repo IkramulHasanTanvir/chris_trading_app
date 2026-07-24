@@ -55,8 +55,12 @@ class ApiService {
         },
 
         onError: (error, handler) async {
-          if (error.response?.data['message'] ==  'jwt expired') {
-            await _cacheService.clear();
+          final data = error.response?.data;
+          final message = data is Map ? data['message']?.toString() : null;
+          if (message == 'jwt expired') {
+            try {
+              await _cacheService.clear();
+            } catch (_) {}
             Get.offAllNamed(AppRoutes.loginScreen);
           }
 

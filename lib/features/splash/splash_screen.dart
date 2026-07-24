@@ -13,24 +13,28 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-
-
-  void _goNextScreen()async {
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (AuthController.to.isLoggedIn()){
-        Get.offAllNamed(AppRoutes.bottomNavUserBar);
-      }else{
-        Get.offNamed(AppRoutes.onboardingScreen);
-      }
-
-    });
-  }
-
   @override
   void initState() {
-   _goNextScreen();
     super.initState();
+    _goNextScreen();
+  }
+
+  Future<void> _goNextScreen() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    try {
+      final loggedIn =
+          Get.isRegistered<AuthController>() && AuthController.to.isLoggedIn();
+      if (loggedIn) {
+        Get.offAllNamed(AppRoutes.bottomNavUserBar);
+      } else {
+        Get.offNamed(AppRoutes.onboardingScreen);
+      }
+    } catch (_) {
+      // Offline / cache issues: fall back to onboarding safely.
+      Get.offNamed(AppRoutes.onboardingScreen);
+    }
   }
 
   @override

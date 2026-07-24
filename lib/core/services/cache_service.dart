@@ -9,9 +9,20 @@ class CacheService {
   Box? _box;
 
   Future<void> init() async {
-    await Hive.initFlutter();
-    _box = await Hive.openBox(_boxName);
+    try {
+      await Hive.initFlutter();
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // Offline / disk issues must not crash cold start.
+      try {
+        _box = await Hive.openBox(_boxName);
+      } catch (_) {
+        _box = null;
+      }
+    }
   }
+
+  bool get isReady => _box != null && _box!.isOpen;
 
   Box get box {
     if (_box == null || !_box!.isOpen) {
@@ -21,10 +32,12 @@ class CacheService {
   }
 
   Future<void> put(String key, dynamic value) async {
+    if (!isReady) return;
     await box.put(key, value);
   }
 
   T? get<T>(String key, {T? defaultValue}) {
+    if (!isReady) return defaultValue;
     try {
       return box.get(key, defaultValue: defaultValue) as T?;
     } catch (_) {
@@ -33,14 +46,21 @@ class CacheService {
   }
 
   bool containsKey(String key) {
-    return box.containsKey(key);
+    if (!isReady) return false;
+    try {
+      return box.containsKey(key);
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> delete(String key) async {
+    if (!isReady) return;
     await box.delete(key);
   }
 
   Future<void> clear() async {
+    if (!isReady) return;
     await box.clear();
   }
 
